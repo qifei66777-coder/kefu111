@@ -280,6 +280,35 @@
       }, 50);
     });
 
+    // —— Emoji 表情面板：Unicode 直插入 textarea ——
+    // 委托到 .wl_faces_main，事件先在这里命中再冒到 body 的 tool_box 关闭逻辑
+    $(document).on('click', '.wl_faces_main .wb-emoji-btn', function (e) {
+      e.preventDefault();
+      var ch = $(this).attr('data-emoji') || $(this).text();
+      var ti = document.getElementById('text_in');
+      if (!ti || !ch) return;
+      // textarea / contenteditable 都兜一下
+      if (typeof ti.value !== 'undefined') {
+        var start = ti.selectionStart;
+        var end = ti.selectionEnd;
+        if (typeof start === 'number' && typeof end === 'number') {
+          ti.value = ti.value.substring(0, start) + ch + ti.value.substring(end);
+          ti.selectionStart = ti.selectionEnd = start + ch.length;
+        } else {
+          ti.value = (ti.value || '') + ch;
+        }
+      } else {
+        ti.textContent = (ti.textContent || '') + ch;
+      }
+      try { ti.focus(); } catch (err) {}
+      // 触发 input 事件，兼容部分库的字数统计
+      try {
+        var ev = document.createEvent('Event');
+        ev.initEvent('input', true, true);
+        ti.dispatchEvent(ev);
+      } catch (err) {}
+    });
+
     // —— 移动端首屏：未选中访客时主动打开列表抽屉，引导用户选择 ——
     if (isMobile()) {
       var hasCu = false;
