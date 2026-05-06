@@ -43,6 +43,8 @@
     if (ip && ip !== '—') $meta.append('<span class="wb-chip">' + ip + '</span>');
     if (reg && reg !== '—') $meta.append('<span class="wb-chip wb-chip-loc">' + reg + '</span>');
     if (!$meta.children().length) $meta.text('设备与 IP 信息将在选中访客后显示');
+    // 选中访客后，移动端自动关闭抽屉，让聊天可见
+    if (isMobile()) wbCloseDrawers();
   };
 
   function wbApplyListFilter(mode) {
@@ -109,19 +111,43 @@
   window.wbOpenImage = wbOpenImage;
 
   // ===== 移动端视图切换 =====
+  // 移动端默认是聊天页（不加 class）；wb-mb-list 显示列表抽屉，wb-mb-side 显示资料抽屉
   function wbMobileShow(view) {
     if (!isMobile()) return;
     var $b = $('body');
-    $b.removeClass('wb-mb-list wb-mb-chat wb-mb-side');
-    if (view === 'chat') $b.addClass('wb-mb-chat');
+    $b.removeClass('wb-mb-list wb-mb-side');
+    if (view === 'list') $b.addClass('wb-mb-list');
     else if (view === 'side') $b.addClass('wb-mb-side');
-    // list 是默认态：不加 class
+    // chat 是默认态：不加 class
+  }
+
+  function wbCloseDrawers() {
+    $('body').removeClass('wb-mb-list wb-mb-side');
+  }
+
+  // 同步顶栏"切换客户"按钮上的未读数量徽章
+  function wbSyncBackBadge() {
+    if (!isMobile()) return;
+    var total = 0;
+    $('#chat_list .visiter').each(function () {
+      var n = parseInt($(this).attr('data-wb-unread') || '0', 10) || 0;
+      total += n;
+    });
+    var $badge = $('#wb_back_badge');
+    if (!$badge.length) return;
+    if (total > 0) {
+      $badge.text(total > 99 ? '99+' : total).removeClass('hide');
+    } else {
+      $badge.text('').addClass('hide');
+    }
   }
 
   $(window).on('resize', function () {
     wbListHeight();
     if (!isMobile()) {
-      $('body').removeClass('wb-mb-list wb-mb-chat wb-mb-side');
+      $('body').removeClass('wb-mb-list wb-mb-side');
+    } else {
+      wbSyncBackBadge();
     }
   });
 
@@ -148,15 +174,10 @@
       }
     });
 
-    // —— Rail 跳转/快捷回复 ——
+    // —— Rail 跳转/快捷回复（rail 在移动端隐藏，不会触发 mobile 分支） ——
     $(document).on('click', '.wb-rail-item[data-wb-rail="reply"]', function () {
-      if (isMobile()) wbMobileShow('side');
       var $scroll = $('.wb-card-reply .wb-reply-bd');
       if ($scroll.length) $scroll.animate({ scrollTop: 0 }, 200);
-    });
-
-    $(document).on('click', '.wb-rail-item[data-wb-rail="chat"]', function () {
-      if (isMobile()) wbMobileShow('list');
     });
 
     // —— Rail 折叠（仅桌面） ——
@@ -191,24 +212,40 @@
       if (typeof window.getvideo === 'function') window.getvideo();
     });
 
-    // —— 移动端：选中会话进入聊天 ——
-    $(document).on('click', '#chat_list .visit_content', function () {
-      if (isMobile()) wbMobileShow('chat');
+    // —— 移动端：选中会话进入聊天（默认就是聊天，关掉列表抽屉即可） ——
+    $(document).on('click', '#chat_list .visit_content, #wait_list .visiter', function () {
+      if (isMobile()) wbCloseDrawers();
     });
 
-    // —— 聊天头部：返回会话列表（仅手机） ——
+    // —— 顶栏 "切换客户"：打开会话列表抽屉（手机） ——
     $(document).on('click', '#wb_chat_back', function () {
       wbMobileShow('list');
     });
 
-    // —— 聊天头部：打开右侧资料（仅手机） ——
+    // —— 顶栏 "资料"：打开右侧资料抽屉（手机） ——
     $(document).on('click', '#wb_chat_info', function () {
       wbMobileShow('side');
     });
 
-    // —— 资料抽屉关闭按钮（仅手机） ——
+    // —— 资料抽屉关闭按钮 ——
     $(document).on('click', '#wb_side_close', function () {
-      wbMobileShow('chat');
+      wbCloseDrawers();
+    });
+
+    // —— 点击抽屉遮罩关闭抽屉 ——
+    $(document).on('click', function (e) {
+      if (!isMobile()) return;
+      var $b = $('body');
+      if (!$b.hasClass('wb-mb-list') && !$b.hasClass('wb-mb-side')) return;
+      var t = e.target;
+      if (!t) return;
+      // 点击的元素如果在抽屉里或在抽屉触发按钮上，都不处理
+      var insideDrawer = $(t).closest('.wb-pane-list, .wb-pane-side, #wb_chat_back, #wb_chat_info, #wb_side_close').length > 0;
+      if (insideDrawer) return;
+      // 仅当点击的就是 body（::after 遮罩 hit 到 body 上）才关闭
+      if (t === document.body) {
+        wbCloseDrawers();
+      }
     });
 
     // —— 图片消息点击放大（不影响表情/头像） ——
@@ -235,11 +272,24 @@
       clearTimeout(obsTimer);
       obsTimer = setTimeout(function () {
         wbSyncFilterCounts();
+        wbSyncBackBadge();
         var mode = $('.wb-list-filters .wb-pill.is-active').data('wb-filter');
         if (mode && mode !== 'queue') {
           wbApplyListFilter(mode === 'all' ? 'all' : mode);
         }
       }, 50);
     });
+
+    // —— 移动端首屏：未选中访客时主动打开列表抽屉，引导用户选择 ——
+    if (isMobile()) {
+      var hasCu = false;
+      try {
+        var cu = (typeof $.cookie === 'function') ? $.cookie('cu_com') : null;
+        hasCu = !!(cu && cu.length > 4);
+      } catch (e) { hasCu = false; }
+      if (!hasCu) {
+        setTimeout(function () { wbMobileShow('list'); }, 300);
+      }
+    }
   });
 })(window.jQuery);

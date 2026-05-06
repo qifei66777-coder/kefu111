@@ -48,14 +48,19 @@
         <section class="wb-pane-chat">
             <div class="wb-chat-inner">
             <div class="wb-chat-top">
-                <button type="button" class="wb-mb-only" id="wb_chat_back" aria-label="返回会话列表" title="返回会话列表"><i class="layui-icon">&#xe603;</i></button>
+                <button type="button" class="wb-mb-only wb-mb-pill" id="wb_chat_back" aria-label="切换客户" title="切换客户">
+                    <i class="layui-icon">&#xe65c;</i><span class="wb-mb-pill-text">切换客户</span>
+                    <span class="wb-mb-badge hide" id="wb_back_badge"></span>
+                </button>
                 <div class="wb-chat-top-l">
                     <span class="wb-chat-top-name" id="wb_chat_title">请选择会话</span>
                     <div class="wb-chat-top-meta" id="wb_chat_meta_line">设备与 IP 信息将在选中访客后显示</div>
                 </div>
                 <div class="wb-chat-top-actions">
                     <button type="button" class="wb-btn-ban" id="wb_header_ban_ip">封禁 IP</button>
-                    <button type="button" class="wb-mb-only" id="wb_chat_info" aria-label="查看资料" title="查看资料"><i class="layui-icon">&#xe612;</i></button>
+                    <button type="button" class="wb-mb-only wb-mb-pill" id="wb_chat_info" aria-label="客户资料" title="客户资料">
+                        <i class="layui-icon">&#xe612;</i><span class="wb-mb-pill-text">资料</span>
+                    </button>
                 </div>
             </div>
             <div class="no_chats">

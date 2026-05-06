@@ -591,20 +591,45 @@ body.wb-rail-collapsed .wb-rail-item { min-height: 44px; padding: 6px 2px; }
 
 .wb-mb-only {
   display: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: 0;
-  background: transparent;
-  color: var(--wb-text-2);
-  cursor: pointer;
   align-items: center;
   justify-content: center;
 }
 
-.wb-mb-only:hover { background: #f5f7fb; }
+.wb-mb-pill {
+  position: relative;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 18px;
+  border: 1px solid var(--wb-border);
+  background: #fff;
+  color: var(--wb-text-2);
+  cursor: pointer;
+  gap: 4px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
 
-.wb-mb-only .layui-icon { font-size: 22px; }
+.wb-mb-pill:active { background: #f1f5f9; }
+.wb-mb-pill .layui-icon { font-size: 16px; line-height: 1; }
+.wb-mb-pill .wb-mb-pill-text { font-size: 13px; line-height: 1; white-space: nowrap; }
+
+.wb-mb-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  font-weight: 600;
+  box-shadow: 0 0 0 2px #fff;
+}
+.wb-mb-badge.hide { display: none !important; }
 
 /* ===== 聊天框 ===== */
 .wb-chatbox-wrap {
@@ -1224,118 +1249,132 @@ body.wb-rail-collapsed .wb-rail-item { min-height: 44px; padding: 6px 2px; }
   .wb-chat-top { padding: 10px 14px; }
 }
 
-/* ===== 移动端：单栏抽屉 ===== */
+/* ===== 移动端：聊天为主，列表/资料以抽屉形式覆盖 ===== */
 @media (max-width: 900px) {
-  body.wb-modern .wb-root#container {
-    overflow: hidden !important;
-  }
+  body.wb-modern .wb-root#container { overflow: hidden !important; }
 
   .wb-workbench { flex-direction: column; }
 
-  /* Rail 收起到底部条 */
-  .wb-rail {
-    order: 99;
-    flex: 0 0 56px;
-    width: 100%;
-    height: 56px;
-    min-width: 0;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    padding: 4px 8px;
-    border-top: 1px solid var(--wb-border);
-    border-right: 0;
-    gap: 0;
-    box-shadow: 0 -2px 12px rgba(15, 23, 42, .04);
-  }
-  .wb-rail-logo { display: none; }
-  .wb-rail-spacer, .wb-rail-foot, .wb-rail-collapse { display: none; }
-  .wb-rail-item {
-    flex: 1;
-    min-height: 48px;
-    padding: 4px 2px;
-  }
-  .wb-rail-item .wb-rail-label { font-size: 11px; }
+  /* 完全隐藏左侧 rail（移动端不需要主导航 chrome；常用功能在聊天页内的按钮上） */
+  .wb-rail { display: none !important; }
 
   .wb-main {
     flex: 1;
     min-height: 0;
     width: 100%;
+    height: 100%;
     position: relative;
     overflow: hidden;
   }
 
-  /* 三栏改为绝对覆盖，由 body 类切换 */
-  .wb-pane-list,
-  .wb-pane-chat,
-  .wb-pane-side {
+  /* 默认显示聊天，列表与资料改为可滑入的抽屉 */
+  .wb-pane-chat {
     position: absolute !important;
     inset: 0 !important;
     width: 100% !important;
     flex-basis: auto !important;
     border-right: 0 !important;
-    transform: translateX(0);
-    transition: transform .25s ease;
-    background: var(--wb-list-bg);
+    z-index: 1;
   }
-  .wb-pane-chat { background: var(--wb-chat-bg); }
-  .wb-pane-side { background: #fff; z-index: 5; }
 
-  /* 默认进入：显示列表 */
-  body.wb-modern:not(.wb-mb-chat):not(.wb-mb-side) .wb-pane-chat { transform: translateX(100%); pointer-events: none; }
-  body.wb-modern:not(.wb-mb-chat):not(.wb-mb-side) .wb-pane-side { transform: translateX(100%); pointer-events: none; }
+  .wb-pane-list,
+  .wb-pane-side {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: min(86vw, 360px) !important;
+    flex-basis: auto !important;
+    border-right: 0 !important;
+    z-index: 30;
+    box-shadow: 0 12px 40px rgba(15, 23, 42, .25);
+    transform: translateX(0);
+    transition: transform .26s ease;
+    background: #fff;
+  }
 
-  /* 选中会话：显示聊天 */
-  body.wb-modern.wb-mb-chat .wb-pane-list { transform: translateX(-100%); pointer-events: none; }
-  body.wb-modern.wb-mb-chat .wb-pane-side { transform: translateX(100%); pointer-events: none; }
-  body.wb-modern.wb-mb-chat .wb-pane-chat { transform: translateX(0); }
+  .wb-pane-list { left: 0 !important; transform: translateX(-105%); }
+  .wb-pane-side { right: 0 !important; transform: translateX(105%); }
 
-  /* 打开资料：显示侧栏 */
-  body.wb-modern.wb-mb-side .wb-pane-list { transform: translateX(-100%); pointer-events: none; }
-  body.wb-modern.wb-mb-side .wb-pane-chat { transform: translateX(-100%); pointer-events: none; }
+  body.wb-modern.wb-mb-list .wb-pane-list { transform: translateX(0); }
   body.wb-modern.wb-mb-side .wb-pane-side { transform: translateX(0); }
 
-  /* 顶部 chat header 显示返回/资料按钮 */
+  /* 抽屉遮罩 */
+  body.wb-modern.wb-mb-list::after,
+  body.wb-modern.wb-mb-side::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .35);
+    z-index: 25;
+    animation: wb-fade-in .2s ease-out;
+  }
+
+  /* 顶部 chat header 显示移动端按钮 */
   .wb-mb-only { display: inline-flex !important; }
 
-  .wb-chat-top { padding: 10px 12px; min-height: 56px; }
+  .wb-chat-top {
+    padding: 10px 12px !important;
+    min-height: 56px;
+    gap: 8px;
+    align-items: center;
+    box-shadow: 0 1px 0 var(--wb-border);
+  }
+  .wb-chat-top-l { gap: 2px; flex: 1; min-width: 0; }
   .wb-chat-top-name { font-size: 15px; }
   .wb-chat-top-meta { font-size: 11px; }
+  .wb-chat-top-meta .wb-chip { padding: 0 6px; max-width: 110px; }
   .wb-btn-ban { display: none; }
 
+  /* 列表抽屉内的列表头部更紧凑 */
   .wb-pane-list .wb-list-head { padding: 12px 12px 8px; }
   .wb-pane-list .wb-list-filters { padding: 4px 12px 8px; }
 
   .wb-card-cust { max-height: none; }
   .wb-card-reply { min-height: 220px; }
 
-  /* 聊天区域 padding 收小 */
+  /* 聊天区域 */
   .wb-root #wrap { padding: 14px 12px; }
-  .wb-root .outer-left { margin-left: 50px; margin-right: 30px; max-width: 84%; }
-  .wb-root .outer-right { margin-right: 50px; margin-left: 30px; max-width: 84%; }
+  .wb-root .conversation { max-width: 100%; }
+  .wb-root .outer-left { margin-left: 48px; margin-right: 24px; max-width: 86%; }
+  .wb-root .outer-right { margin-right: 48px; margin-left: 24px; max-width: 86%; }
+  .wb-root .conversation .se_pic,
+  .wb-root .conversation .my-circle { width: 36px !important; height: 36px !important; }
   .wb-root .conversation .chatmsg > div[style*="float: right"] { right: 4px !important; }
+  .wb-root .conversation .chatmsg > div[style*="left:3px"],
+  .wb-root .conversation .chatmsg > div[style*="left: 3px"] { left: 4px !important; }
 
-  /* 输入栏 + 工具条简化 */
+  /* 输入栏紧凑 */
   .wb-root .footer { padding: 6px 10px 8px; }
   .wb-root .msg-toolbar { gap: 2px; }
   .wb-root .msg-toolbar > a { width: 30px; height: 30px; }
   .wb-root .msg-toolbar #paste { display: none; }
   .wb-input-hint { display: none; }
-  .wb-root #text_in { min-height: 44px !important; padding: 8px 10px !important; font-size: 14px; }
+  .wb-root #text_in { min-height: 44px !important; max-height: 88px !important; padding: 8px 10px !important; font-size: 14px; }
   .wb-root .msg-send-btn { min-height: 44px; padding: 0 16px !important; }
   .wb-root .showinfo { display: none !important; }
+
+  /* 没选中会话时 chatbox 是 .hide，no_chats 占位会显示。给它一个友好提示 */
+  .wb-root .no_chats {
+    flex-direction: column;
+    gap: 14px;
+    color: var(--wb-text-3);
+    font-size: 14px;
+  }
 }
 
 @media (max-width: 480px) {
   .wb-root .v-avatar { width: 40px !important; height: 40px !important; }
-  .wb-root .visiter { padding-left: 64px !important; min-height: 72px; }
-  .wb-root .v-avatar { left: 12px !important; top: 14px !important; }
-  .wb-root .c_name { font-size: 14px !important; padding-right: 50px; }
-  .wb-root .c_time { right: 12px !important; top: 14px !important; }
-  .wb-root .notice-icon { right: 12px !important; top: 38px !important; }
+  .wb-root .visiter { padding-left: 60px !important; min-height: 70px; margin: 4px 4px; }
+  .wb-root .v-avatar { left: 10px !important; top: 12px !important; }
+  .wb-root .c_name { font-size: 14px !important; padding-right: 46px; }
+  .wb-root .c_time { right: 10px !important; top: 12px !important; font-size: 10px !important; }
+  .wb-root .notice-icon { right: 10px !important; top: 34px !important; }
   .wb-card-hd { padding: 12px 14px 8px; font-size: 13px; }
   .wb-card-bd { padding: 10px 14px 14px; }
-  .wb-kv { grid-template-columns: 76px 1fr; }
+  .wb-kv { grid-template-columns: 72px 1fr; }
+  .wb-mb-pill .wb-mb-pill-text { font-size: 12px; }
+  .wb-chat-top-name { font-size: 14px; }
+  .wb-chat-top-meta { display: none; }
 }
 
 /* 防止 layer 等老插件破坏布局 */
