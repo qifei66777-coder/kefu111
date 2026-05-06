@@ -37,7 +37,7 @@
         if (pic == "") {
             pic = "__image__/index/avatar-red2.png";
         }
-        var SCAN_WELCOME = {$scan_welcome_json|raw};
+        var SCAN_WELCOME = <?php echo isset($scan_welcome_json) ? $scan_welcome_json : 'null'; ?>;
          var service_id=0;
         function a() {
             var e = document.getElementById("chat-message-audio-source").src

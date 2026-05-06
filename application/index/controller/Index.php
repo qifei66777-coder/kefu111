@@ -193,9 +193,9 @@ class Index extends Controller
         }
 
         $extendsJson = '';
-        if (is_file(VENDOR . 'phpuseragent/lib/phpUserAgent.php')) {
-            include_once VENDOR . 'phpuseragent/lib/phpUserAgent.php';
-            include_once VENDOR . 'phpuseragent/lib/phpUserAgentStringParser.php';
+        if (is_file(VENDOR_PATH . 'phpuseragent/lib/phpUserAgent.php')) {
+            include_once VENDOR_PATH . 'phpuseragent/lib/phpUserAgent.php';
+            include_once VENDOR_PATH . 'phpuseragent/lib/phpUserAgentStringParser.php';
             $ua = new \phpUserAgent();
             $extendsJson = json_encode([
                 'browserName'    => $ua->getBrowserNameCn(),
