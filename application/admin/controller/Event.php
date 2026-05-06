@@ -458,8 +458,9 @@ class Event extends Controller
         $arr['visiter_id'] = htmlspecialchars($arr['visiter_id']);
         $arr["channel"] = bin2hex($arr['visiter_id'] . '/' . $arr['business_id']);
         $arr['ip'] = $ip;
-        include VENDOR.'phpuseragent/lib/phpUserAgent.php';
-        include VENDOR.'phpuseragent/lib/phpUserAgentStringParser.php';
+        // 与 application/index/controller/Index.php 一致使用 VENDOR_PATH，避免 "Use of undefined constant VENDOR" 致命错误
+        include VENDOR_PATH . 'phpuseragent/lib/phpUserAgent.php';
+        include VENDOR_PATH . 'phpuseragent/lib/phpUserAgentStringParser.php';
         $ua = new \phpUserAgent();
         $arr['extends'] = json_encode(['browserName'    => $ua->getBrowserNameCn(),
             'browserVersion' => $ua->getBrowserVersion(),

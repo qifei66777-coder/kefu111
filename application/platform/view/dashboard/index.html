@@ -1,0 +1,325 @@
+<script type="text/javascript" src="__libs__/echarts/echarts.min.js?v=__lkversion__"></script>
+<style>
+    .pf-dash {
+        min-height: calc(100vh - 320px);
+        padding: 18px 0 32px;
+        color: #0f172a;
+    }
+    .pf-dash-hero {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-end;
+        margin-bottom: 16px;
+    }
+    .pf-dash-hero h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -.03em;
+    }
+    .pf-dash-hero p {
+        margin: 8px 0 0;
+        color: #64748b;
+        font-size: 13px;
+    }
+    .pf-dash-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+    .pf-card {
+        background: #fff;
+        border: 1px solid #e8eef6;
+        border-radius: 16px;
+        box-shadow: 0 14px 36px rgba(15, 23, 42, .06);
+    }
+    .pf-metric {
+        padding: 18px;
+        min-height: 118px;
+    }
+    .pf-metric .k {
+        color: #64748b;
+        font-size: 13px;
+    }
+    .pf-metric .v {
+        margin-top: 10px;
+        font-size: 30px;
+        line-height: 1.1;
+        font-weight: 800;
+        color: #0f172a;
+    }
+    .pf-metric .sub {
+        margin-top: 10px;
+        color: #94a3b8;
+        font-size: 12px;
+    }
+    .pf-section-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr);
+        gap: 14px;
+        margin-top: 14px;
+    }
+    .pf-card-hd {
+        height: 50px;
+        padding: 0 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #eef2f7;
+        font-weight: 700;
+    }
+    .pf-card-bd {
+        padding: 16px 18px 18px;
+    }
+    .pf-chart {
+        height: 330px;
+        width: 100%;
+    }
+    .pf-pie {
+        height: 280px;
+        width: 100%;
+    }
+    .pf-table {
+        width: 100%;
+        margin: 0;
+        color: #334155;
+        background: #fff;
+    }
+    .pf-table th {
+        color: #64748b;
+        background: #f8fafc;
+        font-weight: 700;
+        border-top: 0;
+    }
+    .pf-table td,
+    .pf-table th {
+        padding: 11px 10px;
+        border-color: #eef2f7;
+        font-size: 13px;
+    }
+    .pf-tag-ok,
+    .pf-tag-off {
+        display: inline-flex;
+        align-items: center;
+        height: 22px;
+        padding: 0 8px;
+        border-radius: 999px;
+        font-size: 12px;
+    }
+    .pf-tag-ok {
+        color: #0f8a3b;
+        background: #dcfce7;
+    }
+    .pf-tag-off {
+        color: #64748b;
+        background: #f1f5f9;
+    }
+    @media (max-width: 1180px) {
+        .pf-dash-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .pf-section-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+        .pf-dash-grid { grid-template-columns: 1fr; }
+        .pf-dash-hero { display: block; }
+    }
+</style>
+
+<div class="pf-dash">
+    <div class="pf-dash-hero">
+        <div>
+            <h2>数据中心</h2>
+            <p>统计当前平台管理员名下全部应用，数据直接来自现有业务表。</p>
+        </div>
+    </div>
+
+    <div class="pf-dash-grid" id="pf-cards"></div>
+
+    <div class="pf-section-grid">
+        <div class="pf-card">
+            <div class="pf-card-hd">最近 7 天趋势</div>
+            <div class="pf-card-bd">
+                <div id="pf-chart-trend" class="pf-chart"></div>
+            </div>
+        </div>
+        <div class="pf-card">
+            <div class="pf-card-hd">设备分布</div>
+            <div class="pf-card-bd">
+                <div id="pf-chart-device" class="pf-pie"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pf-section-grid">
+        <div class="pf-card">
+            <div class="pf-card-hd">客服接待排行</div>
+            <div class="pf-card-bd" style="overflow-x:auto;">
+                <table class="table pf-table">
+                    <thead><tr><th>客服</th><th>应用</th><th>状态</th><th>接待访客</th><th>消息</th><th>扫码访客</th></tr></thead>
+                    <tbody id="pf-service-rank"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="pf-card">
+            <div class="pf-card-hd">地区分布</div>
+            <div class="pf-card-bd" style="overflow-x:auto;">
+                <table class="table pf-table">
+                    <thead><tr><th>地区</th><th>扫码</th><th>访客</th></tr></thead>
+                    <tbody id="pf-region-rank"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="pf-section-grid">
+        <div class="pf-card">
+            <div class="pf-card-hd">二维码渠道排行</div>
+            <div class="pf-card-bd" style="overflow-x:auto;">
+                <table class="table pf-table">
+                    <thead><tr><th>ID</th><th>备注</th><th>客服</th><th>总扫码</th><th>今日扫码</th><th>状态</th><th>最近扫码</th></tr></thead>
+                    <tbody id="pf-channel-rank"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="pf-card">
+            <div class="pf-card-hd">应用预览</div>
+            <div class="pf-card-bd" style="overflow-x:auto;">
+                <table class="table pf-table">
+                    <thead><tr><th>应用</th><th>在线客服</th><th>今日消息</th><th>状态</th></tr></thead>
+                    <tbody id="pf-business-preview"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var api = {
+        overview: "{:url('platform/dashboard/overview')}",
+        trend: "{:url('platform/dashboard/trend')}",
+        deviceStats: "{:url('platform/dashboard/deviceStats')}",
+        serviceRank: "{:url('platform/dashboard/serviceRank')}",
+        regionStats: "{:url('platform/dashboard/regionStats')}",
+        channelRank: "{:url('platform/dashboard/channelRank')}",
+        businessPreview: "{:url('platform/dashboard/businessPreview')}"
+    };
+    var trendChart = echarts.init(document.getElementById('pf-chart-trend'));
+    var deviceChart = echarts.init(document.getElementById('pf-chart-device'));
+
+    function esc(s) {
+        if (s == null) return '';
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    }
+    function statusTag(state) {
+        return state === 'online' || state === 0 || state === '0'
+            ? '<span class="pf-tag-ok">正常</span>'
+            : '<span class="pf-tag-off">离线/停用</span>';
+    }
+    function channelStatusTag(status) {
+        return parseInt(status, 10) === 1 ? '<span class="pf-tag-ok">启用</span>' : '<span class="pf-tag-off">停用</span>';
+    }
+    function fillEmpty($el, colspan, text) {
+        $el.html('<tr><td colspan="' + colspan + '" class="text-center text-muted">' + esc(text || '暂无数据') + '</td></tr>');
+    }
+
+    $.get(api.overview, function (res) {
+        if (!res || res.code !== 0) return;
+        var d = res.data || {};
+        var cards = [
+            { k: '今日扫码数', v: d.today_scan_count, sub: '二维码扫码日志' },
+            { k: '今日访客数', v: d.today_visitor_count, sub: '今日活跃访客' },
+            { k: '今日消息数', v: d.today_message_count, sub: '客服会话消息' },
+            { k: '在线客服数', v: d.online_service_count, sub: 'state=online' },
+            { k: '黑名单总数', v: d.total_blacklist_count, sub: '生效中的 IP 黑名单' },
+            { k: '今日新增渠道', v: d.today_channel_count, sub: '新建二维码渠道' }
+        ];
+        var html = '';
+        cards.forEach(function (c) {
+            html += '<div class="pf-card pf-metric"><div class="k">' + esc(c.k) + '</div><div class="v">' + esc(c.v || 0) + '</div><div class="sub">' + esc(c.sub) + '</div></div>';
+        });
+        $('#pf-cards').html(html);
+    }, 'json');
+
+    $.get(api.trend, function (res) {
+        if (!res || res.code !== 0) return;
+        var rows = res.data || [];
+        var dates = [], scans = [], visitors = [], msgs = [];
+        rows.forEach(function (r) {
+            dates.push(r.date);
+            scans.push(r.scan_count);
+            visitors.push(r.visitor_count);
+            msgs.push(r.message_count);
+        });
+        trendChart.setOption({
+            color: ['#1677ff', '#22c55e', '#f59e0b'],
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['扫码数', '访客数', '消息数'] },
+            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+            xAxis: { type: 'category', boundaryGap: false, data: dates },
+            yAxis: { type: 'value' },
+            series: [
+                { name: '扫码数', type: 'line', smooth: true, data: scans },
+                { name: '访客数', type: 'line', smooth: true, data: visitors },
+                { name: '消息数', type: 'line', smooth: true, data: msgs }
+            ]
+        });
+    }, 'json');
+
+    $.get(api.deviceStats, function (res) {
+        if (!res || res.code !== 0) return;
+        var pie = [];
+        (res.data || []).forEach(function (r) {
+            pie.push({ name: r.device, value: r.count });
+        });
+        deviceChart.setOption({
+            color: ['#1677ff', '#22c55e', '#f59e0b', '#94a3b8'],
+            tooltip: { trigger: 'item' },
+            legend: { bottom: 0 },
+            series: [{ type: 'pie', radius: ['42%', '66%'], label: { formatter: '{b}\\n{d}%' }, data: pie }]
+        });
+    }, 'json');
+
+    $.get(api.serviceRank, { limit: 10 }, function (res) {
+        if (!res || res.code !== 0) return;
+        var h = '';
+        (res.data || []).forEach(function (r) {
+            var name = r.nick_name || r.user_name || ('#' + r.service_id);
+            h += '<tr><td>' + esc(name) + '</td><td>' + esc(r.business_name) + '</td><td>' + statusTag(r.state) + '</td><td>' + esc(r.today_receive_visitor) + '</td><td>' + esc(r.today_message_count) + '</td><td>' + esc(r.today_scan_visitor_count) + '</td></tr>';
+        });
+        h ? $('#pf-service-rank').html(h) : fillEmpty($('#pf-service-rank'), 6);
+    }, 'json');
+
+    $.get(api.regionStats, { limit: 10 }, function (res) {
+        if (!res || res.code !== 0) return;
+        var h = '';
+        (res.data || []).forEach(function (r) {
+            h += '<tr><td>' + esc(r.region) + '</td><td>' + esc(r.scan_count) + '</td><td>' + esc(r.visitor_count) + '</td></tr>';
+        });
+        h ? $('#pf-region-rank').html(h) : fillEmpty($('#pf-region-rank'), 3);
+    }, 'json');
+
+    $.get(api.channelRank, { limit: 10 }, function (res) {
+        if (!res || res.code !== 0) return;
+        var h = '';
+        (res.data || []).forEach(function (r) {
+            h += '<tr><td>' + esc(r.channel_id) + '</td><td>' + esc(r.remark) + '</td><td>' + esc(r.service_nickname) + '</td><td>' + esc(r.scan_count) + '</td><td>' + esc(r.today_scan_count) + '</td><td>' + channelStatusTag(r.status) + '</td><td>' + esc(r.last_scan_time) + '</td></tr>';
+        });
+        h ? $('#pf-channel-rank').html(h) : fillEmpty($('#pf-channel-rank'), 7);
+    }, 'json');
+
+    $.get(api.businessPreview, { limit: 8 }, function (res) {
+        if (!res || res.code !== 0) return;
+        var h = '';
+        (res.data || []).forEach(function (r) {
+            h += '<tr><td>' + esc(r.business_name) + '</td><td>' + esc(r.online_svc_count) + '</td><td>' + esc(r.today_msg_count) + '</td><td>' + statusTag(parseInt(r.is_recycle, 10)) + '</td></tr>';
+        });
+        h ? $('#pf-business-preview').html(h) : fillEmpty($('#pf-business-preview'), 4);
+    }, 'json');
+
+    $(window).on('resize', function () {
+        trendChart.resize();
+        deviceChart.resize();
+    });
+})();
+</script>

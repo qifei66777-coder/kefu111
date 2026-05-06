@@ -15,6 +15,7 @@ class Menu
     private static $permission;
 
     public static $route = [
+        'platform/dashboard/index',
         'platform/user/me',
         'platform/app/index',
         'platform/app/edit',
@@ -97,6 +98,49 @@ class Menu
     public static function getMenu()
     {
         return [
+            [
+                'name' => '数据中心',
+                'route' => 'platform/dashboard/index',
+                'icon' => 'icon-liebiao',
+                'is_admin' => false,
+                'sub' => [
+                    [
+                        'name' => '数据概览',
+                        'route' => 'platform/dashboard/overview',
+                        'is_admin' => false,
+                    ],
+                    [
+                        'name' => '趋势统计',
+                        'route' => 'platform/dashboard/trend',
+                        'is_admin' => false,
+                    ],
+                    [
+                        'name' => '设备统计',
+                        'route' => 'platform/dashboard/devicestats',
+                        'is_admin' => false,
+                    ],
+                    [
+                        'name' => '地区统计',
+                        'route' => 'platform/dashboard/regionstats',
+                        'is_admin' => false,
+                    ],
+                    [
+                        'name' => '客服排行',
+                        'route' => 'platform/dashboard/servicerank',
+                        'is_admin' => false,
+                    ],
+                    [
+                        'name' => '渠道排行',
+                        'route' => 'platform/dashboard/channelrank',
+                        'is_admin' => false,
+                    ],
+                    [
+                        'name' => '应用预览',
+                        'route' => 'platform/dashboard/businesspreview',
+                        'is_admin' => false,
+                    ],
+                ],
+            ],
             [
                 'name' => '账户管理',
                 'route' => '',

@@ -1,100 +1,77 @@
 {include file="public/header"/}
 <script type="text/javascript" src='__libs__/echarts/echarts.min.js'></script>
-<div id="container" style="overflow-y: auto">
-    <div class="layui-fluid">
-        <div class="layui-col-sm12">
-            <div class="layui-card">
-              <div class="layui-card-header" style="font-size:20px;">
-                  数据总览
-              </div>    
-            </div>
+<style>
+    #adm-home-wrap { padding: 16px 18px 32px; overflow-y: auto; overflow-x: hidden; max-width: 100%; box-sizing: border-box; }
+    .adm-home-chart { height: 420px; width: 100%; min-height: 280px; }
+</style>
+<div id="container" class="adm-content-shell">
+  <div id="adm-home-wrap" class="layui-fluid">
+
+    <div class="adm-dash-hero">
+      <h2 class="page-header">数据总览</h2>
+      <p style="color:#8c8c8c;font-size:13px;margin:0 0 14px;">实时统计当前商户的客服与访客接待数据。</p>
+      <div class="adm-metric-grid">
+        <div class="adm-metric-card">
+          <div class="k">当前咨询用户数</div>
+          <div class="v">{$talking}</div>
+          {if condition="$admins['level']=='super_manager'"}
+          <div class="sub">在线客服数 {$services}</div>
+          {else/}
+          <div class="sub">在线用户数 {$visiter_online}</div>
+          {/if}
         </div>
-        <div class="layui-row layui-col-space15">   
-          <div class="layui-col-sm6 layui-col-md3">
-            <div class="layui-card">
-              <div class="layui-card-header">
-                当前咨询用户数
-                <span class="layui-badge layui-bg-blue layuiadmin-badge">咨询</span>
-              </div>
-              <div class="layui-card-body layuiadmin-card-list">
-                <p class="layuiadmin-big-font">{$talking}</p>
-                  {if condition="$admins['level']=='super_manager'"}
-                <p>
-                当前在线客服数 
-                  <span class="layuiadmin-span-color">{$services} <i class="layui-icon">&#xe63a;</i></span>
-                </p>
-                  {else}
-                <p>
-                当前在线用户数
-                  <span class="layuiadmin-span-color">{$visiter_online} <i class="layui-icon">&#xe63a;</i></span>
-                </p>
-                  {/if}
-              </div>
-            </div>
-          </div>
-          <div class="layui-col-sm6 layui-col-md3">
-            <div class="layui-card">
-              <div class="layui-card-header">
-                当前排队用户数
-                <span class="layui-badge layui-bg-cyan layuiadmin-badge">排队</span>
-              </div>
-              <div class="layui-card-body layuiadmin-card-list">
-                <p class="layuiadmin-big-font">{$waiter}</p>
-                <p>
-                  接待总用户数
-                  <span class="layuiadmin-span-color">{$getinall} <i class="layui-icon">&#xe610;</i></span>
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="layui-col-sm6 layui-col-md3">
-            <div class="layui-card">
-              <div class="layui-card-header">
-                今日聊天消息数
-                <span class="layui-badge layui-bg-green layuiadmin-badge">消息</span>
-              </div>
-              <div class="layui-card-body layuiadmin-card-list">
-      
-                <p class="layuiadmin-big-font">{$nowchats}</p>
-                <p>
-                  聊天消息总数 
-                  <span class="layuiadmin-span-color">{$chatsall} <i class="layui-icon">&#xe667;</i></span>
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="layui-col-sm6 layui-col-md3">
-            <div class="layui-card">
-              <div class="layui-card-header">
-                今日评价用户数
-                <span class="layui-badge layui-bg-orange layuiadmin-badge">评价</span>
-              </div>
-              <div class="layui-card-body layuiadmin-card-list">
-      
-                <p class="layuiadmin-big-font">{$nowcomments}</p>
-                <p>
-                  总评价用户数
-                  <span class="layuiadmin-span-color">{$allcomments}<i class="layui-icon">&#xe600;</i></span>
-                </p>
-              </div>
-            </div>
-          </div>   
+        <div class="adm-metric-card">
+          <div class="k">当前排队用户数</div>
+          <div class="v">{$waiter}</div>
+          <div class="sub">接待总用户数 {$getinall}</div>
         </div>
-      <div class="layui-col-sm12">
-        <div class="layui-card">
-          <div class="layui-card-header" style="font-size:20px; margin-top: 20px;">
-              今日客服服务数据趋势
-          </div>    
+        <div class="adm-metric-card">
+          <div class="k">今日聊天消息数</div>
+          <div class="v">{$nowchats}</div>
+          <div class="sub">聊天消息总数 {$chatsall}</div>
         </div>
+        <div class="adm-metric-card">
+          <div class="k">今日评价用户数</div>
+          <div class="v">{$nowcomments}</div>
+          <div class="sub">总评价用户数 {$allcomments}</div>
+        </div>
+        <div class="adm-metric-card">
+          <div class="k">在线客服数</div>
+          <div class="v">{$services}</div>
+          <div class="sub">state = online</div>
+        </div>
+        <div class="adm-metric-card">
+          <div class="k">在线访客数</div>
+          <div class="v">{$visiter_online}</div>
+          <div class="sub">实时在线访客</div>
+        </div>
+      </div>
     </div>
-      <div id="wolivedatas" class="shujubiao" style="width: 100%;height:500px;margin-top: 69px;"></div>
-    </div>  
+
+    <div class="layui-card" style="margin-top:14px;">
+      <div class="layui-card-header" style="font-size:16px;font-weight:600;">今日客服服务数据趋势</div>
+      <div class="layui-card-body">
+        <div id="wolivedatas" class="adm-home-chart shujubiao"></div>
+      </div>
+    </div>
+
+    <div class="layui-card" style="margin-top:14px;">
+      <div class="layui-card-header">快捷入口</div>
+      <div class="layui-card-body">
+        <div class="adm-quick-links">
+          <a href="{:url('admin/index/chats')}"><i class="layui-icon">&#xe606;</i><span>客户咨询</span></a>
+          <a href="{:url('admin/dashboard/index')}"><i class="layui-icon">&#xe62c;</i><span>数据中心</span></a>
+          <a href="{:url('admin/qrchannel/channelPage')}"><i class="layui-icon">&#xe66b;</i><span>二维码渠道</span></a>
+          <a href="{:url('admin/qrchannel/blacklistPage')}"><i class="layui-icon">&#xe60e;</i><span>IP 黑名单</span></a>
+          <a href="{:url('admin/richreply/index')}"><i class="layui-icon">&#xe656;</i><span>快捷回复</span></a>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <script type="text/javascript">
-  
-
- 
 var myChart = echarts.init(document.getElementById('wolivedatas'));
 
 var option = {
@@ -102,52 +79,35 @@ var option = {
         text: '',
         padding: '10,0,0,0'
     },
-    tooltip: {
-        trigger: 'axis'
-    },
-    color:['#ff5c5c','#05202d','#8bd8ab'],
+    tooltip: { trigger: 'axis' },
+    color: ['#1677ff', '#52c41a', '#faad14'],
     legend: {
-        y: '400px',
-        zlevel:'99',
-        data: [{name:'会话总量',textStyle: {color: '#555555'}}, {name:'接入会话总量',textStyle: {color: '#555555'}}]
+        data: [
+            { name: '会话总量', textStyle: { color: '#555' } },
+            { name: '接入会话总量', textStyle: { color: '#555' } }
+        ]
     },
     grid: {
-        top: '50',
+        top: '40',
         left: '3%',
         right: '4%',
-        bottom: '125',
-        width: '100%',
+        bottom: '40',
         containLabel: true
     },
-    toolbox: {
-        feature: {
-            saveAsImage: {}
-        }
-    },
+    toolbox: { feature: { saveAsImage: {} } },
     xAxis: {
-        splitLine: {
-            show: true,
-            lineStyle:{
-                type:'dashed'
-            }
-        },
+        splitLine: { show: true, lineStyle: { type: 'dashed' } },
         type: 'category',
         boundaryGap: false,
         data: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00', '00:00']
     },
     yAxis: {
-        splitLine: {
-            show: true,
-            lineStyle:{
-                type:'dashed'
-            }
-        },
+        splitLine: { show: true, lineStyle: { type: 'dashed' } },
         type: 'value',
         max: 'dataMax',
-        min: "dataMin",
+        min: 'dataMin'
     },
     series: [
-
         {
             name: '会话总量',
             type: 'line',
@@ -163,9 +123,8 @@ var option = {
     ]
 };
 
-
-myChart.setOption(option);	
-	
+myChart.setOption(option);
+window.addEventListener('resize', function () { myChart.resize(); });
 </script>
 
 
