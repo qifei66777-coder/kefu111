@@ -149,7 +149,9 @@ return [
         '__image__' => '/assets/images',
         '__style__' => '/assets/css',
         '__script__' => '/assets/js',
-        '__lkversion__' => LK_VERSION,
+        // __lkversion__ 用作前端静态资源缓存键。LK_VERSION 是发版号（Cloud 升级用），
+        // 这里再拼上 version.php 文件 mtime，做到「touch config/version.php 即可让浏览器刷新所有 css/js 缓存」。
+        '__lkversion__' => LK_VERSION . '.' . (@filemtime(__DIR__ . DIRECTORY_SEPARATOR . 'version.php') ?: 0),
         '__libs__' => '/assets/libs'
     ],
     // 默认跳转页面对应的模板文件
