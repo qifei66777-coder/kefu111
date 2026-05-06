@@ -976,7 +976,10 @@ var userid = jsondata.visiter_id;
   });
 }, 500); // 每隔 1 秒刷新一次
 </script>
-<script type="text/javascript" src="/assets/libs/jquery/jquery.min.js"></script>
+{/* 原行 `jqyert.mi.js` 是拼写错误的 404 路径（恰好不影响业务）；切勿换回 `jquery.min.js`：
+ *   header.html 已加载过 jQuery，二次加载会清空 $.cookie / $.fn.ajaxSubmit / layer / Pusher 绑定，
+ *   会直接导致客服台收不到 cu-event 消息推送。
+ */}
 <script type="text/javascript">
 (function () {
     function visitorBanValidIp(ip) {
