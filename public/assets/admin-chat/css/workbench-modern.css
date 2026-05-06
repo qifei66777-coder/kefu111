@@ -207,8 +207,8 @@ body.wb-rail-collapsed .wb-rail-item { min-height: 44px; padding: 6px 2px; }
 }
 
 .wb-pane-list {
-  flex: 0 0 clamp(280px, 23vw, 340px);
-  width: clamp(280px, 23vw, 340px);
+  flex: 0 0 clamp(260px, 21vw, 308px);
+  width: clamp(260px, 21vw, 308px);
   max-width: 100%;
   background: var(--wb-list-bg);
   border-right: 1px solid var(--wb-border);
@@ -228,8 +228,8 @@ body.wb-rail-collapsed .wb-rail-item { min-height: 44px; padding: 6px 2px; }
 }
 
 .wb-pane-side {
-  flex: 0 0 clamp(300px, 24vw, 360px);
-  width: clamp(300px, 24vw, 360px);
+  flex: 0 0 clamp(320px, 26vw, 400px);
+  width: clamp(320px, 26vw, 400px);
   max-width: 100%;
   min-height: 0;
   display: flex;
@@ -643,10 +643,13 @@ body.wb-rail-collapsed .wb-rail-item { min-height: 44px; padding: 6px 2px; }
   padding: 18px 20px 18px;
 }
 
+/* 限制聊天内容最大宽度，宽屏下居中显示，避免气泡稀疏到屏幕两端 */
 .wb-root .conversation {
   padding: 0 !important;
-  margin: 0 !important;
+  margin: 0 auto !important;
   list-style: none;
+  max-width: 880px;
+  width: 100%;
 }
 
 /* 时间分隔（页面里渲染为 .showtime） */
@@ -728,6 +731,97 @@ body.wb-rail-collapsed .wb-rail-item { min-height: 44px; padding: 6px 2px; }
 }
 
 .wb-root .outer-right .service a { color: #fff; text-decoration: underline; }
+
+/* 气泡内的图片限制尺寸 + 点击放大 */
+.wb-root .conversation .outer-left .customer img,
+.wb-root .conversation .outer-right .service img {
+  max-width: 240px !important;
+  max-height: 280px !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 10px;
+  cursor: zoom-in;
+  display: inline-block;
+  vertical-align: top;
+  margin: 2px 0;
+  background: #f1f5f9;
+  transition: transform .15s, box-shadow .15s;
+}
+
+.wb-root .conversation .outer-left .customer img:hover,
+.wb-root .conversation .outer-right .service img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, .15);
+}
+
+/* 表情包（emo_xx.gif）保持小尺寸 */
+.wb-root .conversation .outer-left .customer img[src*="/emoji/"],
+.wb-root .conversation .outer-right .service img[src*="/emoji/"] {
+  max-width: 28px !important;
+  max-height: 28px !important;
+  cursor: default;
+  background: transparent;
+  margin: 0 1px;
+  vertical-align: middle;
+}
+
+.wb-root .conversation .outer-left .customer img[src*="/emoji/"]:hover,
+.wb-root .conversation .outer-right .service img[src*="/emoji/"]:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* 含图片的 pre 容器去掉文字间距影响 */
+.wb-root .conversation .outer-left .customer pre:has(img),
+.wb-root .conversation .outer-right .service pre:has(img) {
+  line-height: 0;
+}
+
+/* 图片灯箱 */
+.wb-img-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .85);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  animation: wb-fade-in .18s ease-out;
+}
+
+.wb-img-modal img {
+  max-width: 92vw;
+  max-height: 92vh;
+  object-fit: contain;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, .4);
+  border-radius: 4px;
+}
+
+.wb-img-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .15);
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+}
+
+.wb-img-modal-close:hover { background: rgba(255, 255, 255, .25); }
+
+@keyframes wb-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
 /* 头像定位 */
 .wb-root .conversation .se_pic,

@@ -92,6 +92,22 @@
     wbListHeight();
   }
 
+  // ===== 图片灯箱 =====
+  function wbOpenImage(src) {
+    $('.wb-img-modal').remove();
+    var $bd = $('<div class="wb-img-modal"></div>');
+    var $close = $('<button type="button" class="wb-img-modal-close" aria-label="关闭">×</button>');
+    var $img = $('<img alt="图片预览" />').attr('src', src);
+    $bd.append($img).append($close);
+    $bd.on('click', function (ev) {
+      if (ev.target === $bd[0] || ev.target === $close[0]) {
+        $bd.remove();
+      }
+    });
+    $('body').append($bd);
+  }
+  window.wbOpenImage = wbOpenImage;
+
   // ===== 移动端视图切换 =====
   function wbMobileShow(view) {
     if (!isMobile()) return;
@@ -193,6 +209,24 @@
     // —— 资料抽屉关闭按钮（仅手机） ——
     $(document).on('click', '#wb_side_close', function () {
       wbMobileShow('chat');
+    });
+
+    // —— 图片消息点击放大（不影响表情/头像） ——
+    $(document).on('click', '.wb-root .conversation .outer-left .customer img, .wb-root .conversation .outer-right .service img', function (e) {
+      var src = this.getAttribute('src') || '';
+      if (!src) return;
+      if (/\/emoji\//.test(src)) return; // 表情不放大
+      if ($(this).hasClass('my-circle') || $(this).hasClass('se_pic') || $(this).hasClass('cu_pic')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      wbOpenImage(src);
+    });
+
+    // ESC 关闭图片
+    $(document).on('keydown', function (e) {
+      if (e.key === 'Escape' || e.keyCode === 27) {
+        $('.wb-img-modal').remove();
+      }
     });
 
     // —— 列表/计数同步 ——
