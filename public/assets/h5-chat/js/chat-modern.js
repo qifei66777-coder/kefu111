@@ -108,10 +108,28 @@
     if (typeof MutationObserver !== 'undefined') {
       var log = document.getElementById('log');
       if (log) {
-        var logObserver = new MutationObserver(function () {
+        var logObserver = new MutationObserver(function (mutations) {
           syncLayoutVars();
+          var hasAppend = false;
+          for (var i = 0; i < mutations.length; i++) {
+            var m = mutations[i];
+            if (m.type !== 'childList' || !m.addedNodes || m.addedNodes.length === 0) continue;
+            for (var j = 0; j < m.addedNodes.length; j++) {
+              var node = m.addedNodes[j];
+              if (!node || node.nodeType !== 1 || !node.parentNode) continue;
+              if (node === node.parentNode.lastElementChild) {
+                hasAppend = true;
+                break;
+              }
+            }
+            if (hasAppend) break;
+          }
+          if (hasAppend) {
+            scrollChatToBottom(40);
+            scrollChatToBottom(160);
+          }
         });
-        logObserver.observe(log, { childList: true, subtree: true });
+        logObserver.observe(log, { childList: true, subtree: false });
       }
     }
   });
