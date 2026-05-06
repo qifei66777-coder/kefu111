@@ -1,23 +1,33 @@
 /**
- * 客服工作台布局辅助：列表筛选、侧栏滚动、高度同步、封禁按钮复用
- * 不修改 WebSocket / Pusher / send 主逻辑
+ * 客服工作台布局辅助：列表筛选、侧栏滚动、高度同步、移动端抽屉、Rail 折叠
+ * 仅 UI 层；不修改 WebSocket / Pusher / send 主逻辑。
  */
 (function ($) {
   'use strict';
 
+  var MOBILE_BP = 900;
+
+  function isMobile() {
+    return window.matchMedia && window.matchMedia('(max-width: ' + MOBILE_BP + 'px)').matches;
+  }
+
   function wbListHeight() {
-    var h = $('#container').height() || $(window).height();
+    var $container = $('#container');
+    var h = $container.height() || $(window).height();
     if (h < 320) {
       h = 320;
     }
     var headH = $('.wb-list-head').outerHeight() || 0;
     var filtH = $('.wb-list-filters').outerHeight() || 0;
-    var toolsH = $('.wb-list-tools').outerHeight() || 0;
-    var inner = h - headH - filtH - toolsH - 6;
+    var toolsH = $('.wb-list-tools:visible').outerHeight() || 0;
+    var rail = isMobile() ? ($('.wb-rail').outerHeight() || 0) : 0;
+    var inner = h - headH - filtH - toolsH - rail - 6;
+    if (inner < 200) inner = 200;
     $('#chat_list').css('height', inner + 'px');
     $('#wait_list').css('height', inner + 'px');
   }
 
+  // 暴露给老 chat.js 在选中访客后回填头部
   window.wbVisiterHead = function (data) {
     if (!data) {
       return;
@@ -27,8 +37,12 @@
     var dev = data.device_type || $('#v_device_type').text() || '—';
     var ip = data.ip || $('.ipdizhi').first().text() || '—';
     var reg = data.ip_region || $('#v_ip_region').text() || '—';
-    var line = '设备：' + dev + '　IP：' + ip + '　地区：' + reg;
-    $('#wb_chat_meta_line').text(line);
+    var $meta = $('#wb_chat_meta_line');
+    $meta.empty();
+    if (dev && dev !== '—') $meta.append('<span class="wb-chip wb-chip-' + (/iOS/i.test(dev) ? 'ios' : (/Android/i.test(dev) ? 'android' : 'pc')) + '">' + dev + '</span>');
+    if (ip && ip !== '—') $meta.append('<span class="wb-chip">' + ip + '</span>');
+    if (reg && reg !== '—') $meta.append('<span class="wb-chip wb-chip-loc">' + reg + '</span>');
+    if (!$meta.children().length) $meta.text('设备与 IP 信息将在选中访客后显示');
   };
 
   function wbApplyListFilter(mode) {
@@ -78,11 +92,25 @@
     wbListHeight();
   }
 
+  // ===== 移动端视图切换 =====
+  function wbMobileShow(view) {
+    if (!isMobile()) return;
+    var $b = $('body');
+    $b.removeClass('wb-mb-list wb-mb-chat wb-mb-side');
+    if (view === 'chat') $b.addClass('wb-mb-chat');
+    else if (view === 'side') $b.addClass('wb-mb-side');
+    // list 是默认态：不加 class
+  }
+
   $(window).on('resize', function () {
     wbListHeight();
+    if (!isMobile()) {
+      $('body').removeClass('wb-mb-list wb-mb-chat wb-mb-side');
+    }
   });
 
   window.wbSyncChatListHeight = wbListHeight;
+  window.wbMobileShow = wbMobileShow;
 
   $(function () {
     if ($('body').hasClass('wb-modern')) {
@@ -90,6 +118,7 @@
     }
     wbListHeight();
 
+    // —— 列表筛选 pills ——
     $(document).on('click', '.wb-list-filters .wb-pill', function () {
       var $btn = $(this);
       $btn.addClass('is-active').siblings('.wb-pill').removeClass('is-active');
@@ -103,34 +132,70 @@
       }
     });
 
+    // —— Rail 跳转/快捷回复 ——
     $(document).on('click', '.wb-rail-item[data-wb-rail="reply"]', function () {
+      if (isMobile()) wbMobileShow('side');
       var $scroll = $('.wb-card-reply .wb-reply-bd');
-      if ($scroll.length) {
-        $scroll.animate({ scrollTop: 0 }, 200);
-      }
+      if ($scroll.length) $scroll.animate({ scrollTop: 0 }, 200);
     });
 
+    $(document).on('click', '.wb-rail-item[data-wb-rail="chat"]', function () {
+      if (isMobile()) wbMobileShow('list');
+    });
+
+    // —— Rail 折叠（仅桌面） ——
+    $(document).on('click', '.wb-rail-collapse', function () {
+      if (isMobile()) return;
+      $('body').toggleClass('wb-rail-collapsed');
+      try { localStorage.setItem('wb_rail_collapsed', $('body').hasClass('wb-rail-collapsed') ? '1' : '0'); } catch (e) {}
+      wbListHeight();
+    });
+    try {
+      if (!isMobile() && localStorage.getItem('wb_rail_collapsed') === '1') {
+        $('body').addClass('wb-rail-collapsed');
+      }
+    } catch (e) {}
+
+    // —— 封禁 IP 复用 ——
     $(document).on('click', '#wb_header_ban_ip, #wb_side_ban_ip', function () {
       $('#btn_visitor_ban_ip').trigger('click');
     });
 
+    // —— 文件/图片/视频快捷触发（保留向后兼容） ——
     $(document).on('click', '#wb_trig_picture', function (e) {
       e.preventDefault();
       $('#picture input[type=file]').trigger('click');
     });
-
     $(document).on('click', '#wb_trig_file', function (e) {
       e.preventDefault();
       $('#file input[type=file]').trigger('click');
     });
-
     $(document).on('click', '#wb_trig_video', function (e) {
       e.preventDefault();
-      if (typeof window.getvideo === 'function') {
-        window.getvideo();
-      }
+      if (typeof window.getvideo === 'function') window.getvideo();
     });
 
+    // —— 移动端：选中会话进入聊天 ——
+    $(document).on('click', '#chat_list .visit_content', function () {
+      if (isMobile()) wbMobileShow('chat');
+    });
+
+    // —— 聊天头部：返回会话列表（仅手机） ——
+    $(document).on('click', '#wb_chat_back', function () {
+      wbMobileShow('list');
+    });
+
+    // —— 聊天头部：打开右侧资料（仅手机） ——
+    $(document).on('click', '#wb_chat_info', function () {
+      wbMobileShow('side');
+    });
+
+    // —— 资料抽屉关闭按钮（仅手机） ——
+    $(document).on('click', '#wb_side_close', function () {
+      wbMobileShow('chat');
+    });
+
+    // —— 列表/计数同步 ——
     var obsTimer;
     $(document).ajaxComplete(function () {
       clearTimeout(obsTimer);

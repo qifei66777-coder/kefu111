@@ -5,14 +5,14 @@
 <div id="container" class="wb-root wb-modern-shell" style="background-color: #eef1f6;overflow: hidden">
     <div class="wb-workbench">
         <nav class="wb-rail" aria-label="工作台主导航">
-            <a class="wb-rail-logo" href="{:url('admin/index/index')}" title="系统首页"><i class="layui-icon" style="color:#fff;">&#xe606;</i></a>
-            <button type="button" class="wb-rail-item is-active" data-wb-rail="chat" title="聊天列表"><i class="layui-icon">&#xe606;</i></button>
-            <a class="wb-rail-item" href="{:url('admin/qrchannel/channelPage')}" title="二维码渠道"><i class="layui-icon">&#xe66b;</i></a>
-            <a class="wb-rail-item" href="{:url('admin/qrchannel/blacklistPage')}" title="IP 黑名单"><i class="layui-icon">&#xe60e;</i></a>
-            <button type="button" class="wb-rail-item" data-wb-rail="reply" title="快捷回复"><i class="layui-icon">&#xe6af;</i></button>
-            <a class="wb-rail-item" href="{:url('admin/index/set')}" title="我的 / 设置"><i class="layui-icon">&#xe66f;</i></a>
+            <a class="wb-rail-logo" href="{:url('admin/index/index')}" title="系统首页"><i class="layui-icon">&#xe638;</i></a>
+            <button type="button" class="wb-rail-item is-active" data-wb-rail="chat" title="聊天列表"><i class="layui-icon">&#xe606;</i><span class="wb-rail-label">聊天列表</span></button>
+            <a class="wb-rail-item" href="{:url('admin/qrchannel/channelPage')}" title="二维码渠道"><i class="layui-icon">&#xe66b;</i><span class="wb-rail-label">二维码渠道</span></a>
+            <a class="wb-rail-item" href="{:url('admin/qrchannel/blacklistPage')}" title="IP 黑名单"><i class="layui-icon">&#xe60e;</i><span class="wb-rail-label">黑名单</span></a>
+            <button type="button" class="wb-rail-item" data-wb-rail="reply" title="快捷回复"><i class="layui-icon">&#xe6af;</i><span class="wb-rail-label">快捷回复</span></button>
+            <a class="wb-rail-item" href="{:url('admin/index/set')}" title="我的 / 设置"><i class="layui-icon">&#xe66f;</i><span class="wb-rail-label">我的</span></a>
             <div class="wb-rail-spacer"></div>
-            <div class="wb-rail-foot">工作台</div>
+            <button type="button" class="wb-rail-collapse" title="收起 / 展开导航"><i class="layui-icon">&#xe65b;</i><span>收起导航</span></button>
         </nav>
         <div class="wb-main">
         <aside class="wb-pane-list">
@@ -48,12 +48,14 @@
         <section class="wb-pane-chat">
             <div class="wb-chat-inner">
             <div class="wb-chat-top">
+                <button type="button" class="wb-mb-only" id="wb_chat_back" aria-label="返回会话列表" title="返回会话列表"><i class="layui-icon">&#xe603;</i></button>
                 <div class="wb-chat-top-l">
                     <span class="wb-chat-top-name" id="wb_chat_title">请选择会话</span>
-                    <span class="wb-chat-top-meta" id="wb_chat_meta_line">设备与 IP 信息将在选中访客后显示</span>
+                    <div class="wb-chat-top-meta" id="wb_chat_meta_line">设备与 IP 信息将在选中访客后显示</div>
                 </div>
                 <div class="wb-chat-top-actions">
                     <button type="button" class="wb-btn-ban" id="wb_header_ban_ip">封禁 IP</button>
+                    <button type="button" class="wb-mb-only" id="wb_chat_info" aria-label="查看资料" title="查看资料"><i class="layui-icon">&#xe612;</i></button>
                 </div>
             </div>
             <div class="no_chats">
@@ -222,7 +224,7 @@
         <section class="chatinfo wb-pane-side">
             <div class="wb-side-stack">
                 <div class="wb-card wb-card-cust">
-                    <div class="wb-card-hd">客户资料</div>
+                    <div class="wb-card-hd">客户资料<button type="button" class="wb-mb-only" id="wb_side_close" aria-label="关闭" title="关闭"><i class="layui-icon">&#x1006;</i></button></div>
                     <div class="wb-live-input-panel">
                         <div class="wb-live-input-label">访客实时输入</div>
                         <textarea id="getinput" class="layui-input wb-live-input-ta" placeholder="访客正在输入的内容将显示在此处（约每 0.5 秒刷新）" onblur="saveinfo()" rows="4"></textarea>
