@@ -38,6 +38,78 @@ class Event extends Controller
 
         $this->base_root = BASEROOT;
     }
+
+    /**
+     * 确保访客在 wolive_queue 中存在可用的 normal 会话。
+     *
+     * 约束：
+     * - 不删除旧 queue（保留已关闭会话历史）
+     * - 若不存在则创建 state=normal
+     * - 若存在但 state!=normal 则“激活”为 normal（并刷新 lastpost/timestamp）
+     *
+     * @return array|null queue 行
+     */
+    private function ensureQueueNormal($businessId, $visiterId, $serviceId = 0, $groupId = 0)
+    {
+        $businessId = (int) $businessId;
+        $visiterId = (string) $visiterId;
+        $serviceId = (int) $serviceId;
+        $groupId = (int) $groupId;
+
+        if ($businessId <= 0 || $visiterId === '') {
+            return null;
+        }
+
+        $now = time();
+
+        $normal = model('queue')
+            ->where(['visiter_id' => $visiterId, 'business_id' => $businessId, 'state' => 'normal'])
+            ->order('qid', 'desc')
+            ->find();
+
+        if ($normal) {
+            // 刷新会话时间，避免前端重新进入后被误判“已关闭”
+            try {
+                model('queue')->where('qid', $normal['qid'])->update(['lastpost' => $now, 'timestamp' => $now]);
+            } catch (\Exception $e) {
+                // ignore
+            }
+            return $normal;
+        }
+
+        $latest = model('queue')
+            ->where(['visiter_id' => $visiterId, 'business_id' => $businessId])
+            ->order('qid', 'desc')
+            ->find();
+
+        if ($latest) {
+            $nextServiceId = $serviceId > 0 ? $serviceId : (isset($latest['service_id']) ? (int) $latest['service_id'] : 0);
+            $nextGroupId = $groupId > 0 ? $groupId : (isset($latest['groupid']) ? (int) $latest['groupid'] : 0);
+            model('queue')->where('qid', $latest['qid'])->update([
+                'state'     => 'normal',
+                'service_id'=> $nextServiceId,
+                'groupid'   => $nextGroupId,
+                'lastpost'  => $now,
+                'timestamp' => $now,
+            ]);
+            return model('queue')->where('qid', $latest['qid'])->find();
+        }
+
+        model('queue')->insert([
+            'visiter_id'  => $visiterId,
+            'business_id' => $businessId,
+            'service_id'  => $serviceId > 0 ? $serviceId : 0,
+            'groupid'     => $groupId > 0 ? $groupId : 0,
+            'state'       => 'normal',
+            'lastpost'    => $now,
+            'timestamp'   => $now,
+        ]);
+
+        return model('queue')
+            ->where(['visiter_id' => $visiterId, 'business_id' => $businessId, 'state' => 'normal'])
+            ->order('qid', 'desc')
+            ->find();
+    }
     /**
      * 选择客服类.
      * @return [type] [description]
@@ -214,7 +286,20 @@ class Event extends Controller
         $visiter = Db::name('visiter')->where('visiter_id',$arr['visiter_id'])->find();
         $arr['channel']=$visiter['channel'];
         hook('chathook',array_merge($arr,['pusher'=>$pusher,'channel'=>$visiter['channel']]));
-        $service = model('queue')->where('business_id', $arr['business_id'])->where('visiter_id', $arr['visiter_id'])->where('state', 'normal')->find();
+        // 访客通过二维码/历史链接二次进入时，原 queue 可能为 complete，先激活/创建 normal 会话
+        $this->ensureQueueNormal(
+            isset($arr['business_id']) ? $arr['business_id'] : 0,
+            isset($arr['visiter_id']) ? $arr['visiter_id'] : '',
+            isset($arr['service_id']) ? $arr['service_id'] : 0,
+            isset($arr['groupid']) ? $arr['groupid'] : 0
+        );
+
+        $service = model('queue')
+            ->where('business_id', $arr['business_id'])
+            ->where('visiter_id', $arr['visiter_id'])
+            ->where('state', 'normal')
+            ->order('qid', 'desc')
+            ->find();
 
         $service_id = $service ? $service['service_id'] : null;
         if ($service_id != $arr['service_id']) {
@@ -755,7 +840,18 @@ class Event extends Controller
     {
         $pusher=SinglePusher::getinstance();
         $post = $this->request->post();
-        $service = model('queue')->where('business_id', $post['business_id'])->where('visiter_id', $post['visiter_id'])->where('state', 'normal')->find();
+        $this->ensureQueueNormal(
+            isset($post['business_id']) ? $post['business_id'] : 0,
+            isset($post['visiter_id']) ? $post['visiter_id'] : '',
+            isset($post['service_id']) ? $post['service_id'] : 0,
+            isset($post['groupid']) ? $post['groupid'] : 0
+        );
+        $service = model('queue')
+            ->where('business_id', $post['business_id'])
+            ->where('visiter_id', $post['visiter_id'])
+            ->where('state', 'normal')
+            ->order('qid', 'desc')
+            ->find();
 
         if ($service['service_id'] != $post['service_id']) {
 
@@ -802,7 +898,18 @@ class Event extends Controller
         $pusher=SinglePusher::getinstance();
 
         $post = $this->request->post();
-        $service = model('queue')->where('business_id', $post['business_id'])->where('visiter_id', $post['visiter_id'])->where('state', 'normal')->find();
+        $this->ensureQueueNormal(
+            isset($post['business_id']) ? $post['business_id'] : 0,
+            isset($post['visiter_id']) ? $post['visiter_id'] : '',
+            isset($post['service_id']) ? $post['service_id'] : 0,
+            isset($post['groupid']) ? $post['groupid'] : 0
+        );
+        $service = model('queue')
+            ->where('business_id', $post['business_id'])
+            ->where('visiter_id', $post['visiter_id'])
+            ->where('state', 'normal')
+            ->order('qid', 'desc')
+            ->find();
 
         if ($service['service_id'] != $post['service_id']) {
 
