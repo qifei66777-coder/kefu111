@@ -2,6 +2,27 @@
  * H5 聊天页现代 UI 适配：不改变业务 JS 变量与接口，仅 UI 交互与安全区。
  */
 (function () {
+  function scrollChatToBottom(delay) {
+    setTimeout(function () {
+      var wrap = document.getElementById('wrap');
+      if (wrap) {
+        wrap.scrollTop = wrap.scrollHeight;
+      }
+    }, delay || 0);
+  }
+
+  function syncLayoutVars() {
+    var foot = document.getElementById('h5_foot_all');
+    var panel = document.getElementById('h5_tools_panel');
+    var root = document.body;
+    if (!root) return;
+
+    var footHeight = foot ? foot.offsetHeight : 64;
+    var panelHeight = panel && panel.classList.contains('is-open') ? panel.offsetHeight : 0;
+    root.style.setProperty('--h5-foot-real-h', footHeight + 'px');
+    root.style.setProperty('--h5-tools-panel-h', panelHeight + 'px');
+  }
+
   function syncHeaderStatus() {
     var legacy = document.getElementById('status');
     var line = document.getElementById('h5_status_line');
@@ -19,6 +40,7 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     syncHeaderStatus();
+    syncLayoutVars();
     var legacy = document.getElementById('status');
     if (legacy && typeof MutationObserver !== 'undefined') {
       var mo = new MutationObserver(syncHeaderStatus);
@@ -34,12 +56,8 @@
         var open = panel.classList.toggle('is-open');
         plus.classList.toggle('is-open', open);
         document.body.classList.toggle('h5-tools-open', open);
-        setTimeout(function () {
-          var wrap = document.getElementById('wrap');
-          if (wrap) {
-            wrap.scrollTop = wrap.scrollHeight;
-          }
-        }, 80);
+        syncLayoutVars();
+        scrollChatToBottom(90);
       });
     }
 
@@ -59,8 +77,10 @@
     var ti = document.getElementById('text_in');
     if (ti && window.visualViewport) {
       var scrollInput = function () {
+        syncLayoutVars();
         setTimeout(function () {
           ti.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          scrollChatToBottom(40);
         }, 280);
       };
       ti.addEventListener('focus', scrollInput);
@@ -76,6 +96,23 @@
       panel.classList.remove('is-open');
       plus.classList.remove('is-open');
       document.body.classList.remove('h5-tools-open');
+      syncLayoutVars();
     });
+
+    window.addEventListener('resize', syncLayoutVars);
+    window.addEventListener('orientationchange', function () {
+      syncLayoutVars();
+      scrollChatToBottom(120);
+    });
+
+    if (typeof MutationObserver !== 'undefined') {
+      var log = document.getElementById('log');
+      if (log) {
+        var logObserver = new MutationObserver(function () {
+          syncLayoutVars();
+        });
+        logObserver.observe(log, { childList: true, subtree: true });
+      }
+    }
   });
 })();
