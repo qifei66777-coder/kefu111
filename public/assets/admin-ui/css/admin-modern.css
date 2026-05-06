@@ -719,3 +719,72 @@ body.adm-modern.adm-page-chats #container.wb-root {
   height: calc(100vh - 57px);
   padding: 0 !important;
 }
+
+/* ===== 表格操作按钮（员工管理 / 渠道列表 / 黑名单等） ===== */
+body.adm-modern .adm-actions {
+  white-space: normal;
+  line-height: 1.6;
+}
+
+body.adm-modern .adm-act-btn,
+body.adm-modern a.adm-act-btn {
+  display: inline-block;
+  padding: 0 10px;
+  margin: 2px 3px 2px 0;
+  height: 26px;
+  line-height: 24px;
+  font-size: 12px;
+  border: 1px solid #d9e0ea;
+  border-radius: 4px;
+  background: #fff;
+  color: #4b5563;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all .12s;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+body.adm-modern .adm-act-btn:hover,
+body.adm-modern a.adm-act-btn:hover {
+  border-color: var(--adm-primary);
+  color: var(--adm-primary);
+  background: #eff6ff;
+}
+
+body.adm-modern .adm-act-btn.adm-act-primary {
+  border-color: var(--adm-primary);
+  color: var(--adm-primary);
+  background: #eff6ff;
+}
+
+body.adm-modern .adm-act-btn.adm-act-primary:hover {
+  background: var(--adm-primary);
+  color: #fff;
+}
+
+body.adm-modern .adm-act-btn.adm-act-danger {
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+body.adm-modern .adm-act-btn.adm-act-danger:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #b91c1c;
+}
+
+/* 全局兜底：admin 后台模板里被引用但缺失的 PNG 图标，破图占位符不能撑大表格 */
+body.adm-modern .layui-table img,
+body.adm-modern .am-table img {
+  max-width: 32px !important;
+  max-height: 32px !important;
+  vertical-align: middle;
+}
+
+/* 头像类例外（保持原始样式优先） */
+body.adm-modern .layui-table img[style*="border-radius"] {
+  max-width: 40px !important;
+  max-height: 40px !important;
+}

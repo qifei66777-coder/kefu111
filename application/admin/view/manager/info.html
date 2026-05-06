@@ -80,7 +80,7 @@
             <col width="170">
             <col width="100">
             <col width="100">
-            <col width="360">
+            <col style="min-width:520px;">
         </colgroup>
         <thead>
         <tr>
@@ -117,77 +117,41 @@
             <td>{$admins.qr_channel_count}</td>
             <td>{$admins.ban_ip_count}</td>
             <td>{if !empty($admins.groupname)}{$admins.groupname}{else/}通用客服{/if}</td>
-            <td>
-                <a href='javascript:showinfo({$admins.json},{$group})' >
-                    <img src="__image__/admin/A/edit.png" alt="编辑" title="编辑">
-                </a>
-                <a href='javascript:copyhref("{$admins.personal}","{$admins.personalwechat}")' class="copybtn" >
-                    <img src="__image__/admin/A/copy.png" alt="拷贝专属链接" title="拷贝专属链接">
-                </a>
+            <td class="adm-actions">
+                <a class="adm-act-btn" href='javascript:showinfo({$admins.json},{$group})' title="编辑">编辑</a>
+                <a class="adm-act-btn copybtn" href='javascript:copyhref("{$admins.personal}","{$admins.personalwechat}")' title="拷贝专属链接">复制链接</a>
                 {if condition="$admins['level']!='super_manager'"}
-                <a href='javascript:modifyCustom({$admins.service_id})'>
-                    <img src="__image__/admin/A/change.png" alt="修改密码" title="修改密码">
-                </a>
-                <a href='javascript:sdelete({$admins.service_id})'>
-                    <img src="__image__/admin/A/delete.png" alt="删除" title="删除">
-                </a>
+                <a class="adm-act-btn" href='javascript:modifyCustom({$admins.service_id})' title="修改密码">改密</a>
+                <a class="adm-act-btn adm-act-danger" href='javascript:sdelete({$admins.service_id})' title="删除">删除</a>
                 {/if}
-                <a href="{:url('admin/manager/detail',['id'=>$admins.service_id])}" target="_blank">
-                    <img src="__image__/admin/B/person.png" alt="详情" title="详情">
-                </a>
-                <a href="{:url('admin/qrchannel/channelPage',['service_id'=>$admins.service_id])}" target="_blank">
-                    <img src="__image__/admin/B/website.png" alt="二维码渠道" title="二维码渠道">
-                </a>
-                <a href="{:url('admin/qrchannel/scanPage',['service_id'=>$admins.service_id])}" target="_blank">
-                    <img src="__image__/admin/B/screen.png" alt="扫码记录" title="扫码记录">
-                </a>
-                <a href="{:url('admin/qrchannel/blacklistPage',['service_id'=>$admins.service_id])}" target="_blank">
-                    <img src="__image__/admin/B/delete.png" alt="黑名单" title="黑名单">
-                </a>
-                <a href="javascript:banRecentIp({$admins.service_id},'{$admins.last_login_ip}')">
-                    <img src="__image__/admin/B/offline-enable.png" alt="封禁登录IP" title="封禁最近登录IP">
-                </a>
-                <a href="javascript:quickLogin({$admins.service_id})">
-                    <img src="__image__/admin/B/back-system.png" alt="快捷登录" title="快捷登录">
-                </a>
+                <a class="adm-act-btn" href="{:url('admin/manager/detail',['id'=>$admins.service_id])}" target="_blank" title="详情">详情</a>
+                <a class="adm-act-btn" href="{:url('admin/qrchannel/channelPage',['service_id'=>$admins.service_id])}" target="_blank" title="二维码渠道">二维码</a>
+                <a class="adm-act-btn" href="{:url('admin/qrchannel/scanPage',['service_id'=>$admins.service_id])}" target="_blank" title="扫码记录">扫码</a>
+                <a class="adm-act-btn" href="{:url('admin/qrchannel/blacklistPage',['service_id'=>$admins.service_id])}" target="_blank" title="黑名单">黑名单</a>
+                <a class="adm-act-btn adm-act-danger" href="javascript:banRecentIp({$admins.service_id},'{$admins.last_login_ip}')" title="封禁最近登录IP">封登录IP</a>
+                <a class="adm-act-btn adm-act-primary" href="javascript:quickLogin({$admins.service_id})" title="快捷登录">快捷登录</a>
                 {if condition="!empty($admins['open_id'])"}
-                <a href='javascript:wechat("{$admins.open_id}","{$admins.service_id}")'>
-                    <img src="__image__/admin/B/wechat.png" alt="绑定的微信" title="绑定的微信">
-                </a>
+                <a class="adm-act-btn" href='javascript:wechat("{$admins.open_id}","{$admins.service_id}")' title="绑定的微信">微信</a>
                 {/if}
                 {if condition="$admins['offline_first'] == 1"}
-                <a href='javascript:setofflinefirst({$admins.service_id},0)'>
-                    <img src="__image__/admin/B/offline-disabled.png" alt="取消离线优先" title="取消离线优先">
-                </a>
+                <a class="adm-act-btn" href='javascript:setofflinefirst({$admins.service_id},0)' title="取消离线优先">取消离线优先</a>
                 {else/}
-                <a href='javascript:setofflinefirst({$admins.service_id},1)'>
-                    <img src="__image__/admin/B/offline-enable.png" alt="离线优先" title="离线优先">
-                </a>
+                <a class="adm-act-btn" href='javascript:setofflinefirst({$admins.service_id},1)' title="离线优先">离线优先</a>
                 {/if}
                 {if condition="$admins['groupid2'] == $admins['groupid']"}
                     {if condition="$admins['groupid'] == 1"}
-                    <a href='javascript:setofflinefirst3({$admins.service_id},100)'>
-                        <img src="__image__/admin/B/zx.png" alt="点击离线" title="设置离线">
-                    </a>
+                    <a class="adm-act-btn" href='javascript:setofflinefirst3({$admins.service_id},100)' title="设置离线">设为离线</a>
                     {else/}
-                    <a href='javascript:setofflinefirst3({$admins.service_id},1)'>
-                        <img src="__image__/admin/B/zx.png" alt="点击离线" title="设置离线">
-                    </a>
+                    <a class="adm-act-btn" href='javascript:setofflinefirst3({$admins.service_id},1)' title="设置离线">设为离线</a>
                     {/if}
                 {else/}
                     {if condition="$admins['groupid'] == 1"}
-                        <a href='javascript:setofflinefirst2({$admins.service_id},100)'>
-                            <img src="__image__/admin/B/lx2.png" alt="点击在线" title="设置在线">
-                        </a>
+                        <a class="adm-act-btn" href='javascript:setofflinefirst2({$admins.service_id},100)' title="设置在线">设为在线</a>
                         {else/}
                         {if condition="$admins['groupid'] == 100"}
-                            <a href='javascript:setofflinefirst2({$admins.service_id},{$admins.groupid2})'>
-                                <img src="__image__/admin/B/lx2.png" alt="点击在线" title="设置在线">
-                            </a>
+                            <a class="adm-act-btn" href='javascript:setofflinefirst2({$admins.service_id},{$admins.groupid2})' title="设置在线">设为在线</a>
                             {else/}
-                            <a href='javascript:setofflinefirst2({$admins.service_id},{$admins.groupid2})'>
-                                <img src="__image__/admin/B/lx2.png" alt="点击在线" title="设置在线">
-                            </a>
+                            <a class="adm-act-btn" href='javascript:setofflinefirst2({$admins.service_id},{$admins.groupid2})' title="设置在线">设为在线</a>
                         {/if}
                     {/if}
                 {/if}
