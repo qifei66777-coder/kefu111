@@ -38,7 +38,10 @@
             pic = "__image__/index/avatar-red2.png";
         }
         var SCAN_WELCOME = <?php echo isset($scan_welcome_json) ? $scan_welcome_json : 'null'; ?>;
-         var service_id=0;
+        // kfchat 入口会携带 special(指定客服). 访客刷新/二次进入时，优先用它确保消息推送到正确 kefu{service_id} 频道。
+        var service_id = (special !== '' && special !== null && special !== undefined && !isNaN(parseInt(special, 10)))
+            ? parseInt(special, 10)
+            : 0;
         function a() {
             var e = document.getElementById("chat-message-audio-source").src
                 , b = document.getElementById("chat-message-audio");
