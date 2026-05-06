@@ -1,0 +1,220 @@
+{include file="public/header"/}
+<style>
+    #container { padding: 16px 20px 40px; overflow-y: auto; }
+    .qr-toolbar { margin-bottom: 12px; }
+    .qr-toolbar .layui-input-inline { margin-right: 8px; margin-bottom: 8px; }
+    #qr-preview-box { text-align: center; padding: 12px 0; }
+</style>
+<script type="text/javascript" src="/assets/js/arale-qrcode.js"></script>
+<div id="container" class="adm-content-shell">
+    <h2 class="page-header" style="font-size: 18px;color: #555;">二维码渠道管理</h2>
+    <p style="color:#888;font-size:13px;margin:8px 0 16px;">手动访问接口示例：<code>{:url('admin/qrchannel/channelList')}</code>（需登录后 AJAX 调用）</p>
+
+    <form class="layui-form qr-toolbar" lay-filter="qr-filter" onsubmit="return false;">
+        <div class="layui-input-inline" style="width:140px;">
+            <select name="service_id" id="f_service">
+                <option value="">全部客服</option>
+                {volist name="services" id="sv"}
+                <option value="{$sv.service_id}">{if $sv.nick_name}{$sv.nick_name}{else /}{$sv.user_name}{/if}</option>
+                {/volist}
+            </select>
+        </div>
+        <div class="layui-input-inline" style="width:140px;">
+            <select name="template_id" id="f_template">
+                <option value="">全部模板</option>
+                {volist name="templates" id="tp"}
+                <option value="{$tp.id}">{$tp.template_name}</option>
+                {/volist}
+            </select>
+        </div>
+        <div class="layui-input-inline" style="width:120px;">
+            <select name="status" id="f_status">
+                <option value="">启用+禁用</option>
+                <option value="1">仅启用</option>
+                <option value="0">仅禁用</option>
+            </select>
+        </div>
+        <div class="layui-input-inline" style="width:180px;">
+            <input type="text" name="keyword" id="f_keyword" placeholder="备注关键词" class="layui-input" autocomplete="off">
+        </div>
+        <div class="layui-input-inline" style="width:130px;">
+            <input type="text" name="start_time" id="f_start" placeholder="开始日期" class="layui-input" autocomplete="off">
+        </div>
+        <div class="layui-input-inline" style="width:130px;">
+            <input type="text" name="end_time" id="f_end" placeholder="结束日期" class="layui-input" autocomplete="off">
+        </div>
+        <div class="layui-input-inline">
+            <button type="button" class="layui-btn layui-btn-sm" id="btn-search">筛选</button>
+            <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" id="btn-reset">重置</button>
+        </div>
+    </form>
+
+    <table id="qr-channel-table" lay-filter="qr-channel-table"></table>
+</div>
+
+<script type="text/html" id="qr-channel-bar">
+    <a class="layui-btn layui-btn-xs layui-btn-primary" lay-event="detail">详情</a>
+    <a class="layui-btn layui-btn-xs" lay-event="qrcode">二维码</a>
+    <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="copy">复制链接</a>
+    <a class="layui-btn layui-btn-xs layui-btn-primary" lay-event="download">下载</a>
+    <a class="layui-btn layui-btn-xs" lay-event="logs">扫码记录</a>
+    {{# if(d.status == 1){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="off">禁用</a>
+    {{# } else if(d.status == 0){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="on">启用</a>
+    {{# } }}
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+</script>
+
+<script>
+layui.use(['table', 'form', 'layer', 'laydate'], function () {
+    var table = layui.table;
+    var form = layui.form;
+    var layer = layui.layer;
+    var laydate = layui.laydate;
+    laydate.render({ elem: '#f_start', type: 'date' });
+    laydate.render({ elem: '#f_end', type: 'date' });
+
+    var tableIns = table.render({
+        elem: '#qr-channel-table',
+        url: YMWL_ROOT_URL + '/admin/qrchannel/channelList',
+        method: 'get',
+        page: true,
+        limit: 20,
+        cols: [[
+            { field: 'channel_id', title: 'ID', width: 70 },
+            { field: 'remark', title: '备注', minWidth: 120 },
+            { field: 'service_nick', title: '所属客服', width: 120, templet: function (d) {
+                return (d.service_nick || d.service_user || '-') + '';
+            }},
+            { field: 'template_name', title: '模板', width: 120 },
+            { field: 'scan_count', title: '扫码次数', width: 100 },
+            { field: 'last_scan_time', title: '最后扫码', width: 160 },
+            { field: 'status', title: '状态', width: 90, templet: function (d) {
+                if (d.status == 1) return '<span style="color:green">启用</span>';
+                if (d.status == 0) return '<span style="color:#999">禁用</span>';
+                return d.status;
+            }},
+            { field: 'created_at', title: '创建时间', width: 160 },
+            { title: '操作', width: 320, align: 'center', fixed: 'right', toolbar: '#qr-channel-bar' }
+        ]],
+        parseData: function (res) {
+            return { code: res.code === 0 ? 0 : 1, msg: res.msg, count: res.count, data: res.data || [] };
+        }
+    });
+
+    function reload() {
+        tableIns.reload({
+            where: {
+                service_id: $('#f_service').val(),
+                template_id: $('#f_template').val(),
+                status: $('#f_status').val(),
+                keyword: $('#f_keyword').val(),
+                start_time: $('#f_start').val(),
+                end_time: $('#f_end').val()
+            },
+            page: { curr: 1 }
+        });
+    }
+
+    $('#btn-search').on('click', reload);
+    $('#btn-reset').on('click', function () {
+        $('#f_service').val('');
+        $('#f_template').val('');
+        $('#f_status').val('');
+        $('#f_keyword').val('');
+        $('#f_start').val('');
+        $('#f_end').val('');
+        form.render('select');
+        reload();
+    });
+
+    function copyText(t) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(t).then(function () { layer.msg('已复制'); })
+                .catch(function () { prompt('复制链接', t); });
+        } else {
+            prompt('复制链接', t);
+        }
+    }
+
+    function renderQr(url, img) {
+        $('#qr-preview-box').empty();
+        var cfg = { render: 'canvas', correctLevel: 0, text: url, size: 200, background: '#fff', foreground: '#000' };
+        if (img) { cfg.image = img; cfg.imageSize = 48; }
+        $('#qr-preview-box').append(new AraleQRCode(cfg));
+    }
+
+    table.on('tool(qr-channel-table)', function (obj) {
+        var d = obj.data;
+        if (obj.event === 'copy') {
+            copyText(d.qr_url || '');
+            return;
+        }
+        if (obj.event === 'download') {
+            var $box = $('<div style="position:fixed;left:-9999px;top:0;"></div>');
+            $('body').append($box);
+            var cfg = { render: 'canvas', correctLevel: 0, text: d.qr_url || '', size: 200, background: '#fff', foreground: '#000' };
+            if (d.qr_image) { cfg.image = d.qr_image; cfg.imageSize = 48; }
+            $box.append(new AraleQRCode(cfg));
+            setTimeout(function () {
+                var canvas = $box.find('canvas')[0];
+                if (!canvas) { $box.remove(); layer.msg('二维码生成失败', { icon: 2 }); return; }
+                var a = document.createElement('a');
+                a.href = canvas.toDataURL('image/png');
+                a.download = 'channel-' + d.channel_id + '.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                $box.remove();
+            }, 200);
+            return;
+        }
+        if (obj.event === 'detail') {
+            $.get(YMWL_ROOT_URL + '/admin/qrchannel/channelDetail', { id: d.channel_id }, function (res) {
+                if (res.code !== 0) { layer.msg(res.msg || '加载失败', { icon: 2 }); return; }
+                var html = '<pre style="text-align:left;max-height:400px;overflow:auto;font-size:12px;padding:12px;">'
+                    + JSON.stringify(res.data, null, 2) + '</pre>';
+                layer.open({ type: 1, title: '渠道 #' + d.channel_id + ' 详情', area: ['640px', '520px'], content: html });
+            }, 'json');
+            return;
+        }
+        if (obj.event === 'qrcode') {
+            layer.open({
+                type: 1,
+                title: '渠道 #' + d.channel_id,
+                area: ['320px', '380px'],
+                content: '<div id="qr-preview-box"></div><p style="word-break:break-all;padding:0 12px;font-size:12px;color:#666;">' + (d.qr_url || '') + '</p>'
+            });
+            setTimeout(function () { renderQr(d.qr_url, d.qr_image); }, 50);
+            return;
+        }
+        if (obj.event === 'logs') {
+            location.href = YMWL_ROOT_URL + '/admin/qrchannel/scanPage?channel_id=' + d.channel_id;
+            return;
+        }
+        if (obj.event === 'off' || obj.event === 'on') {
+            var st = obj.event === 'off' ? 0 : 1;
+            layer.confirm('确认' + (st ? '启用' : '禁用') + '该渠道？', function (idx) {
+                $.post(YMWL_ROOT_URL + '/admin/qrchannel/channelStatus', { id: d.channel_id, status: st }, function (res) {
+                    layer.close(idx);
+                    if (res.code === 0) { layer.msg('已保存'); reload(); }
+                    else { layer.msg(res.msg || '失败', { icon: 2 }); }
+                }, 'json');
+            });
+            return;
+        }
+        if (obj.event === 'del') {
+            layer.confirm('删除后扫码将无法进入，确定？', function (idx) {
+                $.post(YMWL_ROOT_URL + '/admin/qrchannel/channelDelete', { id: d.channel_id }, function (res) {
+                    layer.close(idx);
+                    if (res.code === 0) { layer.msg('已删除'); reload(); }
+                    else { layer.msg(res.msg || '失败', { icon: 2 }); }
+                }, 'json');
+            });
+            return;
+        }
+    });
+});
+</script>
+{include file="public/footer"/}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"/>
+  <title>H5 聊天改版预览（静态）</title>
+  <script>var YMWL_ROOT_URL = '';</script>
+  <link rel="stylesheet" href="../libs/layer/admin/layui.css">
+  <link rel="stylesheet" href="../css/mobile/mobile.css">
+  <link rel="stylesheet" href="../css/rich-reply.css">
+  <link rel="stylesheet" href="./css/chat-modern.css">
+  <style>
+    /* 预览页仅占位，不依赖后端 */
+    body { margin: 0; }
+  </style>
+</head>
+<body class="h5-chat-modern-theme" style="--h5-primary:#2b7cff;--h5-theme:#2b7cff;">
+<div id="container" class="h5-chat-root">
+  <header class="h5-chat-header">
+    <a href="javascript:history.back(-1)" class="h5-header-back fanhui" aria-label="返回"><i class="layui-icon">&#xe603;</i></a>
+    <img id="img_head" class="h5-header-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23e2e8f0'/%3E%3Ctext x='40' y='48' text-anchor='middle' font-size='28' fill='%2394a3b8'%3E客%3C/text%3E%3C/svg%3E" alt=""/>
+    <div class="h5-header-text">
+      <div id="services" class="h5-kefu-name">专属客服小雅</div>
+      <div class="h5-kefu-sub"><span class="h5-status-dot"></span><span id="h5_status_line">在线 · 正在为您服务</span></div>
+    </div>
+    <span id="status" class="h5-legacy-status"></span>
+    <button type="button" class="h5-header-more" id="h5_btn_more" aria-label="更多">⋯</button>
+  </header>
+  <div class="h5-visiter-tags">
+    <span class="h5-tag"><em>来源</em>VIP客户</span>
+    <span class="h5-tag"><em>设备</em>iPhone · iOS</span>
+    <span class="h5-tag"><em>地区</em>柬埔寨 · 金边</span>
+  </div>
+  <div class="content h5-chat-scroll" id="wrap">
+    <ul id="log" class="conversation">
+      <li class="chatmsg_no qr-scan-welcome-li">
+        <div style="position: absolute;left:0;"><img class="my-circle se_pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23cbd5e1'/%3E%3C/svg%3E" alt=""></div>
+        <div class="outer-left"><div class="service">您好，欢迎咨询，请描述您的问题，我会尽快为您处理。</div></div>
+      </li>
+      <li class="chatmsg"><div class="showtime">今天 14:25</div>
+        <div style="position: absolute;left:3px;"><img class="my-circle se_pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23cbd5e1'/%3E%3C/svg%3E" alt=""></div>
+        <div class="outer-left"><div class="service"><pre>您好，如需了解 <strong style="color:#2b7cff">iPhone</strong> 活动请告诉我。</pre></div></div>
+      </li>
+      <li class="chatmsg"><div class="showtime"></div>
+        <div class="" style="float: right;"><img class="my-circle cu_pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%232563eb'/%3E%3C/svg%3E" ></div>
+        <div class="outer-right"><div class="customer"><pre>我想咨询充值流程</pre></div></div>
+      </li>
+      <li class="chatmsg">
+        <div style="position: absolute;left:3px;"><img class="my-circle se_pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23cbd5e1'/%3E%3C/svg%3E" alt=""></div>
+        <div class="outer-left"><div class="service chat-msg-rich-wrap">
+          <div class="wolive-rich-reply" style="max-width:260px;padding:8px;border:1px solid #eee;border-radius:8px;background:#fafafa;">富媒体卡片占位（实际由 RichReplyRender 输出）</div>
+        </div></div>
+      </li>
+    </ul>
+  </div>
+  <div class="keyword" style="display:none"><div class="swiper-wrapper" id="question_key_list"></div></div>
+  <div class="foot_all h5-foot" id="h5_foot_all" style="position:fixed;bottom:0;width:100%;padding:0;z-index:999">
+    <div id="h5_tools_panel" class="h5-tools-panel">
+      <div class="tool_box"><div class="wl_faces_content"><div class="wl_faces_main"></div></div></div>
+      <div class="msg-toolbar h5-msg-toolbar">
+        <a id="face_icon" href="javascript:"><i class="layui-icon" style="font-size: 24px; line-height:46px; color:#888;">&#xe6af;</i></a>
+        <a id="images" href="javascript:"><span class="layui-box input-but size"><i class="layui-icon" style="font-size: 24px; line-height:44px; color:#888;">&#xe64a;</i></span></a>
+        <a id="files" href="javascript:"><span class="layui-box input-but size"><i class="layui-icon" style="font-size: 30px; line-height:42px; color:#888;">&#xe67d;</i></span></a>
+      </div>
+    </div>
+    <div class="foot_msg">
+      <div class="footer h5-input-row">
+        <button type="button" id="h5_btn_plus" class="h5-btn-plus" aria-label="展开工具">+</button>
+        <input type="text" id="text_in" placeholder="请输入您的问题" class="layui-input h5-input-field"/>
+        <button type="button" class="layui-btn layui-btn-normal send-btn h5-send-btn" style="background-color:#2b7cff">发送</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="../libs/jquery/jquery.min.js"></script>
+<script src="./js/chat-modern.js"></script>
+<script>
+  document.getElementById('h5_btn_more').addEventListener('click', function () {
+    alert('预览页：更多菜单在正式环境为投诉 layer');
+  });
+</script>
+</body>
+</html>

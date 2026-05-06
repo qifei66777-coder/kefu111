@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{$title|default='提示'}</title>
+    <style type="text/css">
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            color: #555;
+            background: #f4f6f9;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .box {
+            max-width: 420px;
+            width: 100%;
+            background: #fff;
+            border-radius: 12px;
+            padding: 36px 28px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,.06);
+        }
+        .box h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        .box p {
+            color: #777;
+            font-size: 14px;
+        }
+        .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <div class="icon">&#128172;</div>
+    <h1>{$title|default='暂时无法进入对话'}</h1>
+    <p>{$hint|default='请稍后再试，或让客服重新发送二维码。'}</p>
+</div>
+</body>
+</html>

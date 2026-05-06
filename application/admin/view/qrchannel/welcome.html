@@ -1,0 +1,73 @@
+{include file="public/header"/}
+<style>
+    #container { padding: 16px 24px 40px; max-width: 720px; }
+    .welcome-hint { color: #888; font-size: 13px; line-height: 1.6; margin: 8px 0 20px; }
+</style>
+<div id="container" class="adm-content-shell">
+    <h2 class="page-header" style="font-size: 18px;color: #555;">扫码欢迎语</h2>
+    <p class="welcome-hint">
+        访客通过<strong>二维码渠道</strong>扫码进入聊天后，首屏可展示一条欢迎语（不写聊天记录表，不影响 WebSocket）。<br>
+        展示优先级：客服「常用语」中<strong>使用中</strong>的默认文案 &gt; 下方商户配置 &gt; 系统默认句。
+    </p>
+
+    <form class="layui-form" id="form-welcome" style="margin-top: 16px;">
+        <div class="layui-form-item">
+            <label class="layui-form-label">启用</label>
+            <div class="layui-input-inline" style="width:160px;">
+                <select id="sw_en" class="layui-input">
+                    <option value="1">开启</option>
+                    <option value="0">关闭</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">欢迎语</label>
+            <div class="layui-input-block">
+                <textarea id="sw_msg" placeholder="留空则使用系统默认句（仍可能被客服常用语覆盖）" class="layui-textarea" style="min-height: 120px;"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button type="button" class="layui-btn" id="sw_save">保存</button>
+                <button type="button" class="layui-btn layui-btn-primary" id="sw_reload">重新加载</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+layui.use(['form', 'layer'], function () {
+    var form = layui.form;
+    var layer = layui.layer;
+
+    function loadCfg() {
+        $.get(YMWL_ROOT_URL + '/admin/qrchannel/welcomeConfig', function (res) {
+            if (!res || res.code !== 0) {
+                layer.msg((res && res.msg) ? res.msg : '加载失败', { icon: 2 });
+                return;
+            }
+            var d = res.data;
+            $('#sw_msg').val(d.scan_welcome_message || '');
+            $('#sw_en').val(String(d.scan_welcome_enabled ? 1 : 0));
+            form.render('select');
+        }, 'json');
+    }
+
+    $('#sw_save').on('click', function () {
+        var en = parseInt($('#sw_en').val(), 10) ? 1 : 0;
+        var msg = $('#sw_msg').val();
+        $.post(YMWL_ROOT_URL + '/admin/qrchannel/saveWelcome', {
+            scan_welcome_enabled: en,
+            scan_welcome_message: msg
+        }, function (res) {
+            if (res.code === 0) {
+                layer.msg(res.msg || '保存成功', { icon: 1 });
+            } else {
+                layer.msg(res.msg || '保存失败', { icon: 2 });
+            }
+        }, 'json');
+    });
+    $('#sw_reload').on('click', loadCfg);
+    loadCfg();
+});
+</script>
+{include file="public/footer"/}

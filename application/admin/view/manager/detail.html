@@ -1,0 +1,123 @@
+{include file="public/header"/}
+<script type="text/javascript" src="__libs__/echarts/echarts.min.js?v=__lkversion__"></script>
+<style>
+    #wrap { padding: 16px 20px 40px; overflow-y: auto; }
+    .big { font-size: 26px; font-weight: 600; color: #333; margin-top: 6px; }
+    .sub { font-size: 12px; color: #888; margin-top: 6px; }
+    .chart { width: 100%; height: 360px; }
+    .kv { font-size: 13px; color: #555; line-height: 1.8; }
+</style>
+
+<div id="wrap" class="layui-fluid adm-content-shell">
+    <h2 class="page-header" style="font-size:18px;color:#555;margin-bottom:12px;">员工详情</h2>
+    <div style="color:#888;font-size:13px;margin-bottom:18px;">
+        仅管理员可访问。统计为实时查询，不写入消息表，不影响原聊天链路。
+    </div>
+
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md4">
+            <div class="layui-card">
+                <div class="layui-card-header">基础信息</div>
+                <div class="layui-card-body kv">
+                    <div><b>ID</b> {$svc.service_id}</div>
+                    <div><b>账号</b> {$svc.user_name}</div>
+                    <div><b>昵称</b> {$svc.nick_name}</div>
+                    <div><b>状态</b> {$svc.state}</div>
+                    <div style="margin-top:10px;">
+                        <img src="{$svc.avatar}" style="width:64px;height:64px;border-radius:64px;" onerror="this.style.display='none';">
+                    </div>
+                    <div style="margin-top:14px;">
+                        <a class="layui-btn layui-btn-sm" href="{:url('admin/qrchannel/channelPage',['service_id'=>$svc.service_id])}" target="_blank">二维码渠道</a>
+                        <a class="layui-btn layui-btn-sm layui-btn-primary" href="{:url('admin/qrchannel/scanPage',['service_id'=>$svc.service_id])}" target="_blank">扫码记录</a>
+                        <a class="layui-btn layui-btn-sm layui-btn-primary" href="{:url('admin/qrchannel/blacklistPage',['service_id'=>$svc.service_id])}" target="_blank">黑名单</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-col-md8">
+            <div class="layui-card">
+                <div class="layui-card-header">今日数据卡片</div>
+                <div class="layui-card-body">
+                    <div class="layui-row layui-col-space15" id="cards"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-row layui-col-space15" style="margin-top:16px;">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">最近 7 天趋势</div>
+                <div class="layui-card-body">
+                    <div id="trend" class="chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var sid = {$svc.service_id};
+    var chart = echarts.init(document.getElementById('trend'));
+    function esc(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\"/g,'&quot;'); }
+
+    function loadStats() {
+        $.get(YMWL_ROOT_URL + '/admin/manager/detailStats', { id: sid }, function (res) {
+            if (!res || res.code !== 0) return;
+            var d = res.data;
+            var cards = [
+                { k: '今日接待客户', v: d.today_receive_visitor },
+                { k: '今日消息数', v: d.today_message_count },
+                { k: '今日扫码数', v: d.today_scan_count },
+                { k: '今日扫码访客', v: d.today_scan_visitor_count },
+                { k: '当前渠道数', v: d.qr_channel_count },
+                { k: '当前封禁IP', v: d.ban_ip_count },
+                { k: '最近登录IP', v: d.last_login_ip },
+                { k: '最后活跃', v: d.last_active_time }
+            ];
+            var html = '';
+            for (var i=0;i<cards.length;i++) {
+                html += '<div class="layui-col-xs6 layui-col-sm4 layui-col-md3"><div class="layui-card">' +
+                    '<div class="layui-card-header">' + esc(cards[i].k) + '</div>' +
+                    '<div class="layui-card-body"><div class="big">' + esc(cards[i].v) + '</div></div>' +
+                    '</div></div>';
+            }
+            $('#cards').html(html);
+        }, 'json');
+    }
+
+    function loadTrend() {
+        $.get(YMWL_ROOT_URL + '/admin/manager/detailTrend', { id: sid }, function (res) {
+            if (!res || res.code !== 0) return;
+            var rows = res.data || [];
+            var dates=[], recv=[], msg=[], scan=[];
+            rows.forEach(function(r){
+                dates.push(r.date);
+                recv.push(r.receive_count);
+                msg.push(r.message_count);
+                scan.push(r.scan_count);
+            });
+            chart.setOption({
+                tooltip: { trigger:'axis' },
+                legend: { data:['接待客户','消息','扫码'] },
+                grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+                xAxis: { type:'category', data:dates },
+                yAxis: { type:'value' },
+                series: [
+                    { name:'接待客户', type:'line', data:recv },
+                    { name:'消息', type:'line', data:msg },
+                    { name:'扫码', type:'line', data:scan }
+                ]
+            });
+        }, 'json');
+    }
+
+    loadStats();
+    loadTrend();
+    $(window).on('resize', function(){ chart.resize(); });
+})();
+</script>
+{include file="public/footer"/}
+

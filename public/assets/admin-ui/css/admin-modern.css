@@ -1,0 +1,721 @@
+/**
+ * 总后台 SaaS 风格主样式（已替代旧 admin 主题 CSS，按 body.adm-modern 作用域覆盖）
+ * 适配 1366–1920，避免横向溢出
+ */
+:root {
+  --adm-primary: #1677ff;
+  --adm-primary-hover: #4096ff;
+  --adm-bg: #f0f2f5;
+  --adm-sidebar: #141b2d;
+  --adm-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --adm-text: #1f1f1f;
+  --adm-muted: #8c8c8c;
+  --adm-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --adm-radius: 10px;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+html,
+body.adm-modern {
+  height: 100%;
+}
+
+body.adm-modern {
+  background: var(--adm-bg);
+  margin: 0;
+  overflow: hidden;
+  color: var(--adm-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+}
+
+body.adm-modern a {
+  color: inherit;
+}
+
+body.adm-modern .hide {
+  display: none !important;
+}
+
+/* —— 左侧栏（非客服聊天页，避免与三栏工作台叠加冲突） —— */
+body.adm-modern #layout-west {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 30;
+  width: 180px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #1a2336 0%, var(--adm-sidebar) 40%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+body.adm-modern #layout-menus {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+body.adm-modern #layout-menus-info {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 10px 10px !important;
+}
+
+body.adm-modern #layout-menus-info .info {
+  color: #fff !important;
+  font-size: 15px !important;
+  font-weight: 600;
+  display: flex !important;
+  align-items: center;
+  line-height: 1.3 !important;
+}
+
+body.adm-modern #layout-menus-info img {
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+}
+
+body.adm-modern #layout-menus-lists {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 0 16px;
+}
+
+body.adm-modern .group-menus {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+body.adm-modern .group-menus .menu-item {
+  margin: 2px 8px !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  min-height: 42px;
+  list-style: none;
+  color: #e8edf5;
+}
+
+body.adm-modern .group-menus .menu-item a {
+  padding: 10px 12px !important;
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  border-radius: 8px;
+  color: #e8edf5 !important;
+  text-decoration: none;
+}
+
+body.adm-modern .group-menus .menu-item[style*="background: #ffffff"],
+body.adm-modern .group-menus .menu-item[style*="background:#ffffff"],
+body.adm-modern .group-menus .menu-item.bg-white {
+  background: linear-gradient(135deg, #1677ff, #36c5f0) !important;
+  box-shadow: 0 8px 22px rgba(22, 119, 255, .28);
+}
+
+body.adm-modern .group-menus .menu-item[style*="background: #ffffff"] .info,
+body.adm-modern .group-menus .menu-item[style*="background:#ffffff"] .info,
+body.adm-modern .group-menus .menu-item.bg-white .info {
+  color: #fff !important;
+}
+
+body.adm-modern .group-menus .menu-item:not([style*="background: #ffffff"]):not([style*="background:#ffffff"]):not(.bg-white):hover {
+  background: var(--adm-sidebar-hover) !important;
+}
+
+body.adm-modern .group-menus .menu-item:not([style*="background: #ffffff"]):not([style*="background:#ffffff"]) .info {
+  color: #e8edf5 !important;
+}
+
+body.adm-modern .group-menus .layui-icon {
+  color: #8eb8ff !important;
+  font-size: 18px !important;
+}
+
+body.adm-modern.adm-sidebar-collapsed:not(.adm-page-chats) #layout-west {
+  width: 72px !important;
+}
+
+body.adm-modern.adm-sidebar-collapsed:not(.adm-page-chats) #layout-center {
+  left: 72px !important;
+  width: calc(100% - 72px) !important;
+}
+
+body.adm-modern.adm-sidebar-collapsed:not(.adm-page-chats) .group-menus .info {
+  display: none !important;
+}
+
+.adm-brand-sub {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  padding: 0 12px 8px;
+  letter-spacing: 0.5px;
+}
+
+.adm-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: calc(100% - 16px);
+  margin: 10px 8px 14px;
+  padding: 8px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #cfd8e6;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.adm-collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.adm-collapse-btn .layui-icon {
+  font-size: 14px;
+}
+
+/* —— 顶栏 —— */
+body.adm-modern #layout-north.adm-topbar {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 12px;
+  min-height: 56px;
+  height: auto !important;
+  padding: 8px 16px 8px 12px !important;
+  background: #fff !important;
+  border-bottom: 1px solid #e8e8e8 !important;
+  box-sizing: border-box;
+}
+
+body.adm-modern .adm-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+body.adm-modern .adm-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+  background: #fafafa;
+  color: #555;
+  cursor: pointer;
+}
+
+body.adm-modern .adm-topbar-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--adm-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+body.adm-modern #layout-center {
+  position: fixed;
+  left: 180px;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: auto !important;
+  background: var(--adm-bg) !important;
+  overflow: hidden;
+}
+
+body.adm-modern #layout-center > .adm-topbar {
+  position: relative;
+  z-index: 20;
+}
+
+body.adm-modern.adm-sidebar-collapsed:not(.adm-page-chats) #layout-center {
+  left: 72px !important;
+}
+
+@media (min-width: 1440px) {
+  body.adm-modern .adm-topbar-title {
+    max-width: 320px;
+  }
+}
+
+body.adm-modern .adm-topbar-center {
+  flex: 1 1 auto;
+  min-width: 120px;
+  max-width: 520px;
+}
+
+body.adm-modern .adm-search-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 14px 0 36px;
+  border: 1px solid #e0e0e0;
+  border-radius: 999px;
+  background: #f5f6f8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E") 12px center no-repeat;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+body.adm-modern .adm-search-input:focus {
+  outline: none;
+  border-color: var(--adm-primary);
+  background-color: #fff;
+}
+
+body.adm-modern .adm-topbar-right {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+body.adm-modern .adm-notify-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  color: #555;
+}
+
+body.adm-modern .adm-notify-btn .adm-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  border-radius: 8px;
+  background: #ff4d4f;
+  color: #fff;
+}
+
+body.adm-modern #layout-tools {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none;
+}
+
+body.adm-modern #layout-tools > li {
+  list-style: none;
+}
+
+body.adm-modern #layout-tools .am-dropdown {
+  position: relative;
+}
+
+body.adm-modern #layout-tools .am-dropdown-toggle {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 10px;
+  border: 1px solid #e8e8e8;
+  background: #fafafa;
+}
+
+body.adm-modern #layout-tools .am-dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 168px;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  border: 1px solid #e8eef6;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, .14);
+}
+
+body.adm-modern #layout-tools .am-dropdown.am-active .am-dropdown-content,
+body.adm-modern #layout-tools .am-dropdown:hover .am-dropdown-content {
+  display: block;
+}
+
+body.adm-modern #layout-tools .am-dropdown-content li {
+  list-style: none;
+}
+
+body.adm-modern #layout-tools .am-dropdown-content a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: #334155 !important;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+body.adm-modern #layout-tools .am-dropdown-content a:hover {
+  background: #f1f5f9;
+  color: var(--adm-primary) !important;
+}
+
+body.adm-modern #layout-tools .am-dropdown-content img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+body.adm-modern #layout-tools .handle {
+  color: var(--adm-text) !important;
+  font-weight: 500;
+}
+
+body.adm-modern #layout-tools .profile {
+  color: var(--adm-muted) !important;
+}
+
+body.adm-modern #container {
+  background: transparent !important;
+  height: calc(100vh - 57px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+body.adm-modern .page-header {
+  border-bottom: 0 !important;
+  padding-bottom: 4px !important;
+  margin-bottom: 12px !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: var(--adm-text) !important;
+}
+
+/* Layui 卡片 */
+body.adm-modern .layui-card {
+  border-radius: var(--adm-radius) !important;
+  border: 1px solid #e8e8e8 !important;
+  box-shadow: var(--adm-card-shadow) !important;
+  overflow: hidden;
+}
+
+body.adm-modern .layui-card-header {
+  font-weight: 600 !important;
+  color: var(--adm-text) !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  background: #fafafa !important;
+}
+
+body.adm-modern .layui-fluid {
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+body.adm-modern .layui-table thead tr {
+  background: #fafafa !important;
+}
+
+body.adm-modern .layui-table {
+  color: #334155;
+  background: #fff;
+}
+
+body.adm-modern .layui-table,
+body.adm-modern .layui-table-view {
+  border-color: #eef2f7 !important;
+  border-radius: var(--adm-radius);
+  overflow: hidden;
+}
+
+body.adm-modern .layui-table td,
+body.adm-modern .layui-table th {
+  border-color: #eef2f7 !important;
+}
+
+body.adm-modern .layui-table th {
+  font-weight: 600 !important;
+  color: #595959 !important;
+}
+
+body.adm-modern .layui-btn {
+  border-radius: 8px !important;
+}
+
+body.adm-modern .layui-btn-normal {
+  background: var(--adm-primary) !important;
+  border-color: var(--adm-primary) !important;
+}
+
+body.adm-modern .layui-btn-primary {
+  border-color: #d9d9d9 !important;
+  color: #333 !important;
+}
+
+body.adm-modern .layui-btn-danger {
+  border-radius: 8px !important;
+}
+
+/* 数据中心专用 */
+body.adm-modern #dash-wrap {
+  height: calc(100vh - 57px);
+  padding: 16px 18px 32px !important;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+body.adm-modern .adm-dash-hero {
+  margin-bottom: 16px;
+}
+
+body.adm-modern .adm-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 992px) {
+  body.adm-modern .adm-metric-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+body.adm-modern .adm-metric-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: var(--adm-radius);
+  box-shadow: var(--adm-card-shadow);
+  padding: 14px 14px 12px;
+  min-height: 96px;
+  box-sizing: border-box;
+}
+
+body.adm-modern .adm-metric-card .k {
+  font-size: 13px;
+  color: var(--adm-muted);
+}
+
+body.adm-modern .adm-metric-card .v {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--adm-text);
+  margin-top: 6px;
+  line-height: 1.2;
+}
+
+body.adm-modern .adm-metric-card .sub {
+  font-size: 11px;
+  color: #bfbfbf;
+  margin-top: 8px;
+  line-height: 1.35;
+}
+
+body.adm-modern .adm-dash-grid2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+@media (min-width: 1200px) {
+  body.adm-modern .adm-dash-grid2 {
+    grid-template-columns: 1.2fr 1fr;
+  }
+}
+
+body.adm-modern .adm-quick-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (min-width: 900px) {
+  body.adm-modern .adm-quick-links {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+body.adm-modern .adm-quick-links a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border-radius: var(--adm-radius);
+  border: 1px solid #e8e8e8;
+  background: #fff;
+  text-decoration: none;
+  color: var(--adm-text);
+  font-size: 12px;
+  text-align: center;
+  box-shadow: var(--adm-card-shadow);
+}
+
+body.adm-modern .adm-quick-links a:hover {
+  border-color: var(--adm-primary);
+  color: var(--adm-primary);
+}
+
+body.adm-modern .adm-quick-links .layui-icon {
+  font-size: 22px;
+  color: var(--adm-primary);
+}
+
+body.adm-modern .adm-tag-ok {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  color: #389e0d;
+  font-size: 12px;
+}
+
+body.adm-modern .adm-tag-off {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #fafafa;
+  border: 1px solid #d9d9d9;
+  color: #8c8c8c;
+  font-size: 12px;
+}
+
+body.adm-modern .adm-link-row a {
+  color: var(--adm-primary);
+  margin-right: 10px;
+}
+
+/* 员工管理 / 渠道页 toolbar */
+body.adm-modern .head {
+  background: #fff !important;
+  border: 1px solid #e8e8e8 !important;
+  border-radius: var(--adm-radius);
+  padding: 0 12px !important;
+  box-shadow: var(--adm-card-shadow);
+}
+
+body.adm-modern .handler .button,
+body.adm-modern .layui-btn {
+  border-radius: 8px !important;
+}
+
+body.adm-modern .handler {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+body.adm-modern .handler .back,
+body.adm-modern .handler .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #dbe4f0;
+  background: #fff;
+  color: #2563eb;
+  cursor: pointer;
+  box-shadow: var(--adm-card-shadow);
+}
+
+body.adm-modern .handler .button {
+  border-color: transparent;
+  color: #fff;
+  background: linear-gradient(135deg, #1677ff, #36c5f0);
+}
+
+body.adm-modern .qr-toolbar,
+body.adm-modern .rr-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  margin: 14px 0 16px !important;
+  border: 1px solid #e8eef6;
+  border-radius: var(--adm-radius);
+  background: #f8fafc;
+}
+
+body.adm-modern .qr-toolbar .layui-input-inline,
+body.adm-modern .rr-toolbar .layui-inline {
+  margin: 0 !important;
+}
+
+body.adm-modern .layui-input,
+body.adm-modern .layui-select,
+body.adm-modern .layui-textarea {
+  border-color: #dbe4f0 !important;
+  border-radius: 8px !important;
+}
+
+body.adm-modern .layui-input:focus,
+body.adm-modern .layui-textarea:focus {
+  border-color: var(--adm-primary) !important;
+  box-shadow: 0 0 0 3px rgba(22, 119, 255, .12);
+}
+
+/* 富媒体页 */
+body.adm-modern .rr-admin-wrap {
+  max-width: 100%;
+}
+
+body.adm-modern .adm-content-shell {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+body.adm-modern #container.adm-content-shell {
+  background: #fff !important;
+  border-radius: var(--adm-radius);
+  border: 1px solid #e8e8e8;
+  box-shadow: var(--adm-card-shadow);
+  margin: 12px 16px 24px !important;
+  padding: 18px 20px 36px;
+}
+
+body.adm-modern #rr-container.adm-content-shell,
+body.adm-modern #wrap.adm-content-shell {
+  height: calc(100vh - 81px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 12px 16px 24px !important;
+  padding: 18px 20px 36px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: var(--adm-radius);
+  box-shadow: var(--adm-card-shadow);
+  box-sizing: border-box;
+}
+
+body.adm-modern.adm-page-chats #container.wb-root {
+  margin: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  height: calc(100vh - 57px);
+  padding: 0 !important;
+}

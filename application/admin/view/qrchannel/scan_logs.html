@@ -1,0 +1,171 @@
+{include file="public/header"/}
+<style>
+    #container { padding: 16px 20px 40px; overflow-y: auto; }
+    .qr-toolbar { margin-bottom: 12px; }
+    .qr-toolbar .layui-input-inline { margin-right: 8px; margin-bottom: 8px; }
+</style>
+<div id="container" class="adm-content-shell">
+    <h2 class="page-header" style="font-size: 18px;color: #555;">扫码记录</h2>
+    <p style="color:#888;font-size:13px;margin:8px 0 16px;">手动访问接口：<code>{:url('admin/qrchannel/scanLogs')}</code>（需登录 AJAX）</p>
+
+    <form class="layui-form qr-toolbar" onsubmit="return false;">
+        <div class="layui-input-inline" style="width:140px;">
+            <select name="service_id" id="s_service">
+                <option value="">全部客服</option>
+                {volist name="services" id="sv"}
+                <option value="{$sv.service_id}">{if $sv.nick_name}{$sv.nick_name}{else /}{$sv.user_name}{/if}</option>
+                {/volist}
+            </select>
+        </div>
+        <div class="layui-input-inline" style="width:180px;">
+            <select name="channel_id" id="s_channel">
+                <option value="">全部渠道</option>
+                {volist name="channels" id="ch"}
+                <option value="{$ch.id}">#{$ch.id} {$ch.remark}</option>
+                {/volist}
+            </select>
+        </div>
+        <div class="layui-input-inline" style="width:140px;">
+            <input type="text" name="ip" id="s_ip" placeholder="IP" class="layui-input" autocomplete="off">
+        </div>
+        <div class="layui-input-inline" style="width:120px;">
+            <select name="device_type" id="s_dev">
+                <option value="">全部设备</option>
+                <option value="iOS">iOS</option>
+                <option value="Android">Android</option>
+                <option value="PC">PC</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="layui-input-inline" style="width:160px;">
+            <input type="text" name="keyword" id="s_keyword" placeholder="访客ID / 渠道备注" class="layui-input" autocomplete="off">
+        </div>
+        <div class="layui-input-inline" style="width:130px;">
+            <input type="text" name="start_time" id="s_start" placeholder="开始日期" class="layui-input" autocomplete="off">
+        </div>
+        <div class="layui-input-inline" style="width:130px;">
+            <input type="text" name="end_time" id="s_end" placeholder="结束日期" class="layui-input" autocomplete="off">
+        </div>
+        <div class="layui-input-inline">
+            <button type="button" class="layui-btn layui-btn-sm" id="s-search">筛选</button>
+            <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" id="s-reset">重置</button>
+        </div>
+    </form>
+
+    <table id="qr-scan-table" lay-filter="qr-scan-table"></table>
+</div>
+
+<script type="text/html" id="qr-scan-bar">
+    <a class="layui-btn layui-btn-xs layui-btn-primary" lay-event="visiter">查看访客</a>
+    <a class="layui-btn layui-btn-xs" lay-event="history">聊天记录</a>
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="ban">封禁IP</a>
+</script>
+
+<script>
+layui.use(['table', 'form', 'layer', 'laydate'], function () {
+    var table = layui.table;
+    var form = layui.form;
+    var layer = layui.layer;
+    var laydate = layui.laydate;
+    laydate.render({ elem: '#s_start', type: 'date' });
+    laydate.render({ elem: '#s_end', type: 'date' });
+
+    function qs(name) {
+        var m = new RegExp('[?&]' + name + '=([^&]*)').exec(location.search);
+        return m ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '';
+    }
+    var presetCh = qs('channel_id');
+    if (presetCh) {
+        $('#s_channel').val(presetCh);
+        form.render('select');
+    }
+    var presetIp = qs('ip');
+    if (presetIp) {
+        $('#s_ip').val(presetIp);
+    }
+
+    var tableIns = table.render({
+        elem: '#qr-scan-table',
+        url: YMWL_ROOT_URL + '/admin/qrchannel/scanLogs',
+        method: 'get',
+        page: true,
+        limit: 20,
+        cols: [[
+            { field: 'created_at', title: '时间', width: 165 },
+            { field: 'channel_remark', title: '渠道备注', minWidth: 120 },
+            { field: 'service_nick', title: '客服', width: 110 },
+            { field: 'visiter_id', title: '访客ID', minWidth: 140 },
+            { field: 'ip', title: 'IP', width: 130 },
+            { field: 'region', title: '地区', width: 100 },
+            { field: 'device_type', title: '设备', width: 90 },
+            { field: 'referer', title: '来源', minWidth: 160, templet: function (d) {
+                var t = d.referer || '';
+                if (t.length > 60) t = t.slice(0, 60) + '…';
+                return t || '—';
+            }},
+            { title: '操作', width: 200, align: 'center', fixed: 'right', toolbar: '#qr-scan-bar' }
+        ]],
+        parseData: function (res) {
+            return { code: res.code === 0 ? 0 : 1, msg: res.msg, count: res.count, data: res.data || [] };
+        }
+    });
+
+    if (presetIp) {
+        reload();
+    }
+
+    function reload() {
+        tableIns.reload({
+            where: {
+                service_id: $('#s_service').val(),
+                channel_id: $('#s_channel').val(),
+                ip: $('#s_ip').val(),
+                device_type: $('#s_dev').val(),
+                keyword: $('#s_keyword').val(),
+                start_time: $('#s_start').val(),
+                end_time: $('#s_end').val()
+            },
+            page: { curr: 1 }
+        });
+    }
+
+    $('#s-search').on('click', reload);
+    $('#s-reset').on('click', function () {
+        $('#s_service').val('');
+        $('#s_channel').val('');
+        $('#s_ip').val('');
+        $('#s_dev').val('');
+        $('#s_keyword').val('');
+        $('#s_start').val('');
+        $('#s_end').val('');
+        form.render('select');
+        reload();
+    });
+
+    table.on('tool(qr-scan-table)', function (obj) {
+        var d = obj.data;
+        if (obj.event === 'visiter') {
+            window.open(YMWL_ROOT_URL + '/admin/custom/index', '_blank');
+            return;
+        }
+        if (obj.event === 'history') {
+            window.open(YMWL_ROOT_URL + '/admin/index/history?visiter_id=' + encodeURIComponent(d.visiter_id), '_blank');
+            return;
+        }
+        if (obj.event === 'ban') {
+            layer.prompt({ title: '封禁原因（可空）', formType: 2 }, function (reason, idx) {
+                $.post(YMWL_ROOT_URL + '/admin/qrchannel/banIp', {
+                    ip: d.ip,
+                    reason: reason || '扫码记录封禁',
+                    ip_region: d.region || ''
+                }, function (res) {
+                    layer.close(idx);
+                    if (res.code === 0) { layer.msg('已封禁'); }
+                    else { layer.msg(res.msg || '失败', { icon: 2 }); }
+                }, 'json');
+            });
+        }
+    });
+});
+</script>
+{include file="public/footer"/}

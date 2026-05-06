@@ -1,0 +1,57 @@
+# Local runtime and deployment configuration
+config/database.php
+public/index.php
+public/wolive.js
+domain.json
+
+# Runtime cache, logs, sessions and generated files
+runtime/
+*.log
+*.pid
+
+# User uploads and generated media
+public/upload/*
+!public/upload/.gitignore
+!public/upload/files/
+public/upload/files/*
+!public/upload/files/.gitignore
+public/uploads/
+public/assets/ueditor/php/upload/
+public/assets/ueditor2/php/upload/
+
+# Local backups and temporary delivery artifacts
+backup/
+*.bak
+*.backup
+*.tmp
+*.temp
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Environment and secret files
+.env
+.env.*
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+
+# OS and editor noise
+.DS_Store
+*/.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+~$*
+.~*
+
+# Dependency and test caches
+.phpunit.result.cache
+composer.phar

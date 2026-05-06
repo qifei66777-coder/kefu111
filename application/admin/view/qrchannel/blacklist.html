@@ -1,0 +1,304 @@
+{include file="public/header"/}
+<style>
+    #container { padding: 16px 20px 40px; overflow-y: auto; }
+    .qr-toolbar { margin-bottom: 12px; }
+    .qr-toolbar .layui-input-inline { margin-right: 8px; margin-bottom: 8px; }
+    .ip-related-block { margin: 8px 0; font-size: 13px; }
+    .ip-related-block h4 { margin: 10px 0 6px; font-size: 14px; color: #333; }
+    .ip-related-table { width: 100%; border-collapse: collapse; }
+    .ip-related-table th, .ip-related-table td { border: 1px solid #eee; padding: 6px 8px; text-align: left; }
+</style>
+<div id="container" class="adm-content-shell">
+    <h2 class="page-header" style="font-size: 18px;color: #555;">IP 黑名单</h2>
+    <p style="color:#888;font-size:13px;margin:8px 0 16px;">列表接口：<code>{:url('admin/qrchannel/blacklist')}</code>（AJAX）</p>
+
+    <form class="layui-form qr-toolbar" onsubmit="return false;">
+        <div class="layui-input-inline" style="width:150px;">
+            <input type="text" name="ip" id="f_ip" placeholder="IP" class="layui-input" autocomplete="off">
+        </div>
+        <div class="layui-input-inline" style="width:160px;">
+            <select name="service_id" id="f_service">
+                <option value="">全部客服</option>
+                {volist name="services" id="sv"}
+                <option value="{$sv.service_id}">{if $sv.nick_name}{$sv.nick_name}{else /}{$sv.user_name}{/if}</option>
+                {/volist}
+            </select>
+        </div>
+        <div class="layui-input-inline" style="width:140px;">
+            <select name="created_by_type" id="f_cbt">
+                <option value="">封禁人类型</option>
+                <option value="service">service</option>
+                <option value="manager">manager</option>
+                <option value="admin">admin</option>
+            </select>
+        </div>
+        <div class="layui-input-inline" style="width:160px;">
+            <input type="text" name="reason" id="f_reason" placeholder="原因关键词" class="layui-input" autocomplete="off">
+        </div>
+        <div class="layui-input-inline" style="width:130px;">
+            <input type="text" name="start_time" id="f_start" placeholder="开始日期" class="layui-input" autocomplete="off">
+        </div>
+        <div class="layui-input-inline" style="width:130px;">
+            <input type="text" name="end_time" id="f_end" placeholder="结束日期" class="layui-input" autocomplete="off">
+        </div>
+        <div class="layui-input-inline">
+            <button type="button" class="layui-btn layui-btn-sm" id="f-search">筛选</button>
+            <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" id="f-reset">重置</button>
+            <button type="button" class="layui-btn layui-btn-normal layui-btn-sm" id="f-add">手动添加封禁</button>
+        </div>
+    </form>
+
+    <table id="bl-table" lay-filter="bl-table"></table>
+</div>
+
+<script type="text/html" id="tpl_add_svc_opts">
+    <option value="">默认（当前登录客服）</option>
+    {volist name="services" id="sv"}
+    <option value="{$sv.service_id}">{if $sv.nick_name}{$sv.nick_name}{else /}{$sv.user_name}{/if}</option>
+    {/volist}
+</script>
+
+<script type="text/html" id="bl-bar">
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="unban">解禁</a>
+    <a class="layui-btn layui-btn-xs" lay-event="related">关联记录</a>
+    <a class="layui-btn layui-btn-xs layui-btn-primary" lay-event="scans">扫码记录</a>
+    <a class="layui-btn layui-btn-xs layui-btn-primary" lay-event="history">聊天记录</a>
+    <a class="layui-btn layui-btn-xs layui-btn-primary" lay-event="copy">复制IP</a>
+</script>
+
+<script>
+layui.use(['table', 'form', 'layer', 'laydate'], function () {
+    var table = layui.table;
+    var form = layui.form;
+    var layer = layui.layer;
+    var laydate = layui.laydate;
+    laydate.render({ elem: '#f_start', type: 'date' });
+    laydate.render({ elem: '#f_end', type: 'date' });
+
+    function reloadTable() {
+        tableIns.reload({
+            where: {
+                ip: $('#f_ip').val(),
+                service_id: $('#f_service').val(),
+                created_by_type: $('#f_cbt').val(),
+                reason: $('#f_reason').val(),
+                start_time: $('#f_start').val(),
+                end_time: $('#f_end').val()
+            },
+            page: { curr: 1 }
+        });
+    }
+
+    var tableIns = table.render({
+        elem: '#bl-table',
+        url: YMWL_ROOT_URL + '/admin/qrchannel/blacklist',
+        method: 'get',
+        page: true,
+        limit: 20,
+        cols: [[
+            { field: 'ip', title: 'IP', width: 130 },
+            { field: 'region', title: '地区', width: 100, templet: function (d) { return d.region || '—'; } },
+            { field: 'reason', title: '封禁原因', minWidth: 120 },
+            { field: 'service_nickname', title: '所属客服', width: 110, templet: function (d) {
+                return d.service_nickname || d.service_name || '—';
+            }},
+            { field: 'created_by_name', title: '封禁人', width: 100 },
+            { field: 'scan_count', title: '扫码次数', width: 90 },
+            { field: 'visitor_count', title: '关联访客数', width: 100 },
+            { field: 'last_scan_time', title: '最近扫码', width: 165 },
+            { field: 'created_at', title: '封禁时间', width: 165 },
+            { title: '操作', width: 320, align: 'center', fixed: 'right', toolbar: '#bl-bar' }
+        ]],
+        parseData: function (res) {
+            return { code: res.code === 0 ? 0 : 1, msg: res.msg, count: res.count, data: res.data || [] };
+        }
+    });
+
+    $('#f-search').on('click', reloadTable);
+    $('#f-reset').on('click', function () {
+        $('#f_ip').val('');
+        $('#f_service').val('');
+        $('#f_cbt').val('');
+        $('#f_reason').val('');
+        $('#f_start').val('');
+        $('#f_end').val('');
+        form.render('select');
+        reloadTable();
+    });
+
+    $('#f-add').on('click', function () {
+        var opts = $('#tpl_add_svc_opts').html();
+        var html = '<div style="padding:16px 20px 8px;">'
+            + '<div class="layui-form-item"><label class="layui-form-label">IP</label><div class="layui-input-block"><input type="text" id="add_ip" class="layui-input" placeholder="必填"></div></div>'
+            + '<div class="layui-form-item"><label class="layui-form-label">客服</label><div class="layui-input-block"><select id="add_svc">' + opts + '</select></div></div>'
+            + '<div class="layui-form-item"><label class="layui-form-label">原因</label><div class="layui-input-block"><textarea id="add_reason" class="layui-textarea" placeholder="可空"></textarea></div></div>'
+            + '</div>';
+        layer.open({
+            type: 1,
+            title: '手动添加封禁',
+            area: ['420px', '360px'],
+            content: html,
+            btn: ['提交', '取消'],
+            success: function () {
+                form.render('select');
+            },
+            yes: function (idx) {
+                var ip = $.trim($('#add_ip').val());
+                var sid = parseInt($('#add_svc').val(), 10) || 0;
+                var reason = $.trim($('#add_reason').val());
+                $.post(YMWL_ROOT_URL + '/admin/qrchannel/banIp', {
+                    ip: ip,
+                    reason: reason,
+                    service_id: sid
+                }, function (res) {
+                    if (res.code === 0) {
+                        layer.close(idx);
+                        layer.msg('已封禁', { icon: 1 });
+                        reloadTable();
+                    } else {
+                        layer.msg(res.msg || '失败', { icon: 2 });
+                    }
+                }, 'json');
+                return false;
+            }
+        });
+    });
+
+    function renderRelated(data) {
+        var esc = function (s) {
+            if (s == null) return '';
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+        };
+        var h = '<div style="padding:12px 16px;max-height:420px;overflow:auto;">';
+        h += '<p><b>IP</b> ' + esc(data.ip) + '</p>';
+
+        h += '<div class="ip-related-block"><h4>最近扫码（最多20条）</h4>';
+        if (data.recent_scans && data.recent_scans.length) {
+            h += '<table class="ip-related-table"><tr><th>时间</th><th>渠道</th><th>访客</th><th>地区</th><th>客服</th></tr>';
+            for (var i = 0; i < data.recent_scans.length; i++) {
+                var r = data.recent_scans[i];
+                h += '<tr><td>' + esc(r.scan_time) + '</td><td>' + esc(r.channel_id) + '</td><td>' + esc(r.visiter_id) + '</td><td>' + esc(r.ip_region) + '</td><td>' + esc(r.service_nick) + '</td></tr>';
+            }
+            h += '</table>';
+        } else {
+            h += '<p style="color:#888">无</p>';
+        }
+        h += '</div>';
+
+        h += '<div class="ip-related-block"><h4>关联访客</h4>';
+        if (data.visitors && data.visitors.length) {
+            h += '<table class="ip-related-table"><tr><th>访客ID</th><th>名称</th></tr>';
+            for (var j = 0; j < data.visitors.length; j++) {
+                var v = data.visitors[j];
+                h += '<tr><td>' + esc(v.visiter_id) + '</td><td>' + esc(v.visiter_name || '') + '</td></tr>';
+            }
+            h += '</table>';
+        } else {
+            h += '<p style="color:#888">无</p>';
+        }
+        h += '</div>';
+
+        h += '<div class="ip-related-block"><h4>二维码渠道</h4>';
+        if (data.channels && data.channels.length) {
+            h += '<table class="ip-related-table"><tr><th>ID</th><th>备注</th><th>状态</th></tr>';
+            for (var c = 0; c < data.channels.length; c++) {
+                var ch = data.channels[c];
+                h += '<tr><td>' + esc(ch.id) + '</td><td>' + esc(ch.remark) + '</td><td>' + esc(ch.status) + '</td></tr>';
+            }
+            h += '</table>';
+        } else {
+            h += '<p style="color:#888">无</p>';
+        }
+        h += '</div>';
+
+        h += '<div class="ip-related-block"><h4>关联客服</h4>';
+        if (data.services && data.services.length) {
+            h += '<table class="ip-related-table"><tr><th>ID</th><th>账号</th><th>昵称</th></tr>';
+            for (var s = 0; s < data.services.length; s++) {
+                var sv = data.services[s];
+                h += '<tr><td>' + esc(sv.service_id) + '</td><td>' + esc(sv.user_name) + '</td><td>' + esc(sv.nick_name) + '</td></tr>';
+            }
+            h += '</table>';
+        } else {
+            h += '<p style="color:#888">无</p>';
+        }
+        h += '</div>';
+
+        h += '<div class="ip-related-block"><h4>聊天历史入口</h4>';
+        if (data.history_links && data.history_links.length) {
+            h += '<ul style="margin:0;padding-left:18px;">';
+            for (var k = 0; k < data.history_links.length; k++) {
+                var hl = data.history_links[k];
+                h += '<li><a href="' + esc(hl.history_url) + '" target="_blank">' + esc(hl.visiter_id) + '</a></li>';
+            }
+            h += '</ul>';
+        } else {
+            h += '<p style="color:#888">无可用链接</p>';
+        }
+        h += '</div>';
+
+        h += '</div>';
+        return h;
+    }
+
+    table.on('tool(bl-table)', function (obj) {
+        var d = obj.data;
+        var ip = d.ip;
+        if (obj.event === 'unban') {
+            layer.confirm('确定解禁该 IP？', function (idx) {
+                $.post(YMWL_ROOT_URL + '/admin/qrchannel/unbanIp', { id: d.id }, function (res) {
+                    layer.close(idx);
+                    if (res.code === 0) {
+                        layer.msg('已解禁', { icon: 1 });
+                        reloadTable();
+                    } else {
+                        layer.msg(res.msg || '失败', { icon: 2 });
+                    }
+                }, 'json');
+            });
+            return;
+        }
+        if (obj.event === 'related') {
+            $.get(YMWL_ROOT_URL + '/admin/qrchannel/ipRelated', { ip: ip }, function (res) {
+                if (res.code !== 0) {
+                    layer.msg(res.msg || '加载失败', { icon: 2 });
+                    return;
+                }
+                layer.open({
+                    type: 1,
+                    title: '关联记录 — ' + ip,
+                    area: ['720px', '560px'],
+                    content: renderRelated(res.data)
+                });
+            }, 'json');
+            return;
+        }
+        if (obj.event === 'scans') {
+            window.open(YMWL_ROOT_URL + '/admin/qrchannel/scanPage?ip=' + encodeURIComponent(ip), '_blank');
+            return;
+        }
+        if (obj.event === 'history') {
+            $.get(YMWL_ROOT_URL + '/admin/qrchannel/ipRelated', { ip: ip }, function (res) {
+                if (res.code !== 0 || !res.data.history_links || !res.data.history_links.length) {
+                    layer.msg('暂无可打开的聊天记录链接', { icon: 0 });
+                    return;
+                }
+                window.open(res.data.history_links[0].history_url, '_blank');
+            }, 'json');
+            return;
+        }
+        if (obj.event === 'copy') {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(ip).then(function () {
+                    layer.msg('已复制');
+                }, function () {
+                    layer.prompt({ title: '请手动复制', value: ip });
+                });
+            } else {
+                layer.prompt({ title: '请手动复制', value: ip });
+            }
+        }
+    });
+});
+</script>
+{include file="public/footer"/}

@@ -1,0 +1,769 @@
+/**
+ * 员工客服台 · 三栏工作台（覆盖 legacy 绝对定位，不改业务 ID）
+ * 适配 1366 / 1440 / 1920，禁止横向滚动，高度铺满 #container
+ */
+body.wb-modern #layout-west {
+  display: none !important;
+}
+
+body.wb-modern #layout-center {
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+}
+
+body.wb-modern #layout-north.adm-topbar {
+  display: none !important;
+}
+
+body.wb-modern .adm-collapse-btn,
+body.wb-modern .adm-menu-trigger {
+  display: none !important;
+}
+
+body.wb-modern .wb-root#container {
+  background: #eef1f6;
+  overflow: hidden !important;
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  width: 100%;
+  max-width: 100vw;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  box-sizing: border-box;
+}
+
+.wb-workbench {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+body.wb-modern,
+body.wb-modern .wb-root,
+body.wb-modern .wb-workbench {
+  overflow-x: hidden !important;
+}
+
+/* —— 左侧主导航 —— */
+.wb-rail {
+  flex: 0 0 64px;
+  width: 64px;
+  min-width: 64px;
+  background: #1e2a3a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+  gap: 6px;
+  z-index: 20;
+}
+
+.wb-rail-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  background: #1677ff;
+  color: #fff;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+.wb-rail-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #b8c5d6;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 20px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.wb-rail-item:hover,
+.wb-rail-item:focus {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.wb-rail-item.is-active {
+  background: rgba(22, 119, 255, 0.35);
+  color: #fff;
+}
+
+.wb-rail-item .layui-icon {
+  font-size: 22px;
+}
+
+.wb-rail-spacer {
+  flex: 1;
+}
+
+.wb-rail-foot {
+  font-size: 10px;
+  color: #6b7c90;
+  text-align: center;
+  padding: 8px 4px 0;
+  line-height: 1.3;
+}
+
+/* —— 主三栏 —— */
+.wb-main {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  min-width: 0;
+  min-height: 0;
+}
+
+.wb-pane-list {
+  flex: 0 0 clamp(260px, 24vw, 328px);
+  width: clamp(260px, 24vw, 328px);
+  max-width: 100%;
+  background: #fff;
+  border-right: 1px solid #e8e8e8;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.wb-pane-chat {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #f5f6f8;
+  border-right: 1px solid #e8e8e8;
+}
+
+.wb-pane-side {
+  flex: 0 0 clamp(300px, 25vw, 376px);
+  width: clamp(300px, 25vw, 376px);
+  max-width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fafbfc;
+}
+
+/* 列表头 */
+.wb-list-head {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+}
+
+.wb-btn-primary {
+  flex: 1;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border-radius: 8px;
+  border: 0;
+  background: #1677ff;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.wb-btn-primary:hover {
+  background: #4096ff;
+}
+
+.wb-icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wb-list-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.wb-pill {
+  border: 0;
+  background: #f3f4f6;
+  color: #555;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.wb-pill em {
+  font-style: normal;
+  color: #1677ff;
+  margin-left: 2px;
+}
+
+.wb-pill.is-active {
+  background: #e6f4ff;
+  color: #1677ff;
+  font-weight: 600;
+}
+
+.wb-list-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.wb-hidden-tab-titles > .layui-tab-title {
+  display: none !important;
+}
+
+.wb-hidden-tab-titles > .layui-tab-content {
+  padding: 0 !important;
+  border: 0 !important;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.wb-hidden-tab-titles .layui-tab-item {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.wb-list-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 10px 6px;
+  gap: 6px;
+}
+
+.wb-list-tools .clear-btn {
+  position: static !important;
+  float: none !important;
+  width: 22px;
+  height: 22px;
+  opacity: 0.65;
+}
+
+.wb-list-tools .reply-about {
+  font-size: 11px;
+  color: #999;
+}
+
+/* 会话列表项增强 */
+.wb-root .visiter {
+  height: auto;
+  min-height: 92px;
+  margin: 8px 10px;
+  padding: 10px 10px 10px 64px !important;
+  border: 1px solid #eef2f7;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, .05);
+  box-sizing: border-box;
+}
+
+.wb-root .visiter.onclick,
+.wb-root .visiter:hover {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.wb-root .visiter.onclick,
+.wb-root .visiter.check {
+  background: #f0f7ff !important;
+}
+
+.wb-root .v-avatar {
+  left: 14px;
+  top: 14px;
+}
+
+.wb-root .c_name {
+  left: 72px;
+  top: 12px;
+  width: calc(100% - 120px);
+}
+
+.wb-root .c_time {
+  right: 12px;
+  top: 12px;
+}
+
+.wb-root .newmsg {
+  left: 72px;
+  top: 36px;
+  width: calc(100% - 100px);
+}
+
+.wb-root .notice-icon {
+  right: 12px;
+  top: 44px;
+}
+
+.wb-visiter-meta {
+  position: absolute;
+  left: 72px;
+  bottom: 8px;
+  right: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+  color: #888;
+}
+
+.wb-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 4px;
+  background: #f5f5f5;
+  color: #666;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wb-chip.wb-chip-ios {
+  background: #e8f4ff;
+  color: #1677ff;
+}
+
+.wb-chip.wb-chip-android {
+  background: #e8f8e8;
+  color: #389e0d;
+}
+
+.wb-chip.wb-chip-pc {
+  background: #f0f0f0;
+  color: #595959;
+}
+
+/* —— 中间聊天 —— */
+.wb-chat-inner {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.wb-chat-top {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  min-width: 0;
+}
+
+.wb-chat-top-l {
+  min-width: 0;
+  flex: 1;
+}
+
+.wb-chat-top-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f1f1f;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wb-chat-top-meta {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #888;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.wb-chat-top-actions {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.wb-btn-ban {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 1px solid #ff4d4f;
+  background: #fff;
+  color: #ff4d4f;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.wb-btn-ban:hover {
+  background: #fff1f0;
+}
+
+.wb-chatbox-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.wb-root .chatbox {
+  flex: 1;
+  min-height: 0;
+  display: flex !important;
+  flex-direction: column;
+  padding-bottom: 0 !important;
+  position: relative !important;
+  width: 100% !important;
+  left: 0 !important;
+}
+
+.wb-root .no_chats {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f6f8;
+}
+
+.wb-root #wrap {
+  flex: 1;
+  min-height: 0 !important;
+  height: auto !important;
+  background: #f0f2f5 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 16px 18px 18px;
+}
+
+.wb-root .conversation {
+  padding: 0 !important;
+}
+
+.wb-root .conversation > .chatbox-name {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: linear-gradient(180deg, #f0f2f5 90%, rgba(240, 242, 245, 0));
+  padding-bottom: 6px;
+  margin: 0 8px 8px;
+}
+
+.wb-root .customer,
+.wb-root .service {
+  max-width: min(620px, 78%) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  line-height: 1.65;
+}
+
+.wb-root .outer-left .customer {
+  background: #fff !important;
+}
+
+.wb-root .outer-right .service {
+  background: linear-gradient(135deg, #2563eb, #0ea5e9) !important;
+  border: 0;
+  color: #fff !important;
+}
+
+.wb-root .footer {
+  flex: 0 0 auto;
+  position: relative !important;
+  width: 100% !important;
+  left: 0 !important;
+  background: #fff;
+  border-top: 1px solid #e8e8e8;
+  padding: 8px 10px 10px;
+  box-sizing: border-box;
+}
+
+.wb-root #text_in {
+  min-height: 72px !important;
+  border: 0 !important;
+  outline: 0 !important;
+  resize: none;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.wb-root .wb-chat-inner #fuceng {
+  right: 16px;
+  left: auto;
+  bottom: 118px;
+}
+
+.wb-root .msg-toolbar {
+  background: #fafafa !important;
+  border-radius: 8px;
+  padding: 6px 8px !important;
+  margin-bottom: 6px;
+}
+
+.wb-root .msg-input {
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+}
+
+.wb-input-hint {
+  font-size: 11px;
+  color: #999;
+  padding: 4px 2px 0;
+}
+
+.wb-quick-media {
+  display: flex;
+  gap: 8px;
+  padding: 6px 2px 0;
+}
+
+.wb-quick-media button {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  cursor: pointer;
+}
+
+.wb-quick-media button:hover {
+  border-color: #1677ff;
+  color: #1677ff;
+}
+
+/* —— 右侧资料 + 快捷回复 —— */
+.wb-root .chatinfo {
+  position: relative !important;
+  width: 100% !important;
+  right: auto !important;
+  left: auto !important;
+  height: 100% !important;
+  min-height: 0;
+  background: transparent !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.wb-side-stack {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: 0;
+}
+
+.wb-card {
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.wb-card-cust {
+  flex: 0 1 auto;
+  max-height: 52%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.wb-live-input-panel {
+  flex: 0 0 auto;
+  padding: 10px 14px 12px;
+  background: linear-gradient(180deg, #e6f4ff 0%, #f5fbff 100%);
+  border-bottom: 1px solid #bae0ff;
+}
+
+.wb-live-input-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1677ff;
+  margin-bottom: 8px;
+}
+
+.wb-live-input-ta {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 88px;
+  resize: vertical;
+  font-size: 13px;
+  line-height: 1.45;
+  border: 1px solid #91caff !important;
+  border-radius: 8px;
+  background: #fff !important;
+}
+
+.wb-card-bd-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.wb-card-reply {
+  flex: 1 1 50%;
+  min-height: 180px;
+}
+
+.wb-card-hd {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f1f1f;
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.wb-card-bd {
+  padding: 10px 14px 14px;
+  font-size: 13px;
+  color: #555;
+}
+
+.wb-kv {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 6px 10px;
+  margin-top: 8px;
+  font-size: 12px;
+  align-items: start;
+}
+
+.wb-kv .k {
+  color: #999;
+}
+
+.wb-kv .v {
+  color: #333;
+  word-break: break-all;
+}
+
+.wb-session-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.wb-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  background: #fff7e6;
+  border: 1px solid #ffd591;
+  color: #ad6800;
+}
+
+.wb-tag.green {
+  background: #f6ffed;
+  border-color: #b7eb8f;
+  color: #389e0d;
+}
+
+.wb-tag.gray {
+  background: #fafafa;
+  border-color: #d9d9d9;
+  color: #666;
+}
+
+.wb-btn-ban-block {
+  width: 100%;
+  margin-top: 14px;
+  height: 36px;
+  border-radius: 8px;
+}
+
+.wb-reply-bd {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: 4px;
+}
+
+.wb-quit-reply-host .rich-reply-sidebar {
+  margin-bottom: 12px;
+}
+
+#black_list.wb-black-offscreen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 1366 紧凑 */
+@media (max-width: 1400px) {
+  .wb-pane-list {
+    flex-basis: 220px;
+    width: 220px;
+  }
+  .wb-pane-side {
+    flex-basis: 260px;
+    width: 260px;
+  }
+  .wb-rail {
+    flex-basis: 56px;
+    width: 56px;
+    min-width: 56px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .wb-pane-list {
+    flex-basis: 200px;
+    width: 200px;
+  }
+}

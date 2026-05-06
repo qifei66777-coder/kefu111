@@ -1,0 +1,268 @@
+/* 富媒体快捷回复卡片（访客 H5 / PC / 客服端展示） */
+
+.chat-msg-rich-wrap {
+    max-width: 100%;
+    word-break: break-word;
+    overflow-x: auto;
+    box-sizing: border-box;
+}
+
+/* 不超出聊天气泡宽度 */
+.outer-right .service .chat-msg-rich-wrap,
+.outer-left .service .chat-msg-rich-wrap,
+.outer-right .customer .chat-msg-rich-wrap,
+.outer-left .customer .chat-msg-rich-wrap {
+    max-width: 100%;
+}
+
+.wolive-rich-reply {
+    box-sizing: border-box;
+    max-width: min(100%, 300px);
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.wolive-rich-reply__title {
+    font-weight: 700;
+    font-size: 15px;
+    color: #222;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.wolive-rich-reply__text,
+.wolive-rich-reply__caption {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.wolive-rich-reply__card-desc,
+.wolive-rich-reply__muted {
+    font-size: 13px;
+    color: #888;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.wolive-rich-reply__muted {
+    color: #c00;
+}
+
+.wolive-rich-reply__media {
+    margin: 0 0 10px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.wolive-rich-reply__img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    vertical-align: middle;
+    object-fit: cover;
+}
+
+.wolive-rich-reply__card-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: #222;
+    margin-bottom: 6px;
+}
+
+.wolive-rich-reply__btn {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 10px 18px;
+    min-height: 40px;
+    line-height: 20px;
+    background: #1677ff;
+    border: 1px solid #0958d9;
+    color: #fff !important;
+    border-radius: 8px;
+    text-decoration: none !important;
+    font-size: 14px;
+    max-width: 100%;
+    word-break: break-all;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.wolive-rich-reply__btn:hover {
+    opacity: 0.92;
+    color: #fff !important;
+}
+
+.wolive-rich-reply__video-wrap {
+    max-width: 100%;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #000;
+}
+
+.wolive-rich-reply__video {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    max-height: 220px;
+}
+
+.wolive-rich-reply__video-box {
+    max-width: 100%;
+}
+
+.wolive-rich-reply__video-link {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #1677ff !important;
+    text-decoration: underline !important;
+    word-break: break-all;
+    padding: 6px 0;
+    min-height: 36px;
+    line-height: 1.4;
+}
+
+.wolive-rich-reply__steps {
+    margin: 8px 0 0 0;
+    padding-left: 1.4em;
+    list-style-type: decimal;
+    list-style-position: outside;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.wolive-rich-reply__step {
+    margin-bottom: 8px;
+    padding-left: 4px;
+}
+
+.wolive-rich-reply__step-body {
+    display: inline-block;
+    max-width: 100%;
+}
+
+.wolive-rich-reply__guide-fallback {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.outer-left .service .wolive-rich-reply,
+.outer-right .service .wolive-rich-reply {
+    max-width: min(100%, 300px);
+}
+
+@media screen and (max-width: 480px) {
+    .wolive-rich-reply__img {
+        max-width: 100%;
+    }
+    .wolive-rich-reply__video {
+        max-width: 100%;
+    }
+}
+
+/* 客服侧快捷回复列表 */
+.rich-reply-sidebar {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+}
+.rich-reply-sidebar-title {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 6px;
+}
+.rich-reply-item {
+    display: block;
+    padding: 8px 6px;
+    margin: 4px 0;
+    background: #f7f8fa;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #333;
+}
+.rich-reply-item:hover {
+    background: #eef6ff;
+}
+.rich-reply-item small {
+    display: block;
+    color: #999;
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.rich-reply-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.rich-reply-input {
+    flex: 1 1 120px;
+    min-width: 100px;
+    height: 30px;
+    padding: 0 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+.rich-reply-select {
+    flex: 0 0 auto;
+    min-width: 88px;
+    height: 30px;
+    padding: 0 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+    background: #fff;
+}
+.rich-reply-filter-btn {
+    flex: 0 0 auto;
+    height: 30px;
+    line-height: 28px;
+    padding: 0 10px;
+    font-size: 12px;
+    border: none;
+    border-radius: 4px;
+    background: #1e9fff;
+    color: #fff;
+    cursor: pointer;
+}
+.rich-reply-empty {
+    font-size: 12px;
+    color: #999;
+    padding: 8px 4px;
+}
+
+.rich-send-preview {
+    padding: 12px 16px 8px;
+}
+.rich-send-preview-tip {
+    margin: 0 0 10px;
+    font-size: 12px;
+    color: #888;
+}
+.rich-send-preview-card {
+    max-height: 420px;
+    overflow: auto;
+    padding: 8px;
+    background: #f7f7f7;
+    border-radius: 8px;
+}

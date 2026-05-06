@@ -1,0 +1,311 @@
+{include file="public/header"/}
+<script type="text/javascript" src="__libs__/echarts/echarts.min.js?v=__lkversion__"></script>
+<style>
+    #dash-wrap { padding: 8px 4px 40px; overflow-x: hidden; overflow-y: auto; max-width: 100%; box-sizing: border-box; }
+    .dash-chart { height: 320px; width: 100%; margin-top: 4px; min-height: 260px; }
+    .dash-pie { height: 280px; width: 100%; margin-top: 4px; min-height: 220px; }
+</style>
+<div id="dash-wrap" class="layui-fluid">
+    <div class="adm-dash-hero">
+        <h2 class="page-header">数据中心</h2>
+        <p style="color:#8c8c8c;font-size:13px;margin:0 0 12px;">统计范围为<strong>当前登录商户</strong>；普通客服仅看自己关联数据。接口实时查询。</p>
+        <div class="adm-metric-grid" id="dash-cards"></div>
+    </div>
+
+    <div class="layui-card" style="margin-top:14px;">
+        <div class="layui-card-header">最近 7 天数据趋势</div>
+        <div class="layui-card-body">
+            <div id="chart-trend" class="dash-chart"></div>
+        </div>
+    </div>
+
+    <div class="adm-dash-grid2" style="margin-top:12px;">
+        <div>
+            <div class="layui-card">
+                <div class="layui-card-header">地区分布排行（近 7 日扫码）</div>
+                <div class="layui-card-body" style="overflow-x:auto;">
+                    <table class="layui-table" lay-size="sm">
+                        <thead><tr><th>地区</th><th>扫码次数</th><th>访客数(去重)</th></tr></thead>
+                        <tbody id="tb-region"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="layui-card" style="margin-top:12px;">
+                <div class="layui-card-header">客服接待排行（今日 Top10）</div>
+                <div class="layui-card-body" style="overflow-x:auto;">
+                    <table class="layui-table" lay-size="sm">
+                        <thead><tr>
+                            <th>客服</th><th>状态</th><th>接待访客</th><th>消息</th><th>扫码访客</th>
+                        </tr></thead>
+                        <tbody id="tb-service"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="layui-card" style="margin-top:12px;">
+                <div class="layui-card-header">二维码渠道排行（Top10）</div>
+                <div class="layui-card-body" style="overflow-x:auto;">
+                    <table class="layui-table" lay-size="sm">
+                        <thead><tr>
+                            <th>ID</th><th>备注</th><th>客服</th><th>总扫码</th><th>今日扫码</th><th>访客数</th><th>状态</th><th>最近扫码</th>
+                        </tr></thead>
+                        <tbody id="tb-channel"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-card">
+                <div class="layui-card-header">设备分布（近 7 日）</div>
+                <div class="layui-card-body">
+                    <div id="chart-device" class="dash-pie"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-card" style="margin-top:14px;">
+        <div class="layui-card-header">快捷入口</div>
+        <div class="layui-card-body">
+            <div class="adm-quick-links">
+                <a href="{:url('admin/qrchannel/channelPage')}"><i class="layui-icon">&#xe66b;</i><span>二维码模板管理</span></a>
+                <a href="{:url('admin/qrchannel/blacklistPage')}"><i class="layui-icon">&#xe60e;</i><span>IP 黑名单管理</span></a>
+                <a href="{:url('admin/qrchannel/welcomePage')}"><i class="layui-icon">&#xe6c6;</i><span>扫码欢迎语配置</span></a>
+                <a href="{:url('admin/richreply/index')}"><i class="layui-icon">&#xe656;</i><span>快捷回复管理</span></a>
+                <a href="{:url('admin/index/set')}"><i class="layui-icon">&#xe620;</i><span>系统设置</span></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-card" style="margin-top:14px;">
+        <div class="layui-card-header">员工管理（预览） <a href="{:url('admin/manager/info')}" style="float:right;font-size:12px;font-weight:400;color:#1677ff;">查看全部员工</a></div>
+        <div class="layui-card-body" style="overflow-x:auto;">
+            <table class="layui-table" lay-size="sm">
+                <thead><tr>
+                    <th>客服ID</th><th>账号</th><th>昵称</th><th>当前状态</th><th>今日接待客户数</th><th>最近登录IP</th><th>操作</th>
+                </tr></thead>
+                <tbody id="tb-staff-preview"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var trendChart = echarts.init(document.getElementById('chart-trend'));
+    var deviceChart = echarts.init(document.getElementById('chart-device'));
+
+    function esc(s) {
+        if (s == null) return '';
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+    }
+
+    function stateLabel(st) {
+        return (st === 'online') ? '<span class="adm-tag-ok">在线</span>' : '<span class="adm-tag-off">离线</span>';
+    }
+
+    function channelStatusTag(s) {
+        var n = parseInt(s, 10);
+        return n === 1 ? '<span class="adm-tag-ok">启用</span>' : '<span class="adm-tag-off">禁用</span>';
+    }
+
+    function loadOverview() {
+        $.get(YMWL_ROOT_URL + '/admin/dashboard/overview', function (res) {
+            if (!res || res.code !== 0) return;
+            var d = res.data;
+            var cards = [
+                { k: '今日扫码数', v: d.today_scan_count, sub: '当日扫码日志' },
+                { k: '今日访客数', v: d.today_visitor_count, sub: '管理员/客服口径见接口说明' },
+                { k: '今日消息数', v: d.today_message_count, sub: '当日会话消息' },
+                { k: '在线客服数', v: d.online_service_count, sub: 'state=online' },
+                { k: '当前黑名单数', v: d.total_blacklist_count, sub: '生效中 IP' },
+                { k: '今日新增渠道数', v: d.today_channel_count, sub: '当日新建渠道' }
+            ];
+            var html = '';
+            for (var i = 0; i < cards.length; i++) {
+                var c = cards[i];
+                html += '<div class="adm-metric-card">' +
+                    '<div class="k">' + esc(c.k) + '</div>' +
+                    '<div class="v">' + esc(c.v) + '</div>' +
+                    '<div class="sub">' + esc(c.sub) + '</div></div>';
+            }
+            $('#dash-cards').html(html);
+        }, 'json');
+    }
+
+    function loadTrend() {
+        $.get(YMWL_ROOT_URL + '/admin/dashboard/trend', function (res) {
+            if (!res || res.code !== 0) return;
+            var rows = res.data || [];
+            var dates = [];
+            var scans = [], visitors = [], msgs = [];
+            for (var i = 0; i < rows.length; i++) {
+                dates.push(rows[i].date);
+                scans.push(rows[i].scan_count);
+                visitors.push(rows[i].visitor_count);
+                msgs.push(rows[i].message_count);
+            }
+            trendChart.setOption({
+                color: ['#1677ff', '#52c41a', '#9254de'],
+                tooltip: { trigger: 'axis' },
+                legend: { data: ['扫码数','访客数','消息数'] },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'category', boundaryGap: false, data: dates },
+                yAxis: { type: 'value' },
+                series: [
+                    { name: '扫码数', type: 'line', smooth: true, data: scans },
+                    { name: '访客数', type: 'line', smooth: true, data: visitors },
+                    { name: '消息数', type: 'line', smooth: true, data: msgs }
+                ]
+            });
+        }, 'json');
+    }
+
+    function loadService() {
+        $.get(YMWL_ROOT_URL + '/admin/dashboard/serviceRank', { limit: 10 }, function (res) {
+            if (!res || res.code !== 0) return;
+            var h = '';
+            (res.data || []).forEach(function (r) {
+                var name = r.nick_name || r.user_name || ('#' + r.service_id);
+                var st = stateLabel(r.state);
+                h += '<tr><td>' + esc(name) + '</td><td>' + st + '</td><td>' + esc(r.today_receive_visitor) + '</td>' +
+                    '<td>' + esc(r.today_message_count) + '</td><td>' + esc(r.today_scan_visitor_count) + '</td></tr>';
+            });
+            $('#tb-service').html(h || '<tr><td colspan="5">暂无数据</td></tr>');
+        }, 'json');
+    }
+
+    function loadChannel() {
+        $.get(YMWL_ROOT_URL + '/admin/dashboard/channelRank', { limit: 10 }, function (res) {
+            if (!res || res.code !== 0) return;
+            var h = '';
+            (res.data || []).forEach(function (r) {
+                h += '<tr><td>' + esc(r.channel_id) + '</td><td>' + esc(r.remark) + '</td><td>' + esc(r.service_nickname) + '</td>' +
+                    '<td>' + esc(r.scan_count) + '</td><td>' + esc(r.today_scan_count) + '</td><td>' + esc(r.visitor_count) + '</td>' +
+                    '<td>' + channelStatusTag(r.status) + '</td><td>' + esc(r.last_scan_time) + '</td></tr>';
+            });
+            $('#tb-channel').html(h || '<tr><td colspan="8">暂无数据</td></tr>');
+        }, 'json');
+    }
+
+    function loadDevice() {
+        $.get(YMWL_ROOT_URL + '/admin/dashboard/deviceStats', function (res) {
+            if (!res || res.code !== 0) return;
+            var pie = [];
+            (res.data || []).forEach(function (x) {
+                pie.push({ name: x.device, value: x.count });
+            });
+            deviceChart.setOption({
+                color: ['#1677ff', '#52c41a', '#faad14', '#8c8c8c'],
+                tooltip: { trigger: 'item' },
+                legend: { bottom: 0 },
+                series: [{
+                    type: 'pie',
+                    radius: ['38%', '64%'],
+                    label: { formatter: '{b}\n{d}%' },
+                    data: pie
+                }]
+            });
+        }, 'json');
+    }
+
+    function loadRegion() {
+        $.get(YMWL_ROOT_URL + '/admin/dashboard/regionStats', { limit: 15 }, function (res) {
+            if (!res || res.code !== 0) return;
+            var h = '';
+            (res.data || []).forEach(function (r) {
+                h += '<tr><td>' + esc(r.region) + '</td><td>' + esc(r.scan_count) + '</td><td>' + esc(r.visitor_count) + '</td></tr>';
+            });
+            $('#tb-region').html(h || '<tr><td colspan="3">暂无数据</td></tr>');
+        }, 'json');
+    }
+
+    function loadStaffPreview() {
+        $.get(YMWL_ROOT_URL + '/admin/dashboard/staffPreview', function (res) {
+            if (!res || res.code !== 0) return;
+            var rows = res.data || [];
+            if (!rows.length) {
+                $('#tb-staff-preview').html('<tr><td colspan="7" style="text-align:center;color:#999;">仅管理员可见预览，或暂无员工数据</td></tr>');
+                return;
+            }
+            var base = YMWL_ROOT_URL || '';
+            var h = '';
+            rows.forEach(function (r) {
+                var st = stateLabel(r.state);
+                var detail = base + '/admin/manager/detail?id=' + encodeURIComponent(r.service_id);
+                h += '<tr><td>' + esc(r.service_id) + '</td><td>' + esc(r.user_name) + '</td><td>' + esc(r.nick_name) + '</td><td>' + st + '</td>' +
+                    '<td>' + esc(r.today_receive_visitor) + '</td><td>' + esc(r.last_login_ip) + '</td><td class="adm-link-row">' +
+                    '<a href="' + detail + '">详情</a>' +
+                    '<a href="javascript:;" class="js-quick-login" data-sid="' + esc(r.service_id) + '">快捷登录</a>' +
+                    '<a href="javascript:;" class="js-reset-pwd" data-sid="' + esc(r.service_id) + '">重置密码</a></td></tr>';
+            });
+            $('#tb-staff-preview').html(h);
+        }, 'json');
+    }
+
+    function dashQuickLogin(service_id) {
+        layer.confirm('将打开新窗口并切换为该员工登录（10分钟有效）。请确保你已授权此操作。', function (idx) {
+            layer.close(idx);
+            $.post(YMWL_ROOT_URL + '/admin/manager/quickLogin', { service_id: service_id }, function (res) {
+                if (res.code === 0 && res.data && res.data.url) {
+                    window.open(res.data.url, '_blank');
+                } else {
+                    layer.msg(res.msg || '生成失败', { icon: 2 });
+                }
+            }, 'json');
+        });
+    }
+
+    function dashResetPwd(id) {
+        var html = '';
+        html += '<form id="pass_dash" class="layui-form" style="margin-top:30px;">';
+        html += '<div class="layui-form-item"><label class="layui-form-label" style="font-size:13px;color:#999;width:125px;">输入新密码:</label>';
+        html += '<div class="layui-input-block"><input type="text" id="newpass_dash" name="newpass" placeholder="请输入新密码" autocomplete="off" class="layui-input" style="width:260px;">';
+        html += '<input class="hide" type="text" name="id" value="' + id + '"></div></div></form>';
+        layer.open({
+            skin: 'changepwd',
+            type: 1,
+            title: '修改密码',
+            area: ['501px', '213px'],
+            content: html,
+            btn: ['修改', '取消'],
+            yes: function () {
+                $('#pass_dash').ajaxSubmit({
+                    url: YMWL_ROOT_URL + '/admin/manager/changePwd',
+                    type: 'post',
+                    success: function (res) {
+                        if (res.code == 0) {
+                            layer.msg(res.msg, { icon: 1, time: 2000, end: function () { location.reload(); } });
+                        } else {
+                            layer.msg(res.msg, { icon: 0 });
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    $(document).on('click', '.js-quick-login', function () {
+        dashQuickLogin($(this).data('sid'));
+    });
+    $(document).on('click', '.js-reset-pwd', function () {
+        dashResetPwd($(this).data('sid'));
+    });
+
+    function refreshAll() {
+        loadOverview();
+        loadTrend();
+        loadService();
+        loadChannel();
+        loadDevice();
+        loadRegion();
+        loadStaffPreview();
+    }
+
+    refreshAll();
+    $(window).on('resize', function () {
+        trendChart.resize();
+        deviceChart.resize();
+    });
+})();
+</script>
+{include file="public/footer"/}

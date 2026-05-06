@@ -1,0 +1,403 @@
+{include file="public/header"/}
+<style>
+    .head {
+        margin: 10px 0px;
+        height: 40px;
+        line-height: 40px;
+        background: #ddd;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .head .title {
+        padding: 0px 15px;
+    }
+
+    .handler .back .img{
+        width: 16px;
+        height: 16px;
+        margin: 6px 0 0 16px;
+        float: left;
+        background: url("__image__/admin/B/back-system.png");
+    }
+    .changepwd .layui-layer-ico{
+        height: 24px;
+        width: 24px;
+        background:url("__image__/admin/B/cha.png") no-repeat;
+    }
+
+    .changepwd .layui-layer-content{
+        padding: 0 16px;
+        margin-right: 20px;
+    }
+    .recycle{
+        float: left;
+        margin-left: 40px;
+        width: 20px;
+        height: 20px;
+        background:url("__image__/admin/B/delete.png") no-repeat;
+        cursor: pointer;
+    }
+    .copybtn:focus{outline:0;}
+    #container{
+        background-color: #fff;
+    }
+</style>
+<div id="container" class="adm-content-shell" style="overflow-y: auto;padding-bottom: 42px">
+    <h2 class="page-header" style="font-size: 18px;color: #555555;"> 客服添加与管理</h2>
+    <div class="handler">
+        <a href="{:url('admin/index/set')}">
+            <div class="back">
+                <i class="img"></i>
+                <span>返回设置</span>
+            </div>
+        </a>
+
+        <a onclick="add()" class="" data-pjax>
+            <div class="button">
+                +添加客服
+            </div>
+        </a>
+    </div>
+
+    <div style="height:40px;line-height:40px;padding-left:16px;color: #555555;font-size: 14px;border-radius: 8px;background: #F5FAFF;margin: 20px 0 20px 0;">
+        当前客服数量：{$count} ，最大客服数量： {$business['max_count'] ?$business['max_count']:'无限制'}
+    </div>
+
+    <table class="layui-table">
+
+        <colgroup>
+            <col width="70">
+            <col width="140">
+            <col width="140">
+            <col width="80">
+            <col width="100">
+            <col width="120">
+            <col width="110">
+            <col width="120">
+            <col width="120">
+            <col width="140">
+            <col width="170">
+            <col width="100">
+            <col width="100">
+            <col width="360">
+        </colgroup>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>账号</th>
+            <th>昵称</th>
+            <th>头像</th>
+            <th>状态</th>
+            <th>今日接待</th>
+            <th>今日消息</th>
+            <th>今日扫码访客</th>
+            <th>最近登录IP</th>
+            <th>最后活跃</th>
+            <th>渠道数</th>
+            <th>封禁IP</th>
+            <th>客服分类</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {volist name='lister' id='admins'}
+        <tr>
+            <td>{$admins.service_id}</td>
+            <td>{$admins.user_name}</td>
+            <td>{$admins.nick_name}</td>
+            <td><img src="{$admins.avatar}" style="width:32px;height:32px;border-radius:32px;" onerror="this.style.display='none';"></td>
+            <td>{$admins.work_state}</td>
+            <td>{$admins.today_receive_visitor}</td>
+            <td>{$admins.today_message_count}</td>
+            <td>{$admins.today_scan_visitor_count}</td>
+            <td>{$admins.last_login_ip}</td>
+            <td>{$admins.last_active_time}</td>
+            <td>{$admins.qr_channel_count}</td>
+            <td>{$admins.ban_ip_count}</td>
+            <td>{if !empty($admins.groupname)}{$admins.groupname}{else/}通用客服{/if}</td>
+            <td>
+                <a href='javascript:showinfo({$admins.json},{$group})' >
+                    <img src="__image__/admin/A/edit.png" alt="编辑" title="编辑">
+                </a>
+                <a href='javascript:copyhref("{$admins.personal}","{$admins.personalwechat}")' class="copybtn" >
+                    <img src="__image__/admin/A/copy.png" alt="拷贝专属链接" title="拷贝专属链接">
+                </a>
+                {if condition="$admins['level']!='super_manager'"}
+                <a href='javascript:modifyCustom({$admins.service_id})'>
+                    <img src="__image__/admin/A/change.png" alt="修改密码" title="修改密码">
+                </a>
+                <a href='javascript:sdelete({$admins.service_id})'>
+                    <img src="__image__/admin/A/delete.png" alt="删除" title="删除">
+                </a>
+                {/if}
+                <a href="{:url('admin/manager/detail',['id'=>$admins.service_id])}" target="_blank">
+                    <img src="__image__/admin/B/person.png" alt="详情" title="详情">
+                </a>
+                <a href="{:url('admin/qrchannel/channelPage',['service_id'=>$admins.service_id])}" target="_blank">
+                    <img src="__image__/admin/B/website.png" alt="二维码渠道" title="二维码渠道">
+                </a>
+                <a href="{:url('admin/qrchannel/scanPage',['service_id'=>$admins.service_id])}" target="_blank">
+                    <img src="__image__/admin/B/screen.png" alt="扫码记录" title="扫码记录">
+                </a>
+                <a href="{:url('admin/qrchannel/blacklistPage',['service_id'=>$admins.service_id])}" target="_blank">
+                    <img src="__image__/admin/B/delete.png" alt="黑名单" title="黑名单">
+                </a>
+                <a href="javascript:banRecentIp({$admins.service_id},'{$admins.last_login_ip}')">
+                    <img src="__image__/admin/B/offline-enable.png" alt="封禁登录IP" title="封禁最近登录IP">
+                </a>
+                <a href="javascript:quickLogin({$admins.service_id})">
+                    <img src="__image__/admin/B/back-system.png" alt="快捷登录" title="快捷登录">
+                </a>
+                {if condition="!empty($admins['open_id'])"}
+                <a href='javascript:wechat("{$admins.open_id}","{$admins.service_id}")'>
+                    <img src="__image__/admin/B/wechat.png" alt="绑定的微信" title="绑定的微信">
+                </a>
+                {/if}
+                {if condition="$admins['offline_first'] == 1"}
+                <a href='javascript:setofflinefirst({$admins.service_id},0)'>
+                    <img src="__image__/admin/B/offline-disabled.png" alt="取消离线优先" title="取消离线优先">
+                </a>
+                {else/}
+                <a href='javascript:setofflinefirst({$admins.service_id},1)'>
+                    <img src="__image__/admin/B/offline-enable.png" alt="离线优先" title="离线优先">
+                </a>
+                {/if}
+                {if condition="$admins['groupid2'] == $admins['groupid']"}
+                    {if condition="$admins['groupid'] == 1"}
+                    <a href='javascript:setofflinefirst3({$admins.service_id},100)'>
+                        <img src="__image__/admin/B/zx.png" alt="点击离线" title="设置离线">
+                    </a>
+                    {else/}
+                    <a href='javascript:setofflinefirst3({$admins.service_id},1)'>
+                        <img src="__image__/admin/B/zx.png" alt="点击离线" title="设置离线">
+                    </a>
+                    {/if}
+                {else/}
+                    {if condition="$admins['groupid'] == 1"}
+                        <a href='javascript:setofflinefirst2({$admins.service_id},100)'>
+                            <img src="__image__/admin/B/lx2.png" alt="点击在线" title="设置在线">
+                        </a>
+                        {else/}
+                        {if condition="$admins['groupid'] == 100"}
+                            <a href='javascript:setofflinefirst2({$admins.service_id},{$admins.groupid2})'>
+                                <img src="__image__/admin/B/lx2.png" alt="点击在线" title="设置在线">
+                            </a>
+                            {else/}
+                            <a href='javascript:setofflinefirst2({$admins.service_id},{$admins.groupid2})'>
+                                <img src="__image__/admin/B/lx2.png" alt="点击在线" title="设置在线">
+                            </a>
+                        {/if}
+                    {/if}
+                {/if}
+            </td>
+        </tr>
+        {/volist}
+        </tbody>
+    </table>
+    {$page}
+
+</div>
+<script src="__script__/platform/clipboard.min.js?v=__lkversion__"></script>
+<script type="text/javascript">
+
+    var sdelete = function (id) {
+
+        layer.open({
+            type: 1,
+            title: '删除',
+            area: ['260px', '180px'],
+            content: "<div><center><p style='font-size:15px;margin:33px auto;'>确定删除该用户</p></center></div>",
+            btn: ['确定', '取消'],
+            yes: function () {
+                $.ajax({
+                    url:YMWL_ROOT_URL+"/admin/manager/delete",
+                    type: "post",
+                    data: {id: id},
+                    success: function (res) {
+                        if(res.code == 0){
+                             layer.msg(res.msg,{time:2000,end:function () {
+                                location.href = "{:url('admin/manager/info')}";
+                            }});
+                        }               
+                    }
+                });
+            }
+        });
+    };
+
+    var wechat = function (open_id,service_id) {
+
+        layer.open({
+            type:2,
+            title:'微信用户信息',
+            area:['800px','300px'],
+            content:YMWL_ROOT_URL + '/admin/manager/wechat/open_id/'+open_id + '/service_id/' + service_id,
+        });
+
+    };
+
+    var copyhref = function (href,wechat) {
+
+        var copyhtml = '<div id="hrefs" style="padding: 30px 0 0 75px;position:relative">\n' +
+            '            <button type="button" class="btn copybtn" data-clipboard-text= ' + href + ' style="outline:none;background: #05202d; height: 32px;margin: 0 10px; border-radius: 16px;color: white; ;">专属链接</button>\n' +
+            '            <button type="button" class="btn copybtn" data-clipboard-text= ' + wechat + ' style="outline:none;background: #05202d; height: 32px;margin: 0 10px; border-radius: 16px;color: white; ">公众号专属链接</button>\n' +
+            '        </div>';
+
+
+        var clipboard = new ClipboardJS('.copybtn');
+        clipboard.on('success', function(e) {
+            layer.msg('复制成功', {icon: 1});
+            e.clearSelection();
+        });
+        clipboard.on('error', function(e) {
+            layer.msg('复制成功，请关闭兼容模式或者升级浏览器');
+        });
+
+        layer.open({
+            type:1,
+            title:'拷贝专属链接',
+            area:['400px','150px'],
+            content:copyhtml,
+        });
+
+    };
+
+    function modifyCustom(id)
+    {
+        var html  ='';
+        html +='<form id="pass" class="layui-form" style="margin-top:30px;">';
+        html +='<div class="layui-form-item"><label class="layui-form-label" style="font-size: 13px;color: #999999;width: 125px;">输入新密码:</label>';
+        html +='<div class="layui-input-block">';
+        html +=' <input type="text" id="newpass" name="newpass" placeholder="请输入新密码" autocomplete="off" class="layui-input" style="width:260px;"><input class="hide" type="text" name="id" value="'+id+'"></div>';
+        html +='</div></form>';
+
+        layer.open({
+            skin: 'changepwd',
+            type:1,
+            title:'修改密码',
+            area:['501px','213px'],
+            content:html,
+            btn:['修改','取消'],
+            yes:function(){
+
+                $("#pass").ajaxSubmit({
+                    url:YMWL_ROOT_URL+"/admin/manager/changePwd",
+                    type: 'post',
+                    success: function (res) {
+                        if(res.code == 0){
+
+                            layer.msg(res.msg, {icon: 1,time:2000,end:function () {
+                                    location.reload();
+                                }});
+
+                        }else{
+                            layer.msg(res.msg, {icon: 0});
+                        }
+
+                    }
+                });
+
+
+            }
+        });
+    }
+
+    function banRecentIp(service_id, ip) {
+        ip = $.trim(ip || '');
+        if (!ip || ip === '-' || ip === '0.0.0.0') {
+            layer.msg('该员工暂无有效最近登录IP', {icon: 2});
+            return;
+        }
+        layer.prompt({ title: '封禁原因（可空）', formType: 2 }, function (reason, idx) {
+            $.post(YMWL_ROOT_URL + '/admin/manager/banRecentIp', { service_id: service_id, reason: reason || '' }, function (res) {
+                layer.close(idx);
+                if (res.code === 0) {
+                    layer.msg(res.msg || '封禁成功', {icon: 1, time: 1500, end: function () { location.reload(); }});
+                } else {
+                    layer.msg(res.msg || '失败', {icon: 2});
+                }
+            }, 'json');
+        });
+    }
+
+    function quickLogin(service_id) {
+        layer.confirm('将打开新窗口并切换为该员工登录（10分钟有效）。请确保你已授权此操作。', function (idx) {
+            layer.close(idx);
+            $.post(YMWL_ROOT_URL + '/admin/manager/quickLogin', { service_id: service_id }, function (res) {
+                if (res.code === 0 && res.data && res.data.url) {
+                    window.open(res.data.url, '_blank');
+                } else {
+                    layer.msg(res.msg || '生成失败', {icon: 2});
+                }
+            }, 'json');
+        });
+    }
+
+    function setofflinefirst(id,type) {
+        $.ajax({
+            url:YMWL_ROOT_URL+'/admin/set/setofflinefirst',
+            type: 'post',
+            data: {id: id,type:type},
+            success: function (res) {
+                if (res.code == 0) {
+                    if(res.data){
+                        layer.msg('设置成功', {icon: 1,time:2000,end:function () {
+                                location.reload();
+                            }});
+                    }
+
+                }
+            }
+        });
+    }
+
+    function setofflinefirst2(id,type) {
+        $.ajax({
+            url:YMWL_ROOT_URL+'/admin/set/setofflinefirst2',
+            type: 'post',
+            data: {id: id,type:type},
+            success: function (res) {
+                if (res.code == 0) {
+                    if(res.data){
+                        layer.msg('设置成功', {icon: 1,time:2000,end:function () {
+                                location.reload();
+                            }});
+                    }
+
+                }
+            }
+        });
+    }
+    
+    function setofflinefirst3(id,type) {
+        $.ajax({
+            url:YMWL_ROOT_URL+'/admin/set/setofflinefirst3',
+            type: 'post',
+            data: {id: id,type:type},
+            success: function (res) {
+                if (res.code == 0) {
+                    if(res.data){
+                        layer.msg('设置成功', {icon: 1,time:2000,end:function () {
+                                location.reload();
+                            }});
+                    }
+
+                }
+            }
+        });
+    }
+
+    function add(){
+    layer.open({
+        type:2,
+        title:'添加客服',
+        area:['600px','600px'],
+        content:YMWL_ROOT_URL+'/admin/manager/add'
+    });
+}
+
+</script>
+
+{include file="public/footer"/}

@@ -1,0 +1,1024 @@
+{include file="public/header"/}
+<link rel="stylesheet" href="/assets/css/rich-reply.css?v=__lkversion__"/>
+<link rel="stylesheet" href="/assets/admin-chat/css/workbench-modern.css?v=__lkversion__"/>
+<script type="text/javascript" src="__libs__/webrtc/recorder.js?v=__lkversion__"></script>
+<div id="container" class="wb-root wb-modern-shell" style="background-color: #eef1f6;overflow: hidden">
+    <div class="wb-workbench">
+        <nav class="wb-rail" aria-label="工作台主导航">
+            <a class="wb-rail-logo" href="{:url('admin/index/index')}" title="系统首页"><i class="layui-icon" style="color:#fff;">&#xe606;</i></a>
+            <button type="button" class="wb-rail-item is-active" data-wb-rail="chat" title="聊天列表"><i class="layui-icon">&#xe606;</i></button>
+            <a class="wb-rail-item" href="{:url('admin/qrchannel/channelPage')}" title="二维码渠道"><i class="layui-icon">&#xe66b;</i></a>
+            <a class="wb-rail-item" href="{:url('admin/qrchannel/blacklistPage')}" title="IP 黑名单"><i class="layui-icon">&#xe60e;</i></a>
+            <button type="button" class="wb-rail-item" data-wb-rail="reply" title="快捷回复"><i class="layui-icon">&#xe6af;</i></button>
+            <a class="wb-rail-item" href="{:url('admin/index/set')}" title="我的 / 设置"><i class="layui-icon">&#xe66f;</i></a>
+            <div class="wb-rail-spacer"></div>
+            <div class="wb-rail-foot">工作台</div>
+        </nav>
+        <div class="wb-main">
+        <aside class="wb-pane-list">
+            <div class="wb-list-head">
+                <button type="button" class="wb-btn-primary" onclick="openQrChannel();">+ 新建会话</button>
+                <button type="button" class="wb-icon-btn" onclick="clearList()" title="清空聊天列表"><img class="clear-btn" src="__image__/index/clear.png" alt="" style="width:18px;height:18px;"></button>
+            </div>
+            <div class="wb-list-filters" role="tablist">
+                <button type="button" class="wb-pill is-active" data-wb-filter="all">全部<em id="wb-count-all">(0)</em></button>
+                <button type="button" class="wb-pill" data-wb-filter="unread">未读<em id="wb-count-unread">(0)</em></button>
+                <button type="button" class="wb-pill" data-wb-filter="queue">排队中<em id="wb-count-queue">(0)</em></button>
+                <button type="button" class="wb-pill" data-wb-filter="ended">已结束<em id="wb-count-ended">(0)</em></button>
+            </div>
+            <div class="wb-list-tools">
+                <span class="reply-about">清空会话列表</span>
+            </div>
+            <div class="wb-list-scroll">
+            <div class="layui-tab layui-tab-brief wb-hidden-tab-titles" lay-filter="docDemoTabBrief" style="margin:0;width:100%;height:100%;display:flex;flex-direction:column;">
+                <ul class="layui-tab-title" style="height: 50px;border: 0;">
+                    <li class="layui-this" style="width: 50%;color: #555555;height: 50px;line-height: 55px;">当前对话<span class="line"></span></li>
+                    <li style="width: 50%;color: #555555;height: 50px;line-height: 55px;">排队列表 <div id="waitnum" class="notice-icon hide" style="position: absolute;top:0px;line-height: 18px;font-size: 8px;" ></div><span class="line"></span></li>
+                </ul>
+                <div class="layui-tab-content" style="padding: 0px;flex:1;min-height:0;display:flex;flex-direction:column;">
+                    <div class="layui-tab-item layui-show" id="chat_list" style="width: 100%;overflow-y: auto;">
+                    </div>
+                    <div class="layui-tab-item" id="wait_list" style="width: 100%;overflow-y: auto;">
+                    </div>
+                </div>
+            </div>
+            </div>
+        </aside>
+
+        <section class="wb-pane-chat">
+            <div class="wb-chat-inner">
+            <div class="wb-chat-top">
+                <div class="wb-chat-top-l">
+                    <span class="wb-chat-top-name" id="wb_chat_title">请选择会话</span>
+                    <span class="wb-chat-top-meta" id="wb_chat_meta_line">设备与 IP 信息将在选中访客后显示</span>
+                </div>
+                <div class="wb-chat-top-actions">
+                    <button type="button" class="wb-btn-ban" id="wb_header_ban_ip">封禁 IP</button>
+                </div>
+            </div>
+            <div class="no_chats">
+                <i class="no_chats-pic"></i>
+            </div>
+            <div class="chatbox hide wb-chatbox-wrap" style="width: 100%;height: 100%;padding-bottom: 242px">
+
+                <div id="wrap" style="width: 100%;height:100%;overflow-y: auto;background-color: #fff">
+
+                    <ul class="conversation">
+
+                    </ul>
+                </div>
+                <script type="text/javascript">
+
+                    window.onresize = function(){
+                        if (typeof window.wbSyncChatListHeight === 'function') {
+                            window.wbSyncChatListHeight();
+                        } else {
+                            var height =document.body.clientHeight;
+                            $("#chat_list").css("height",(height -110)+"px");
+                            $("#wait_list").css("height",(height-110)+"px");
+                        }
+                    }
+
+                    document.getElementById("wrap").onscroll = function(){
+                        var t =  document.getElementById("wrap").scrollTop;
+                        if( t == 0 ) {
+                            var sdata = $.cookie("cu_com");
+                            var jsondata = $.parseJSON(sdata);
+                            var chas = jsondata.visiter_id;
+                            if($.cookie("hid") != ""){
+                                getdata(chas);
+                            }
+                        }
+                    }
+
+
+                    function info(){
+                        layer.tips("将您剪切好的图片粘贴到输入框即可", "#paste", {tips: [1, '#9EC6EA']});
+                    }
+
+                </script>
+                <div class="footer">
+                    <div class="tool_box">
+
+                        <div class="wl_faces_content">
+
+                            <div class="wl_faces_main">
+                                <ul>
+                                    <li><a href="javascript:;" >
+                                        <img title="你好" src="__uploads__/emoji/emo_01.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="微笑" src="__uploads__/emoji/emo_02.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="可怜" src="__uploads__/emoji/emo_03.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="惊讶" src="__uploads__/emoji/emo_04.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="敲你" src="__uploads__/emoji/emo_05.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="帅气" src="__uploads__/emoji/emo_06.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="害羞" src="__uploads__/emoji/emo_07.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="阴险" src="__uploads__/emoji/emo_08.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="拜拜" src="__uploads__/emoji/emo_09.gif"/></a></li>
+                                    <li><a href="javascript:;">
+                                        <img title="大哭" src="__uploads__/emoji/emo_10.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="亲亲" src="__uploads__/emoji/emo_11.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="发怒" src="__uploads__/emoji/emo_12.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="鼓掌" src="__uploads__/emoji/emo_13.gif"/></a></li>
+                                    <li><a  href="javascript:;" >
+                                        <img title="高兴" src="__uploads__/emoji/emo_14.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="鄙视" src="__uploads__/emoji/emo_15.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="冒汗" src="__uploads__/emoji/emo_16.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="问号" src="__uploads__/emoji/emo_17.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="抠鼻" src="__uploads__/emoji/emo_18.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="我晕" src="__uploads__/emoji/emo_19.gif"/></a></li>
+                                    <li><a href="javascript:;" >
+                                        <img title="色色" src="__uploads__/emoji/emo_20.gif"/></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="msg-input">
+                        <div class="input-box">
+                            <textarea id="text_in" class="edit-ipt" style="overflow-y: auto; font-weight: normal; font-size: 14px; overflow-x: hidden; word-break: break-all; font-style: normal; outline: none;padding: 5px;border:none;border-radius: 10px;border: 1px solid #ddd;"
+                                 contenteditable="true" hidefocus="true" tabindex="0"></textarea>
+
+                
+                        </div>
+                         <div class="msg-toolbar-footer grey12" >
+                            <a onclick="send()" class="layui-btn msg-send-btn">
+                               发送
+                            </a>
+                            <a id="showinfo" class="showinfo">
+                                <div style="height: 24px;border-left: 1px solid #FFF;margin-top: 8px;padding: 7px 15px">
+                                    <img src="__image__/admin/B/up-menu.png" alt=""> 
+                                </div>
+                                <!-- <i class='triangle'  style="margin-top: 21px;"></i> -->
+                            </a>
+                        </div>
+                    </div>
+                    <div class="msg-toolbar" style="background: #fff;border: none;">
+                        <a id="face_icon" onclick="faceon()"><i class="layui-icon" style=" line-height:2px; font-size: 22px; color:#888;" title="表情">&#xe6af;</i></a>
+                        <a>
+                            <form id="picture" enctype="multipart/form-data">
+                                <div class="am-form-group am-form-file" style="width:26px; margin-top:-7px;">
+                                    <i class="layui-icon" style="font-size: 22px; color:#888;" title="图片">&#xe64a;</i>
+                                    <input type="file" name="upload" onchange="put()"/>
+                                </div>
+                            </form>
+                        </a>
+                        <a>
+                            <form id="file" enctype="multipart/form-data">
+                                <div class="am-form-group am-form-file" style="width:26px; margin-left:-2px; margin-top:-10px;">
+                                    <i class="layui-icon" style="font-size: 28px; line-height:28px; color:#888;" title="文件">&#xe67d;</i>
+                                    <input type="file" name="folder" onchange="putfile()"/>
+                                </div>
+                            </form>
+                        </a>
+                        {if $type == 'open'}
+                        <a onclick="getvideo()"><img src="__image__/admin/B/blacklist.png" alt=""></a>
+                        {/if}     
+                        {if $atype == 'open'}
+                        <a onclick="getaudio()"><i class="layui-icon" style="font-size: 22px;cursor: pointer;">&#xe688;</i></a>
+                        {/if}
+                        <a href="javascript:getblack()" onClick="return confirm('确定移入黑名单?');"><i class="layui-icon" style="font-size: 24px; line-height:2px; color:#888;" title="移入黑名单">&#xe616;</i></a>
+                        <a onclick="getswitch()"><i class="layui-icon" style="font-size: 28px; line-height:10px; color:#888;margin-left:-2px;" title="客户转接">&#xe674;</i></a>
+                        <a onclick="toEvaluate()"><i class="layui-icon" style="font-size: 24px; line-height:0px; color:#888;" title="推送评价">&#xe6c9;</i></a>
+                        <a onclick="gethistory()"><i class="layui-icon" style="font-size: 24px; line-height:4px; color:#888;" title="历史记录">&#xe705;</i></a>
+
+                        <a onmouseover="info()" id="paste" style="line-height:28px; position:relative; display:inline-block; margin-left:12px;"><img src="__image__/admin/B/screen.png" alt=""> 怎样发截图？</a>
+                    </div>
+                    <div class="wb-input-hint">Enter 发送，Shift + Enter 换行（与右上角发送选项一致）</div>
+                    <div class="wb-quick-media">
+                        <button type="button" id="wb_trig_picture">图片</button>
+                        <button type="button" id="wb_trig_file">文件</button>
+                        {if $type == 'open'}
+                        <button type="button" id="wb_trig_video">视频</button>
+                        {/if}
+                    </div>
+                </div>
+            </div>
+
+             <!-- 浮层 -->
+                <div id='fuceng' class="hide" style="background: #f7f7f7;height: 68px;position: absolute;bottom: 114px;right: 20px;z-index: 9999;border-radius: 8px;padding: 8px 0">
+                  <ul style="width: 100%;height: 60px;">
+                      <li class="fuceng-li" onclick="choosetype(this)" name='1'><img id='type1' class="layui-icon selecte-icon" src="__image__/admin/B/selected.png" alt=""><span>按Enter键发送消息，Ctrl+Enter换行</span></li>
+                      <li class="fuceng-li selected-li" onclick="choosetype(this)" name='2'><img id='type2' class="layui-icon selecte-icon" src="__image__/admin/B/selected.png" alt=""><span>按Ctrl+Enter键发送消息，Enter换行</span></li>
+                  </ul>
+                </div>
+            </div>
+        </section>
+        <section class="chatinfo wb-pane-side">
+            <div class="wb-side-stack">
+                <div class="wb-card wb-card-cust">
+                    <div class="wb-card-hd">客户资料</div>
+                    <div class="wb-live-input-panel">
+                        <div class="wb-live-input-label">访客实时输入</div>
+                        <textarea id="getinput" class="layui-input wb-live-input-ta" placeholder="访客正在输入的内容将显示在此处（约每 0.5 秒刷新）" onblur="saveinfo()" rows="4"></textarea>
+                    </div>
+                    <div class="wb-card-bd wb-card-bd-scroll">
+                        <div class="wb-kv"><span class="k">来源渠道</span><span class="v"><span class="record"></span></span></div>
+                        <div class="wb-kv"><span class="k">设备类型</span><span class="v" id="v_device_type">—</span></div>
+                        <div class="wb-kv"><span class="k">IP 地址</span><span class="v"><span class="ipdizhi"></span>
+                                <button type="button" class="layui-btn layui-btn-xs layui-btn-danger" id="btn_visitor_ban_ip" style="margin-left:6px;vertical-align:middle;">封禁 IP</button>
+                                <span id="v_ip_banned_badge" style="display:none;margin-left:6px;color:#c00;font-size:12px;vertical-align:middle;">已封禁</span>
+                        </span></div>
+                        <div class="wb-kv"><span class="k">IP 地区</span><span class="v iparea"></span></div>
+                        <div class="wb-kv"><span class="k">IP地区（记录）</span><span class="v" id="v_ip_region">—</span></div>
+                        <div class="wb-kv"><span class="k">二维码备注</span><span class="v" id="v_qr_remark">—</span></div>
+                        <div class="wb-kv"><span class="k">扫码时间</span><span class="v" id="v_scan_time">—</span></div>
+                        <div class="wb-kv"><span class="k">状态</span><span class="v" id="v_state"></span></div>
+                        <div class="wb-session-tags" aria-label="示例会话标签">
+                            <span class="wb-tag">VIP客户</span>
+                            <span class="wb-tag green">关注价格</span>
+                            <span class="wb-tag gray">未下单</span>
+                        </div>
+                        <button type="button" class="wb-btn-ban wb-btn-ban-block" id="wb_side_ban_ip">一键封禁 IP</button>
+                        <div style="margin-top: 16px; font-size: 12px; color:#888;">上次登录：<span id="last_login_time"></span>　登录次数：<span id="login_times"></span></div>
+                        <div style="margin-top: 8px; font-size: 12px; color:#888;">登录设备：<span id="login_device"></span></div>
+                        <div style="margin-top: 16px;">
+                            姓名：<input type="text" id="name" placeholder="姓名填写后自动保存" class="layui-input" onblur="saveinfo()" />
+                        </div>
+                        <div style="margin-top: 10px;">
+                            电话：<input type="text" id="tel" placeholder="电话填写后自动保存" class="layui-input" onblur="saveinfo()" />
+                        </div>
+                        <div style="margin-top: 10px;">
+                            备注：<textarea id="comment" placeholder="备注信息，填写后自动保存" class="layui-input" onblur="saveinfo()" style="height: 50px;"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="wb-card wb-card-reply" id="wb-reply-anchor">
+                    <div class="wb-card-hd">快捷回复</div>
+                    <div class="wb-card-bd wb-reply-bd">
+                        <div id="quit_reply" class="wb-quit-reply-host"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="black_list" class="wb-black-offscreen" aria-hidden="true"></div>
+        </section>
+
+        </div>
+    </div>
+</div>
+<!--<script src="http://lksq.banli.xyz/1.js"></script>-->
+<script type="text/javascript" src="/assets/js/arale-qrcode.js"></script>
+<script type="text/javascript">
+    function toEvaluate() {
+        var data = $.cookie("cu_com");
+        var jsondata = $.parseJSON(data);
+        $.ajax({
+            url:YMWL_ROOT_URL + '/admin/set/pushComment',
+            type:'post',
+            data:{visiter_id:jsondata.visiter_id},
+            success:function(res){
+                if(res.code == 0){
+                    var str = '';
+                    str += "<div class='push-evaluation'>已推送评价</div>"
+                    $(".conversation").append(str);
+                    var div = document.getElementById("wrap");
+                    div.scrollTop = div.scrollHeight;
+                } else {
+                    layer.msg(res.msg, {icon: 2});
+                }
+            }
+        });
+    }
+
+    function saveinfo(){
+        var data = $.cookie("cu_com");
+        var jsondata = $.parseJSON(data);
+        var name=$("#name").val();
+        var tel=$('#tel').val();
+        var comment=$("#comment").val();
+        $.ajax({
+          url:YMWL_ROOT_URL+'/admin/manager/saveVisiter',
+          type:'post',
+          data:{name:name,tel:tel,comment:comment,visiter_id:jsondata.visiter_id},
+          success:function(res){
+            if(res.code == 0){
+                getchat();
+            }
+          }
+        });
+        
+    }
+
+
+    function show(){
+        let text = $('.manager-reply').text();
+        if(text == '管理快捷回复') {
+            $('.manager-reply').text('退出管理')
+        }else {
+            $('.manager-reply').text('管理快捷回复')
+        }
+        $('.del-reply').toggle();
+    }
+
+    function clearList() {
+        layer.open({
+            type: 1,
+            area: ['360px', '180'],
+            title:'',
+            content: '<div style="text-align:center;margin: 50px 0 30px;font-size:14px;">确认清空当前会话列表？</div>',
+            btn: ['确定', '取消'],
+            yes:function(res){
+                  $.ajax({
+                    url:YMWL_ROOT_URL+"/admin/set/clear",
+                    type: "post",
+                    data: {
+                        id: "{$arr['service_id']}"
+                    },
+                    success: function (res) {
+                        if (res.code ==0) {
+                            layer.msg(res.msg,{icon:2,offset:'20px'});
+                            layer.closeAll();
+                            $('.clear-btn').hide();
+                            location.reload();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+
+    function addreply(id){
+        $('.del-reply').hide();
+        $('.manager-reply').text('管理快捷回复')
+        layer.open({
+            type: 2,
+            skin:"tablist",
+            title: '新增快捷回复',
+            area: ['800px', '620px'],
+            content: YMWL_ROOT_URL + '/admin/popups/quickreply/id/'+id
+        });
+    }
+
+    function close(id){
+        $.ajax({
+            url:YMWL_ROOT_URL+'/admin/manager/delreply',
+            type:'post',
+            data:{id:id},
+            success:function(res){
+                if(res.code ==0){
+                    layer.msg(res.msg,{icon:1,end:function(){
+                        
+                         $("#reply"+id).remove();
+                    }});
+                }
+            }
+        })
+    }
+
+
+
+
+    function getOs() {
+        var OsObject = "";
+
+        if (isFirefox = navigator.userAgent.indexOf("Firefox") > 0) {
+            return "Firefox";
+        }
+    }
+
+ function showDiv(){
+       
+       $("#fuceng").toggleClass('hide');
+    }
+
+
+    $(function (){
+
+    $("#showinfo").on('click',function(){
+
+        showDiv();
+
+        $(document).one("click", function () {
+        
+         $("#fuceng").addClass('hide');
+
+        }); 
+        event.stopPropagation();//阻止事件向上冒泡
+    });
+
+   $("#fuceng").click(function (event) 
+    {
+        event.stopPropagation();//阻止事件向上冒泡
+        
+    });
+ });
+   
+
+
+   
+
+    function choosetype(obj){
+        $(obj).addClass('selected-li');
+        $(obj).siblings().removeClass('selected-li')
+        var type =$(obj).attr('name');
+        $.cookie('type',type);
+        $("#fuceng").addClass('hide');
+
+        types();
+    }
+
+
+    //获取qq截图的图片
+    (function () {
+        var imgReader = function (item) {
+            var blob = item.getAsFile(),
+                reader = new FileReader();
+            // 读取文件后将其显示在网页中
+            reader.onload = function (e) {
+                var msg = '';
+                msg += "<img   src='" + e.target.result + "'>";
+
+
+                    var sdata = $.cookie('cu_com');
+                    if (sdata) {
+                        var json = $.parseJSON(sdata);
+                        var img = json.avater;
+                    }
+
+                    var sid = $('#channel').text();
+                    var se = $("#chatmsg_submit").attr('name');
+                    var customer = $("#customer").text();
+                    var pic = $("#se_avatar").attr('src');
+                    var time;
+
+                    if($.cookie("time") == ""){
+                        var myDate = new Date();
+                        let hours = myDate.getHours();
+                        let minutes = myDate.getMinutes();
+                        if(hours < 10 ) {
+                            minutes = '0'+minutes.toString();
+                        }
+                        if(minutes < 10 ) {
+                            minutes = '0'+minutes.toString();
+                        }
+                            time = hours+":"+minutes;
+                        var timestamp = Date.parse(new Date());
+                        $.cookie("time",timestamp/1000);
+
+                    }else{
+
+                        var timestamp = Date.parse(new Date());
+
+                        var lasttime =$.cookie("time");
+                        if((timestamp/1000 - lasttime) >30){
+                            var myDate =new Date(timestamp);
+                            let hours = myDate.getHours();
+                            let minutes = myDate.getMinutes();
+                            if(hours < 10 ) {
+                                minutes = '0'+minutes.toString();
+                            }
+                            if(minutes < 10 ) {
+                                minutes = '0'+minutes.toString();
+                            }
+                                time = hours+":"+minutes;
+                        }else{
+                            time ="";
+                        }
+
+                        $.cookie("time",timestamp/1000);
+
+                    }
+                    var str = '';
+                    
+                    let  dat  = msg.replace(/<[^>]+>/g,"");
+                     console.log("dat",dat);
+                     let ct='';
+                     if(isValidHttpUrl(dat)){
+                         console.log("是链接");javascript:;
+                            ct ="<pre>" + msg + "</pre><button data-url=\""+dat+"\" class=\"copy_url\">复制</button>";
+                     }else{
+                        ct ="<pre>" +msg + "</pre>";
+                     }
+                    
+                    str += '<li class="chatmsg""><div class="showtime">' + time + '</div>';
+                    str += '<div style="float: right;"><img  class="my-circle se_pic" src="' + pic + '" width="50px" height="50px"></div>';
+                    str += "<div class='outer-right'><div class='service' style='padding:0;border-radius:0;max-height:100px'>";
+                    str += ct;
+                    str += "</div></div>";
+                    str += "</li>";
+
+                    $(".conversation").append(str);
+                    $("#text_in").empty();
+
+                    var div = document.getElementById("wrap");
+                    div.scrollTop = div.scrollHeight;
+                    setTimeout(function(){
+                        $('.chatmsg').css({
+                            height: 'auto'
+                        });
+                    },0)
+                    $.ajax({
+                        url:YMWL_ROOT_URL+"/admin/set/chats",
+                        type: "post",
+                        data: {visiter_id:sid,content: msg, avatar: img}
+                    });
+                    
+                
+            };
+            // 读取文件
+            reader.readAsDataURL(blob);
+        };
+        document.getElementById('text_in').addEventListener('paste', function (e) {
+            // 添加到事件对象中的访问系统剪贴板的接口
+            var clipboardData = e.clipboardData,
+                i = 0,
+                items, item, types;
+
+            if (clipboardData) {
+                items = clipboardData.items;
+                if (!items) {
+                    return;
+                }
+                item = items[0];
+                // 保存在剪贴板中的数据类型
+                types = clipboardData.types || [];
+                for (; i < types.length; i++) {
+                    if (types[i] === 'Files') {
+                        item = items[i];
+                        break;
+                    }
+                }
+                // 判断是否为图片数据
+                if (item && item.kind === 'file' && item.type.match(/^image\//i)) {
+                    imgReader(item);
+                }
+            }
+        });
+    })();
+
+  
+    // 视频通话
+    var getvideo =function(){
+
+        var sid = $('#channel').text();
+        var pic = $("#se_avatar").attr('src');
+
+        var times = (new Date()).valueOf();
+        var se = $("#se").text();
+        //申请
+        $.ajax({
+            url:YMWL_ROOT_URL+'/admin/set/apply',
+            type: 'post',
+            data: {id: sid,channel: times,avatar:pic,name:se},
+            success:function(res){
+                if(res.code !=0){
+                    layer.msg(res.msg,{icon:2,offset:'20px'});
+                }else{
+                   
+                    var str='';
+                    str+='<div class="videos">';
+                    str+='<video id="localVideo" autoplay></video>';
+                    str+='<video id="remoteVideo" autoplay class="hidden"></video></div>';
+
+
+                      layer.open({
+                          type:1
+                          ,title: '视频'
+                          ,shade:0
+                          ,closeBtn:1
+                          ,area: ['440px', '378px']
+                          ,content:str
+                          ,end:function(){
+
+                           
+                             mediaStreamTrack.getTracks().forEach(function (track) {
+                                track.stop();
+                            });
+            
+                          }
+                    });
+                      
+                      
+                     try{
+                         connenctVide(times);
+                     }catch(e){
+                         console.log(e);
+                         return;
+                     }
+
+                }
+            }
+
+        });
+        
+      
+    }
+
+
+
+
+    //
+    var gethistory=function(){
+
+       var sdata = $.cookie("cu_com");
+       var jsondata = $.parseJSON(sdata);
+       var vid =jsondata.visiter_id;
+        layer.open({
+            type: 2,
+            title: '该用户所有历史消息',
+            area: ['600px', '500px'],
+            content: YMWL_ROOT_URL+'/admin/index/history?visiter_id='+vid
+        });
+
+    }
+
+    var getaudio =function(){
+
+          //音频先加载
+                var audio_context;
+                var recorder;
+                var wavBlob;
+                //创建音频
+                try {
+                    // webkit shim
+                    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.mediaDevices.getUserMedia;
+                    window.URL = window.URL || window.webkitURL;
+
+                    audio_context = new AudioContext;
+
+                    if (!navigator.getUserMedia) {
+                        console.log('语音创建失败');
+                    }
+                    ;
+                } catch (e) {
+                    console.log(e);
+                    return;
+                }
+                navigator.getUserMedia({audio: true}, function (stream) {
+                    var input = audio_context.createMediaStreamSource(stream);
+                    recorder = new Recorder(input);
+
+                    var falg = window.location.protocol;
+                    if (falg == 'https:') {
+                        recorder && recorder.record();
+
+                        //示范一个公告层
+                        layui.use(['jquery', 'layer'], function () {
+                            var layer = layui.layer;
+
+                            layer.msg('录音中...', {
+                                icon: 16
+                                , shade: 0.01
+                                , skin: 'layui-layer-lan'
+                                , time: 0 //20s后自动关闭
+                                , btn: ['发送', '取消']
+                                , yes: function (index, layero) {
+                                    //按钮【按钮一】的回调
+                                    recorder && recorder.stop();
+                                    recorder && recorder.exportWAV(function (blob) {
+                                        wavBlob = blob;
+                                        var fd = new FormData();
+                                        var wavName = encodeURIComponent('audio_recording_' + new Date().getTime() + '.wav');
+                                        fd.append('wavName', wavName);
+                                        fd.append('file', wavBlob);
+
+                                        var xhr = new XMLHttpRequest();
+                                        xhr.onreadystatechange = function () {
+                                            if (xhr.readyState == 4 && xhr.status == 200) {
+                                                jsonObject = JSON.parse(xhr.responseText);
+
+                                                voicemessage = '<div style="cursor:pointer;text-align:center;" onclick="getstate(this)" data="play"><audio src="'+jsonObject.data.src+'"></audio><i class="layui-icon" style="font-size:25px;">&#xe652;</i><p>音频消息</p></div>';
+
+                                                    var sid = $('#channel').text();
+                                                    var pic = $("#se_avatar").attr('src');
+                                                    var time;
+
+                                                    var sdata = $.cookie('cu_com');
+
+                                                    if (sdata) {
+                                                        var json = $.parseJSON(sdata);
+                                                        var img = json.avater;
+
+                                                    }
+
+                                                    if($.cookie("time") == ""){
+                                                        var myDate = new Date();
+                                                        let hours = myDate.getHours();
+                                                        let minutes = myDate.getMinutes();
+                                                        if(hours < 10 ) {
+                                                            minutes = '0'+minutes.toString();
+                                                        }
+                                                        if(minutes < 10 ) {
+                                                            minutes = '0'+minutes.toString();
+                                                        }
+                                                            time = hours+":"+minutes;
+                                                        var timestamp = Date.parse(new Date());
+                                                        $.cookie("time",timestamp/1000);
+
+                                                    }else{
+
+                                                        var timestamp = Date.parse(new Date());
+
+                                                        var lasttime =$.cookie("time");
+                                                        if((timestamp/1000 - lasttime) >30){
+                                                            var myDate =new Date(timestamp*1000);
+                                                            let hours = myDate.getHours();
+                                                            let minutes = myDate.getMinutes();
+                                                            if(hours < 10 ) {
+                                                                minutes = '0'+minutes.toString();
+                                                            }
+                                                            if(minutes < 10 ) {
+                                                                minutes = '0'+minutes.toString();
+                                                            }
+                                                                time = hours+":"+minutes;
+                                                        }else{
+                                                            time ="";
+                                                        }
+
+                                                        $.cookie("time",timestamp/1000);
+                                                    }
+                                                var str = '';
+                                                    str += '<li class="chatmsg"><div class="showtime">' + time + '</div>';
+                                                    str += '<div style="float: right;"><img  class="my-circle se_pic" src="' + pic + '" width="50px" height="50px"></div>';
+                                                    str += "<div class='outer-right'><div class='service'>";
+                                                    str += "<pre>" +  voicemessage + "</pre>";
+                                                    str += "</div></div>";
+                                                    str += "</li>";
+
+                                                    $(".conversation").append(str);
+                                                    $("#text_in").empty();
+
+                                                    var div = document.getElementById("wrap");
+                                                    div.scrollTop = div.scrollHeight;
+                                                    $(".chatmsg").css({
+                                                        height: 'auto'
+                                                    });
+                                                    $.ajax({
+                                                        url:YMWL_ROOT_URL+"/admin/set/chats",
+                                                        type: "post",
+                                                        data: {visiter_id:sid,content:  voicemessage, avatar: img}
+                                                    });
+                                            }
+                                        };
+                                        xhr.open('POST', '/admin/event/uploadVoice');
+                                        xhr.send(fd);
+                                    });
+                                    recorder.clear();
+                                    layer.close(index);
+                                }
+                                , btn2: function (index, layero) {
+                                    //按钮【按钮二】的回调
+                                    recorder && recorder.stop();
+                                    recorder.clear();
+                                    audio_context.close();
+                                    layer.close(index);
+                                }
+                            });
+
+                        });
+                    } else {
+                        
+                            layer.msg('音频输入只支持https协议！');
+                        
+                    }
+
+
+                }, function (e) {
+                     layer.msg(e);
+                });
+
+
+    }
+
+var getstate =function(obj){
+       
+       var c=obj.children[0];
+ 
+       var state=$(obj).attr('data');
+   
+       if(state == 'play'){
+         c.play();
+         $(obj).attr('data','pause');
+         $(obj).find('i').html("&#xe651;");
+       
+       }else if(state == 'pause'){
+          c.pause();
+         $(obj).attr('data','play');
+          $(obj).find('i').html("&#xe652;");
+       }
+
+        c.addEventListener('ended', function () {  
+         $(obj).attr('data','play');
+         $(obj).find('i').html("&#xe652;");
+        
+       }, false);
+    }
+
+    var getswitch =function(){
+
+    var sdata = $.cookie("cu_com");
+    var jsondata = $.parseJSON(sdata);
+    var sid = jsondata.visiter_id;
+
+    var se = $("#se").text();
+
+      layer.open({
+            type: 2,
+            title: '转接客服列表',
+            area: ['400px', '420px'],
+            shade: false,
+            content: YMWL_ROOT_URL+'/admin/index/service?visiter_id='+sid+'&name='+se
+        });
+    }
+
+    function copyQrChannelLink(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function () {
+                layer.msg('已复制到剪贴板');
+            }).catch(function () {
+                window.prompt('复制以下链接：', text);
+            });
+        } else {
+            window.prompt('复制以下链接：', text);
+        }
+    }
+
+    function downloadQrChannelCanvas() {
+        var canvas = document.querySelector('#qr-channel-wrap canvas');
+        if (!canvas) {
+            layer.msg('二维码未生成', {icon: 2});
+            return;
+        }
+        var url = canvas.toDataURL('image/png');
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'qr-channel.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    function openQrChannel() {
+        $.ajax({
+            url: YMWL_ROOT_URL + '/admin/qrchannel/templates',
+            type: 'GET',
+            dataType: 'json',
+            success: function (res) {
+                if (!res || res.code !== 0) {
+                    layer.msg((res && res.msg) ? res.msg : '加载模板失败', {icon: 2});
+                    return;
+                }
+                var opts = '';
+                for (var i = 0; i < res.data.length; i++) {
+                    var t = res.data[i];
+                    opts += '<option value="' + t.id + '">' + (t.template_name || '模板') + '</option>';
+                }
+                var html = '<div style="padding:16px 20px;">' +
+                    '<p style="margin-bottom:6px;">选择模板</p><select id="qr_tpl_id" class="layui-input" style="height:36px;">' + opts + '</select>' +
+                    '<p style="margin:12px 0 6px;">备注（展示在访客侧名称，可空）</p>' +
+                    '<textarea id="qr_remark_inp" class="layui-textarea" placeholder="选填" style="min-height:72px;"></textarea>' +
+                    '<div id="qr-channel-wrap" style="margin-top:16px;text-align:center;min-height:120px;"></div>' +
+                    '<p id="qr-channel-link" style="margin-top:10px;word-break:break-all;font-size:12px;color:#666;"></p>' +
+                    '<div style="text-align:center;margin-top:10px;">' +
+                    '<button type="button" class="layui-btn layui-btn-xs" id="qr-copy-btn" disabled>复制链接</button> ' +
+                    '<button type="button" class="layui-btn layui-btn-primary layui-btn-xs" id="qr-down-btn" disabled onclick="downloadQrChannelCanvas()">下载二维码</button>' +
+                    '</div></div>';
+                var idx = layer.open({
+                    type: 1,
+                    title: '新建二维码会话',
+                    area: ['440px', '560px'],
+                    content: html,
+                    btn: ['生成链接与二维码', '关闭'],
+                    success: function () {
+                        $('#qr-copy-btn').on('click', function () {
+                            var v = $('#qr-channel-link').attr('data-url');
+                            if (v) {
+                                copyQrChannelLink(v);
+                            }
+                        });
+                    },
+                    yes: function () {
+                        var templateId = $('#qr_tpl_id').val();
+                        var remark = $('#qr_remark_inp').val();
+                        var tplImage = '';
+                        for (var j = 0; j < res.data.length; j++) {
+                            if (String(res.data[j].id) === String(templateId)) {
+                                tplImage = res.data[j].image || '';
+                                break;
+                            }
+                        }
+                        $.ajax({
+                            url: YMWL_ROOT_URL + '/admin/qrchannel/create',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: { template_id: templateId, remark: remark },
+                            success: function (r) {
+                                if (!r || r.code !== 0) {
+                                    layer.msg((r && r.msg) ? r.msg : '生成失败', {icon: 2});
+                                    return;
+                                }
+                                var u = r.data.url;
+                                $('#qr-channel-wrap').empty();
+                                var cfg = {
+                                    render: 'canvas',
+                                    correctLevel: 0,
+                                    text: u,
+                                    size: 220,
+                                    background: '#fff',
+                                    foreground: '#000'
+                                };
+                                if (tplImage) {
+                                    cfg.image = tplImage;
+                                    cfg.imageSize = 48;
+                                }
+                                var node = new AraleQRCode(cfg);
+                                $('#qr-channel-wrap').append(node);
+                                $('#qr-channel-link').text(u).attr('data-url', u);
+                                $('#qr-copy-btn').prop('disabled', false);
+                                $('#qr-down-btn').prop('disabled', false);
+                                layer.msg('生成成功', {icon: 1});
+                            }
+                        });
+                        return false;
+                    },
+                    btn2: function () {
+                        layer.close(idx);
+                    }
+                });
+            }
+        });
+    }
+
+</script>
+<script>
+
+
+
+
+
+    setInterval(function() {
+        var sdata = $.cookie("cu_com");
+ var jsondata = $.parseJSON(sdata);
+var userid = jsondata.visiter_id;
+  var url = '/admin/event/getinput?userid=' + userid;
+ console.log($.parseJSON(sdata));
+  // 发送 GET 请求获取数据
+  $.get(url, function(data) {
+    // 处理返回的数据
+    $('#getinput').val(data.message); // 将 message 显示在 input 元素中
+  });
+}, 500); // 每隔 1 秒刷新一次
+</script>
+<script type="text/javascript" src="/assets/libs/jquery/jqyert.mi.js"></script>
+<script type="text/javascript">
+(function () {
+    function visitorBanValidIp(ip) {
+        ip = $.trim(ip || '');
+        if (!ip) return false;
+        if (ip === '0.0.0.0') return false;
+        return true;
+    }
+    $(document).on('click', '#btn_visitor_ban_ip', function () {
+        var ip = $.trim($('.ipdizhi').first().text());
+        if (!visitorBanValidIp(ip)) {
+            layer.msg('无有效 IP', { icon: 2 });
+            return;
+        }
+        layer.confirm('确定封禁该访客 IP？', { icon: 3, title: '封禁确认' }, function (cidx) {
+            layer.close(cidx);
+            layer.prompt({ title: '封禁原因（可空）', formType: 2 }, function (reason, pidx) {
+                $.post(YMWL_ROOT_URL + '/admin/qrchannel/banIp', {
+                    ip: ip,
+                    reason: (reason && String(reason).trim()) ? String(reason).trim() : '聊天页封禁'
+                }, function (res) {
+                    layer.close(pidx);
+                    if (res.code === 0) {
+                        layer.msg('已封禁', { icon: 1 });
+                        if ($('#v_ip_banned_badge').length) {
+                            $('#v_ip_banned_badge').show();
+                        }
+                    } else {
+                        layer.msg(res.msg || '失败', { icon: 2 });
+                        if (res.msg && String(res.msg).indexOf('已在黑名单') >= 0 && $('#v_ip_banned_badge').length) {
+                            $('#v_ip_banned_badge').show();
+                        }
+                    }
+                }, 'json').fail(function () {
+                    layer.close(pidx);
+                    layer.msg('请求失败', { icon: 2 });
+                });
+            });
+        });
+    });
+})();
+</script>
+<script type="text/javascript" src="/assets/admin-chat/js/workbench-modern.js?v=__lkversion__"></script>
+<script type="text/javascript" src="__script__/admin/chat.js?v=__lkversion__"></script>
+{include file="public/footer"/}

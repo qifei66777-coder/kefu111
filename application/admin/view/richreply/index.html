@@ -1,0 +1,467 @@
+{include file="public/header"/}
+<style>
+    #rr-container { padding: 16px 20px 40px; max-width: 1200px; }
+    .rr-toolbar { margin-bottom: 12px; }
+    .rr-type-block { display: none; padding: 8px 0; border-top: 1px dashed #eee; margin-top: 8px; }
+    .rr-type-block.rr-show { display: block; }
+    #rr-preview-inner { margin-top: 8px; }
+</style>
+<div id="rr-container" class="adm-content-shell rr-admin-wrap">
+    <h2 class="page-header" style="font-size: 18px;color: #555;">富媒体快捷回复</h2>
+    <p style="color:#888;font-size:13px;">结构化配置，发送时系统生成安全 HTML；禁止客服直接输入 HTML。</p>
+    <div class="rr-toolbar layui-form" lay-filter="rr-toolbar-form">
+        <button type="button" class="layui-btn layui-btn-sm" id="rr-btn-add">新增</button>
+        <div class="layui-inline" style="margin-left:12px;">
+            <input type="text" id="rr-flt-kw" placeholder="标题关键词" autocomplete="off" class="layui-input" style="width:160px;"/>
+        </div>
+        <div class="layui-inline">
+            <select id="rr-flt-type" class="layui-input" style="width:130px;">
+                <option value="">全部类型</option>
+                <option value="text">文本</option>
+                <option value="link">链接按钮</option>
+                <option value="card">图文卡片</option>
+                <option value="image">图片</option>
+                <option value="video">视频</option>
+                <option value="guide">步骤引导</option>
+            </select>
+        </div>
+        <div class="layui-inline">
+            <select id="rr-flt-cat" class="layui-input" style="width:140px;">
+                <option value="">全部分类</option>
+                {volist name="flt_categories" id="fc"}
+                <option value="{$fc}">{$fc}</option>
+                {/volist}
+            </select>
+        </div>
+        <div class="layui-inline">
+            <select id="rr-flt-st" class="layui-input" style="width:120px;">
+                <option value="">启用+禁用</option>
+                <option value="1">仅启用</option>
+                <option value="0">仅禁用</option>
+            </select>
+        </div>
+        <button type="button" class="layui-btn layui-btn-sm layui-btn-normal" id="rr-flt-search">筛选</button>
+        <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" id="rr-flt-reset">重置</button>
+    </div>
+    <table id="rr-table" lay-filter="rr-table"></table>
+</div>
+
+<script type="text/html" id="rr-bar">
+    <a class="layui-btn layui-btn-xs layui-btn-primary" lay-event="preview">预览</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    {{# if(d.status == 1){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="off">禁用</a>
+    {{# } else { }}
+    <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="on">启用</a>
+    {{# } }}
+    <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+</script>
+
+<script type="text/html" id="rr-form-tpl">
+    <form class="layui-form" style="padding:12px 16px 8px;" lay-filter="rr-form" id="rr-form-el">
+        <input type="hidden" name="id" id="rr-f-id" value="0"/>
+        <div class="layui-form-item">
+            <label class="layui-form-label">类型</label>
+            <div class="layui-input-block">
+                <select name="reply_type" id="rr-f-type" class="layui-input">
+                    <option value="text">文本</option>
+                    <option value="link">链接按钮</option>
+                    <option value="card">图文卡片</option>
+                    <option value="image">图片</option>
+                    <option value="video">视频</option>
+                    <option value="guide">步骤引导</option>
+                </select>
+            </div>
+        </div>
+        {if $is_manager}
+        <div class="layui-form-item">
+            <label class="layui-form-label">归属</label>
+            <div class="layui-input-block">
+                <select name="service_id" id="rr-f-service">
+                    <option value="0">商户通用</option>
+                    {volist name="services" id="sv"}
+                    <option value="{$sv.service_id}">{if $sv.nick_name}{$sv.nick_name}{else /}{$sv.user_name}{/if}</option>
+                    {/volist}
+                </select>
+                <div class="layui-word-aux">商户通用对所有客服可见；指定客服仅本人可管理使用。</div>
+            </div>
+        </div>
+        {else /}
+        <input type="hidden" name="service_id" id="rr-f-service" value=""/>
+        <p class="layui-word-aux" style="margin:0 0 12px 110px;">个人富媒体回复，仅您可编辑；商户通用回复请在会话侧选用。</p>
+        {/if}
+        <div class="layui-form-item">
+            <label class="layui-form-label">标题</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" id="rr-f-title" placeholder="列表中显示" autocomplete="off" class="layui-input"/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">分类</label>
+            <div class="layui-input-block">
+                <input type="text" name="category" id="rr-f-category" placeholder="如：充值流程" autocomplete="off" class="layui-input"/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">标签</label>
+            <div class="layui-input-block">
+                <input type="text" name="tag" id="rr-f-tag" placeholder="简短标签" autocomplete="off" class="layui-input"/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">排序</label>
+            <div class="layui-input-block">
+                <input type="number" name="sort" id="rr-f-sort" value="0" class="layui-input"/>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-block">
+                <input type="radio" name="status" value="1" title="启用" checked/>
+                <input type="radio" name="status" value="0" title="禁用"/>
+            </div>
+        </div>
+
+        <div class="rr-type-block rr-t-text rr-show" data-rr-for="text,link,image,video,guide,card">
+            <div class="layui-form-item">
+                <label class="layui-form-label">正文</label>
+                <div class="layui-input-block">
+                    <textarea name="content" id="rr-f-content" placeholder="文本内容或说明" class="layui-textarea"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="rr-type-block rr-t-link" data-rr-for="link,card">
+            <div class="layui-form-item">
+                <label class="layui-form-label">按钮字</label>
+                <div class="layui-input-block">
+                    <input type="text" name="button_text" id="rr-f-btn" class="layui-input"/>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">链接</label>
+                <div class="layui-input-block">
+                    <input type="text" name="link_url" id="rr-f-link" placeholder="https://" class="layui-input"/>
+                </div>
+            </div>
+        </div>
+        <div class="rr-type-block rr-t-card" data-rr-for="card">
+            <div class="layui-form-item">
+                <label class="layui-form-label">卡片标题</label>
+                <div class="layui-input-block">
+                    <input type="text" name="card_title" id="rr-f-ctitle" class="layui-input"/>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">卡片描述</label>
+                <div class="layui-input-block">
+                    <textarea name="card_desc" id="rr-f-cdesc" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">图片地址</label>
+                <div class="layui-input-block">
+                    <input type="text" name="image_url" id="rr-f-img" placeholder="https://" class="layui-input"/>
+                    <button type="button" class="layui-btn layui-btn-xs" id="rr-up-img" style="margin-top:6px;">上传图片</button>
+                    <input type="file" id="rr-file-img" class="layui-hide"/>
+                </div>
+            </div>
+        </div>
+        <div class="rr-type-block rr-t-image" data-rr-for="image">
+            <div class="layui-form-item">
+                <label class="layui-form-label">图片地址</label>
+                <div class="layui-input-block">
+                    <input type="text" name="image_url_img" id="rr-f-imgonly" placeholder="https://" class="layui-input"/>
+                    <button type="button" class="layui-btn layui-btn-xs" id="rr-up-img2" style="margin-top:6px;">上传图片</button>
+                    <input type="file" id="rr-file-img2" class="layui-hide"/>
+                </div>
+            </div>
+        </div>
+        <div class="rr-type-block rr-t-video" data-rr-for="video">
+            <div class="layui-form-item">
+                <label class="layui-form-label">视频地址</label>
+                <div class="layui-input-block">
+                    <input type="text" name="video_url" id="rr-f-vid" placeholder="https://" class="layui-input"/>
+                    <button type="button" class="layui-btn layui-btn-xs" id="rr-up-vid" style="margin-top:6px;">上传文件</button>
+                    <input type="file" id="rr-file-vid" class="layui-hide"/>
+                </div>
+            </div>
+        </div>
+        <div class="rr-type-block rr-t-guide" data-rr-for="guide">
+            <div class="layui-form-item">
+                <label class="layui-form-label">步骤JSON</label>
+                <div class="layui-input-block">
+                    <textarea name="payload_json" id="rr-f-payload" placeholder='{"steps":["第一步","第二步"]}' class="layui-textarea"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button type="button" class="layui-btn" id="rr-btn-save">保存</button>
+                <button type="button" class="layui-btn layui-btn-primary" id="rr-btn-prev">预览效果</button>
+            </div>
+        </div>
+        <div id="rr-preview-box" class="layui-hide">
+            <div class="layui-word-aux">预览</div>
+            <div id="rr-preview-inner"></div>
+        </div>
+    </form>
+</script>
+
+<script>
+layui.use(['table', 'form', 'layer', 'util'], function () {
+    var table = layui.table;
+    var form = layui.form;
+    var layer = layui.layer;
+    var util = layui.util;
+
+    function rrToggleType(t, layero) {
+        var scope = layero || $('#rr-form-el').closest('.layui-layer-content');
+        if (!scope.length) scope = $(document);
+        scope.find('.rr-type-block').removeClass('rr-show');
+        scope.find('.rr-type-block').each(function () {
+            var f = $(this).attr('data-rr-for');
+            if (!f) return;
+            if (f.split(',').indexOf(t) >= 0) {
+                $(this).addClass('rr-show');
+            }
+        });
+    }
+
+    function rrBindUpload(ctx) {
+        ctx.find('#rr-up-img').off('click').on('click', function () { ctx.find('#rr-file-img').click(); });
+        ctx.find('#rr-file-img').off('change').on('change', function () {
+            var fd = new FormData();
+            fd.append('upload', this.files[0]);
+            $.ajax({
+                url: YMWL_ROOT_URL + '/admin/set/upload',
+                type: 'post',
+                data: fd,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function (res) {
+                    if (res.code === 0) { ctx.find('#rr-f-img').val(res.data); layer.msg('已上传'); }
+                    else { layer.msg(res.msg || '失败'); }
+                }
+            });
+            this.value = '';
+        });
+        ctx.find('#rr-up-img2').off('click').on('click', function () { ctx.find('#rr-file-img2').click(); });
+        ctx.find('#rr-file-img2').off('change').on('change', function () {
+            var fd = new FormData();
+            fd.append('upload', this.files[0]);
+            $.ajax({
+                url: YMWL_ROOT_URL + '/admin/set/upload',
+                type: 'post',
+                data: fd,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function (res) {
+                    if (res.code === 0) { ctx.find('#rr-f-imgonly').val(res.data); layer.msg('已上传'); }
+                    else { layer.msg(res.msg || '失败'); }
+                }
+            });
+            this.value = '';
+        });
+        ctx.find('#rr-up-vid').off('click').on('click', function () { ctx.find('#rr-file-vid').click(); });
+        ctx.find('#rr-file-vid').off('change').on('change', function () {
+            var fd = new FormData();
+            fd.append('folder', this.files[0]);
+            $.ajax({
+                url: YMWL_ROOT_URL + '/admin/set/uploadfile',
+                type: 'post',
+                data: fd,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function (res) {
+                    if (res.code === 0) { ctx.find('#rr-f-vid').val(res.data); layer.msg('已上传'); }
+                    else { layer.msg(res.msg || '失败'); }
+                }
+            });
+            this.value = '';
+        });
+    }
+
+    function rrFillForm(d, layero) {
+        d = d || {};
+        var root = layero || $(document);
+        root.find('#rr-f-id').val(d.id || 0);
+        root.find('#rr-f-type').val(d.reply_type || 'text');
+        root.find('#rr-f-title').val(d.title || '');
+        root.find('#rr-f-category').val(d.category || '');
+        root.find('#rr-f-tag').val(d.tag || '');
+        root.find('#rr-f-sort').val(d.sort != null ? d.sort : 0);
+        root.find('input[name="status"][value="' + (parseInt(d.status, 10) === 0 ? '0' : '1') + '"]').prop('checked', true);
+        root.find('#rr-f-content').val(d.content || '');
+        root.find('#rr-f-btn').val(d.button_text || '');
+        root.find('#rr-f-link').val(d.link_url || '');
+        root.find('#rr-f-ctitle').val(d.card_title || '');
+        root.find('#rr-f-cdesc').val(d.card_desc || '');
+        root.find('#rr-f-img').val(d.image_url || '');
+        root.find('#rr-f-imgonly').val(d.image_url || '');
+        root.find('#rr-f-vid').val(d.video_url || '');
+        root.find('#rr-f-payload').val(d.payload_json || '');
+        var $svc = root.find('#rr-f-service');
+        if ($svc.length && $svc.is('select')) {
+            $svc.val(d.service_id != null ? String(d.service_id) : '0');
+        } else if ($svc.length) {
+            $svc.val(d.service_id || '');
+        }
+        form.render();
+        rrToggleType(root.find('#rr-f-type').val(), layero);
+    }
+
+    function rrCollectForm(layero) {
+        var root = layero || $(document);
+        var t = root.find('#rr-f-type').val();
+        var o = {
+            id: root.find('#rr-f-id').val(),
+            reply_type: t,
+            title: root.find('#rr-f-title').val(),
+            category: root.find('#rr-f-category').val(),
+            tag: root.find('#rr-f-tag').val(),
+            sort: root.find('#rr-f-sort').val(),
+            status: root.find('input[name="status"]:checked').val(),
+            content: root.find('#rr-f-content').val(),
+            button_text: root.find('#rr-f-btn').val(),
+            link_url: root.find('#rr-f-link').val(),
+            card_title: root.find('#rr-f-ctitle').val(),
+            card_desc: root.find('#rr-f-cdesc').val(),
+            payload_json: root.find('#rr-f-payload').val(),
+            video_url: root.find('#rr-f-vid').val(),
+            service_id: root.find('#rr-f-service').val()
+        };
+        if (t === 'image') {
+            o.image_url = root.find('#rr-f-imgonly').val();
+        } else {
+            o.image_url = root.find('#rr-f-img').val();
+        }
+        return o;
+    }
+
+    function openEditor(data) {
+        var html = $('#rr-form-tpl').html();
+        var idx = layer.open({
+            type: 1,
+            title: (data && data.id) ? '编辑富媒体回复' : '新增富媒体回复',
+            area: ['560px', '92%'],
+            content: html,
+            success: function (layero) {
+                form.render();
+                rrFillForm(data, layero);
+                rrBindUpload(layero);
+
+                layero.find('#rr-f-type').off('change.rr').on('change.rr', function () {
+                    rrToggleType($(this).val(), layero);
+                });
+
+                layero.find('#rr-btn-prev').off('click').on('click', function () {
+                    var o = rrCollectForm(layero);
+                    $.post(YMWL_ROOT_URL + '/admin/richreply/preview', o, function (res) {
+                        if (res.code !== 0) { layer.msg(res.msg || '预览失败'); return; }
+                        layero.find('#rr-preview-box').removeClass('layui-hide');
+                        layero.find('#rr-preview-inner').html(res.data.html);
+                    }, 'json');
+                });
+
+                layero.find('#rr-btn-save').off('click').on('click', function () {
+                    var o = rrCollectForm(layero);
+                    var url = (parseInt(o.id, 10) > 0) ? (YMWL_ROOT_URL + '/admin/richreply/update') : (YMWL_ROOT_URL + '/admin/richreply/save');
+                    $.post(url, o, function (res) {
+                        if (res.code !== 0) { layer.msg(res.msg || '失败'); return; }
+                        layer.msg('保存成功');
+                        layer.close(idx);
+                        tableIns.reload({
+                            where: rrTableWhere()
+                        });
+                    }, 'json');
+                });
+            }
+        });
+    }
+
+    function rrTableWhere() {
+        return {
+            keyword: $('#rr-flt-kw').val() || '',
+            reply_type: $('#rr-flt-type').val() || '',
+            category: $('#rr-flt-cat').val() || '',
+            list_status: $('#rr-flt-st').val()
+        };
+    }
+
+    var tableIns = table.render({
+        elem: '#rr-table',
+        url: YMWL_ROOT_URL + '/admin/richreply/list',
+        page: true,
+        limit: 20,
+        where: rrTableWhere(),
+        cols: [[
+            { field: 'id', title: 'ID', width: 70 },
+            { field: 'category', title: '分类', width: 90 },
+            { field: 'tag', title: '标签', width: 90 },
+            { field: 'title', title: '标题', minWidth: 120 },
+            { field: 'reply_type_label', title: '类型', width: 100 },
+            { field: 'owner_label', title: '归属', width: 120 },
+            { field: 'sort', title: '排序', width: 70 },
+            { field: 'status_label', title: '状态', width: 80 },
+            { field: 'updated_at', title: '更新', width: 160, templet: function (d) {
+                if (!d.updated_at) return '';
+                return util.toDateString(d.updated_at * 1000);
+            }},
+            { title: '操作', width: 280, toolbar: '#rr-bar' }
+        ]],
+        parseData: function (res) {
+            return { code: res.code === 0 ? 0 : 1, msg: res.msg, count: res.count, data: res.data || [] };
+        }
+    });
+
+    $('#rr-flt-search').on('click', function () {
+        tableIns.reload({ where: rrTableWhere(), page: { curr: 1 } });
+    });
+    $('#rr-flt-reset').on('click', function () {
+        $('#rr-flt-kw').val('');
+        $('#rr-flt-type').val('');
+        $('#rr-flt-cat').val('');
+        $('#rr-flt-st').val('');
+        tableIns.reload({ where: rrTableWhere(), page: { curr: 1 } });
+    });
+
+    $('#rr-btn-add').on('click', function () {
+        $.get(YMWL_ROOT_URL + '/admin/richreply/create', function (res) {
+            if (res.code !== 0) { layer.msg(res.msg || '失败'); return; }
+            openEditor(res.data);
+        }, 'json');
+    });
+
+    table.on('tool(rr-table)', function (obj) {
+        var d = obj.data;
+        if (obj.event === 'edit') {
+            $.get(YMWL_ROOT_URL + '/admin/richreply/edit', { id: d.id }, function (res) {
+                if (res.code !== 0) { layer.msg(res.msg || '失败'); return; }
+                openEditor(res.data);
+            }, 'json');
+        } else if (obj.event === 'preview') {
+            $.post(YMWL_ROOT_URL + '/admin/richreply/preview', { reply_id: d.id }, function (res) {
+                if (res.code !== 0) { layer.msg(res.msg || '失败'); return; }
+                layer.open({ title: '预览', area: ['400px', '520px'], content: '<div class="layui-padding">' + res.data.html + '</div>' });
+            }, 'json');
+        } else if (obj.event === 'del') {
+            layer.confirm('确定删除？', function (i) {
+                layer.close(i);
+                $.post(YMWL_ROOT_URL + '/admin/richreply/delete', { id: d.id }, function (res) {
+                    layer.msg(res.msg || 'ok');
+                    tableIns.reload({ where: rrTableWhere() });
+                }, 'json');
+            });
+        } else if (obj.event === 'off') {
+            $.post(YMWL_ROOT_URL + '/admin/richreply/status', { id: d.id, status: 0 }, function () { tableIns.reload({ where: rrTableWhere() }); });
+        } else if (obj.event === 'on') {
+            $.post(YMWL_ROOT_URL + '/admin/richreply/status', { id: d.id, status: 1 }, function () { tableIns.reload({ where: rrTableWhere() }); });
+        }
+    });
+});
+</script>
+{include file="public/footer"/}
