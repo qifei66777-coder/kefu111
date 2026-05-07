@@ -53,6 +53,7 @@
         }
         $(document).on("click", a);
         var wolive_connect =function () {
+                    window.woliveRealtimeConnected = false;
             
                     var pusher = new Pusher('{$app_key}', 
                         {encrypted: {$value},
@@ -220,6 +221,7 @@
 
                      pusher.connection.bind('state_change', function(states) {
                         if(states.current == 'unavailable' || states.current == "disconnected" || states.current == "failed" ){
+                            window.woliveRealtimeConnected = false;
                             $.cookie("cid","");
                             var id =$.cookie("services");
                             if(id){
@@ -239,6 +241,7 @@
                     });
 
                     pusher.connection.bind('connected', function() {
+                        window.woliveRealtimeConnected = true;
                         $.cookie("cid","");
                     
                     });

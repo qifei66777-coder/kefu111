@@ -48,6 +48,29 @@ class Dashboard extends Base
     }
 
     /**
+     * Dashboard 依赖的二维码/IP扩展表在部分老库里可能还没执行 SQL。
+     * 这里做只读探测，缺表时前端显示空状态，不影响总后台打开。
+     */
+    protected function tableExists($name)
+    {
+        static $cache = [];
+        $table = config('database.prefix') . $name;
+        if (isset($cache[$table])) {
+            return $cache[$table];
+        }
+
+        try {
+            $safeTable = str_replace(['`', "'", '"'], '', $table);
+            $rows = Db::query("SHOW TABLES LIKE '" . $safeTable . "'");
+            $cache[$table] = !empty($rows);
+        } catch (\Exception $e) {
+            $cache[$table] = false;
+        }
+
+        return $cache[$table];
+    }
+
+    /**
      * 数据中心首页
      */
     public function index()
@@ -70,21 +93,28 @@ class Dashboard extends Base
         }
 
         list($t0, $t1) = $this->todayTimestampRange();
+        $hasQrScan = $this->tableExists('qr_scan_logs');
+        $hasQrChannels = $this->tableExists('qr_channels');
+        $hasIpBlacklist = $this->tableExists('ip_blacklist');
 
-        $today_scan_count = (int) Db::name('qr_scan_logs')
-            ->where('business_id', 'in', $bids)
-            ->where('scan_time', 'between', [$t0, $t1])
-            ->count();
+        $today_scan_count = $hasQrScan
+            ? (int) Db::name('qr_scan_logs')
+                ->where('business_id', 'in', $bids)
+                ->where('scan_time', 'between', [$t0, $t1])
+                ->count()
+            : 0;
 
         $today_visitor_count = (int) Db::name('visiter')
             ->where('business_id', 'in', $bids)
             ->whereTime('timestamp', 'today')
             ->count();
 
-        $today_channel_count = (int) Db::name('qr_channels')
-            ->where('business_id', 'in', $bids)
-            ->where('create_time', 'between', [$t0, $t1])
-            ->count();
+        $today_channel_count = $hasQrChannels
+            ? (int) Db::name('qr_channels')
+                ->where('business_id', 'in', $bids)
+                ->where('create_time', 'between', [$t0, $t1])
+                ->count()
+            : 0;
 
         $today_message_count = (int) Db::name('chats')
             ->where('business_id', 'in', $bids)
@@ -96,17 +126,21 @@ class Dashboard extends Base
             ->where('state', 'online')
             ->count();
 
-        $total_blacklist_count = (int) Db::name('ip_blacklist')
-            ->where('business_id', 'in', $bids)
-            ->where('status', 1)
-            ->count();
+        $total_blacklist_count = $hasIpBlacklist
+            ? (int) Db::name('ip_blacklist')
+                ->where('business_id', 'in', $bids)
+                ->where('status', 1)
+                ->count()
+            : 0;
 
         $total_business_count = count($bids);
 
-        $total_channel_count = (int) Db::name('qr_channels')
-            ->where('business_id', 'in', $bids)
-            ->where('status', '<>', -1)
-            ->count();
+        $total_channel_count = $hasQrChannels
+            ? (int) Db::name('qr_channels')
+                ->where('business_id', 'in', $bids)
+                ->where('status', '<>', -1)
+                ->count()
+            : 0;
 
         return json([
             'code' => 0,
@@ -141,21 +175,27 @@ class Dashboard extends Base
 
         $pfx = config('database.prefix');
         $in = implode(',', array_map('intval', $bids));
+        $hasQrScan = $this->tableExists('qr_scan_logs');
         $list = [];
         foreach ($days as $day) {
             $t0 = strtotime($day . ' 00:00:00');
             $t1 = $t0 + 86399;
 
-            $scan_count = (int) Db::name('qr_scan_logs')
-                ->where('business_id', 'in', $bids)
-                ->where('scan_time', 'between', [$t0, $t1])
-                ->count();
+            if ($hasQrScan) {
+                $scan_count = (int) Db::name('qr_scan_logs')
+                    ->where('business_id', 'in', $bids)
+                    ->where('scan_time', 'between', [$t0, $t1])
+                    ->count();
 
-            $vr = Db::query(
-                "SELECT COUNT(DISTINCT visiter_id) AS c FROM `{$pfx}qr_scan_logs` WHERE business_id IN ({$in}) AND scan_time BETWEEN ? AND ?",
-                [$t0, $t1]
-            );
-            $visitor_count = isset($vr[0]['c']) ? (int) $vr[0]['c'] : 0;
+                $vr = Db::query(
+                    "SELECT COUNT(DISTINCT visiter_id) AS c FROM `{$pfx}qr_scan_logs` WHERE business_id IN ({$in}) AND scan_time BETWEEN ? AND ?",
+                    [$t0, $t1]
+                );
+                $visitor_count = isset($vr[0]['c']) ? (int) $vr[0]['c'] : 0;
+            } else {
+                $scan_count = 0;
+                $visitor_count = 0;
+            }
 
             $message_count = (int) Db::name('chats')
                 ->where('business_id', 'in', $bids)
@@ -213,11 +253,13 @@ class Dashboard extends Base
             ];
         }
 
-        $sqlScan = "SELECT service_id, COUNT(DISTINCT visiter_id) AS scan_vis_cnt FROM `{$pfx}qr_scan_logs` WHERE business_id IN ({$in}) AND scan_time BETWEEN ? AND ? GROUP BY service_id";
-        $scanAgg = Db::query($sqlScan, [$t0, $t1]);
         $scanMap = [];
-        foreach ($scanAgg as $row) {
-            $scanMap[(int) $row['service_id']] = (int) $row['scan_vis_cnt'];
+        if ($this->tableExists('qr_scan_logs')) {
+            $sqlScan = "SELECT service_id, COUNT(DISTINCT visiter_id) AS scan_vis_cnt FROM `{$pfx}qr_scan_logs` WHERE business_id IN ({$in}) AND scan_time BETWEEN ? AND ? GROUP BY service_id";
+            $scanAgg = Db::query($sqlScan, [$t0, $t1]);
+            foreach ($scanAgg as $row) {
+                $scanMap[(int) $row['service_id']] = (int) $row['scan_vis_cnt'];
+            }
         }
 
         $out = [];
@@ -264,6 +306,9 @@ class Dashboard extends Base
 
         list($t0, $t1) = $this->todayTimestampRange();
         $limit = min(50, max(1, (int) $this->request->param('limit', 10)));
+        if (!$this->tableExists('qr_channels')) {
+            return json(['code' => 0, 'msg' => 'success', 'data' => []]);
+        }
 
         $rows = Db::name('qr_channels')->alias('c')
             ->leftJoin('service s', 'c.service_id = s.service_id')
@@ -281,7 +326,7 @@ class Dashboard extends Base
         }
 
         $todayMap = [];
-        if (!empty($ids)) {
+        if (!empty($ids) && $this->tableExists('qr_scan_logs')) {
             $pfx = config('database.prefix');
             $inCh = implode(',', array_map('intval', $ids));
             $sql = "SELECT channel_id, COUNT(*) AS c FROM `{$pfx}qr_scan_logs` WHERE scan_time BETWEEN ? AND ? AND channel_id IN ({$inCh}) GROUP BY channel_id";
@@ -320,20 +365,22 @@ class Dashboard extends Base
 
         $since = strtotime('-6 days', strtotime(date('Y-m-d 00:00:00')));
 
-        $agg = Db::name('qr_scan_logs')
-            ->where('business_id', 'in', $bids)
-            ->where('scan_time', '>=', $since)
-            ->field('device_type,COUNT(*) AS c')
-            ->group('device_type')
-            ->select();
-
         $bucket = ['iOS' => 0, 'Android' => 0, 'PC' => 0, 'Other' => 0];
         $total = 0;
-        foreach ($agg as $row) {
-            $k = $this->normalizeDevice($row['device_type']);
-            $c = (int) $row['c'];
-            $bucket[$k] += $c;
-            $total += $c;
+        if ($this->tableExists('qr_scan_logs')) {
+            $agg = Db::name('qr_scan_logs')
+                ->where('business_id', 'in', $bids)
+                ->where('scan_time', '>=', $since)
+                ->field('device_type,COUNT(*) AS c')
+                ->group('device_type')
+                ->select();
+
+            foreach ($agg as $row) {
+                $k = $this->normalizeDevice($row['device_type']);
+                $c = (int) $row['c'];
+                $bucket[$k] += $c;
+                $total += $c;
+            }
         }
 
         if ($total === 0) {
@@ -369,6 +416,9 @@ class Dashboard extends Base
 
         $since = strtotime('-6 days', strtotime(date('Y-m-d 00:00:00')));
         $limit = min(50, max(5, (int) $this->request->param('limit', 15)));
+        if (!$this->tableExists('qr_scan_logs')) {
+            return json(['code' => 0, 'msg' => 'success', 'data' => []]);
+        }
 
         $pfx = config('database.prefix');
         $in = implode(',', array_map('intval', $bids));

@@ -71,6 +71,7 @@
            var element = layui.element;
         });
         var wolive_connect =function () {
+            window.woliveRealtimeConnected = false;
             pusher = new Pusher('{$app_key}', {
                 encrypted: {$value}
                 , enabledTransports: ['ws']
@@ -269,6 +270,7 @@
                 msg += "</li>";
                 var str = data.message.content;
                 if (data.message.visiter_id == debug) {
+                    msg = msg.replace('<li class="chatmsg"', '<li class="chatmsg" id="cu_' + data.message.cid + '"');
                     $(".conversation").append(msg);
                     getwatch(data.message.visiter_id);
 
@@ -359,6 +361,7 @@
             pusher.connection.bind('state_change', function(states) {
               
                 if(states.current == 'unavailable' || states.current == "disconnected" || states.current == "failed" ){
+                    window.woliveRealtimeConnected = false;
 
                         pusher.unsubscribe("kefu" + value);
                         pusher.unsubscribe("all" + web);
@@ -381,6 +384,7 @@
             });
 
             pusher.connection.bind('connected', function() {
+                window.woliveRealtimeConnected = true;
                 $(".profile").text('在线');
             });
         }

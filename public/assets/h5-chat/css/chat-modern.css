@@ -231,6 +231,12 @@ body.h5-chat-modern-theme #wrap .conversation {
   min-height: 100%;
 }
 
+body.h5-chat-modern-theme #wrap .conversation > .chatmsg,
+body.h5-chat-modern-theme #wrap .conversation > .chatmsg_no,
+body.h5-chat-modern-theme #wrap .conversation > .chatmsg_notice {
+  scroll-margin-bottom: calc(var(--h5-foot-real-h) + var(--h5-tools-panel-h) + 18px + var(--h5-safe-bottom));
+}
+
 /* 占位（替代原 height:55px / 94px 内联块） */
 body.h5-chat-modern-theme #wrap > div[style*="height: 55px"],
 body.h5-chat-modern-theme #wrap > div[style*="height: 94px"] {

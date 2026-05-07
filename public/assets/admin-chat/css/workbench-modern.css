@@ -692,6 +692,7 @@ body.wb-rail-collapsed .wb-rail-item { min-height: 44px; padding: 6px 2px; }
   min-height: 0;
   height: auto !important;
   list-style: none;
+  scroll-margin-bottom: 170px;
 }
 
 /* 客户气泡（左） */
