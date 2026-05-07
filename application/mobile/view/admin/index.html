@@ -15,9 +15,13 @@
     <link rel="stylesheet" href="__assets__/mobile/css/reset.css?v=__lkversion__" />
     <link rel="stylesheet" href="__assets__/mobile/css/animate.css?v=__lkversion__" />
     <link rel="stylesheet" href="__assets__/mobile/css/swiper-3.4.1.min.css?v=__lkversion__" />
+    <link rel="stylesheet" href="__assets__/mobile/css/mobile-workbench-modern.css?v=__lkversion__" />
 
     <script>
         YMWL_ROOT_URL = "{$baseroot}";
+        MOBILE_WORKBENCH_CONFIG = {
+            receptionLink: "{$baseroot}/mobile/index/home?visiter_id=&visiter_name=&avatar=&business_id={$mine.business_id}&groupid={$group_id}"
+        };
     </script>
     <script src="__assets__/mobile/js/jquery-1.9.1.min.js?v=__lkversion__"></script>
     <script src="__assets__/mobile/js/zepto.min.js?v=__lkversion__"></script>
@@ -460,6 +464,16 @@
                 <h2 class="barTit barTitLg flex1">{$seo.business_name}</h2>
             </div>
         </div>
+        <div class="mobile-workbench-topbar">
+            <div class="mobile-workbench-service">
+                <img class="mobile-workbench-avatar" src="{$mine.avatar}" alt="客服头像">
+                <div class="mobile-workbench-profile">
+                    <div class="mobile-workbench-name">{$mine.nick_name}</div>
+                    <div class="mobile-workbench-status"><span></span>{$mine.state}</div>
+                </div>
+            </div>
+            <button type="button" class="mobile-workbench-plus" aria-label="更多操作">+</button>
+        </div>
         <!-- //4个tabBar滑动切换 -->
         <div class="wc__swiper-tabBar flex1">
             <div class="swiper-container" style="height: 100%">
@@ -515,6 +529,15 @@
                                     <div class="edit-del-btn">删除</div>
                                 </div>
                             </div>
+                            <div class="mobile-blacklist-panel" id="MobileBlacklistPanel">
+                                <div class="mobile-blacklist-search">
+                                    <input type="search" id="MobileBlacklistSearch" placeholder="搜索 IP 黑名单">
+                                    <button type="button" id="MobileBlacklistSearchBtn">搜索</button>
+                                </div>
+                                <div class="mobile-blacklist-list" id="MobileBlacklistList">
+                                    <div class="mobile-blacklist-empty">正在加载黑名单...</div>
+                                </div>
+                            </div>
                         </div>
 
                     </div>
@@ -566,7 +589,7 @@
                                             <img class="info-bg" src="__image__/mobile/BG.png" alt="">
                                             <img class="uimg" src="{$mine.avatar}" />
                                             <span class="txt username flex1">
-                                                    <em>{$mine.nick_name}</em><i>登录名：{$mine.user_name}</i>
+                                                    <em>{$mine.nick_name}</em><i>账号：{$mine.user_name}</i><i class="mobile-mine-state">状态：{$mine.state}</i>
                                             </span>
                                         </div>
                                     </li>
@@ -593,6 +616,14 @@
                                                     <em>{$group_name}</em>
                                             </span>
                                         </div>
+                                        <div class="item person-item flexbox flex-alignc wc__material-cell mobile-mine-action" data-action="avatar">
+                                            <span class="txt person-label flex02">头像</span>
+                                            <span class="txt flex1"><em>修改头像</em></span>
+                                        </div>
+                                        <div class="item person-item flexbox flex-alignc wc__material-cell mobile-mine-action" data-action="nickname">
+                                            <span class="txt person-label flex02">昵称</span>
+                                            <span class="txt flex1"><em>修改昵称 / 名字</em></span>
+                                        </div>
                                     </li>
 
                                     <li>
@@ -615,6 +646,30 @@
 
                 </ul>
             </div>
+        </div>
+        <div class="mobile-workbench-tabbar">
+            <button type="button" class="mobile-workbench-tab is-active" data-tab="chat">
+                <i class="layui-icon">&#xe611;</i>
+                <span>聊天</span>
+                <em class="mobile-workbench-badge"></em>
+            </button>
+            <button type="button" class="mobile-workbench-tab" data-tab="blacklist">
+                <i class="layui-icon">&#xe672;</i>
+                <span>黑名单</span>
+            </button>
+            <button type="button" class="mobile-workbench-tab" data-tab="my">
+                <i class="layui-icon">&#xe626;</i>
+                <span>我的</span>
+            </button>
+        </div>
+
+        <div class="mobile-action-mask"></div>
+        <div class="mobile-action-sheet">
+            <div class="mobile-action-title">快捷操作</div>
+            <button type="button" data-action="qrcode">生成接待二维码</button>
+            <button type="button" data-action="copy-link">复制接待链接</button>
+            <button type="button" data-action="new-chat">新建会话</button>
+            <button type="button" data-action="cancel">取消</button>
         </div>
 
         <!-- 添加分组 -->
@@ -649,6 +704,7 @@
     var chatSwiper = new Swiper('.swiper-container',{
         paginationClickable: true,
         initialSlide :0,
+        allowTouchMove: false,
        /* history: {
             key: 'admin',
             replaceState: true,
@@ -799,14 +855,31 @@
                             item.visiter_name=item.visiter_name?item.visiter_name:'游客'+item.visiter_id;
                             var uname=item.name?item.name:item.visiter_name;
                             var unread_str = count ? '<em class="wc__badge">'+count+'</em>' : '';
+                            var region = item.ip_region || item.region || item.area || item.city || '';
+                            var device = item.device_type || item.device || item.os || '';
+                            var source = item.source || item.from_url || item.referer || '';
+                            var remark = item.comment || item.remark || '';
+                            var tags = '';
+                            if (device) {
+                                tags += '<span>'+device+'</span>';
+                            }
+                            if (region || item.ip) {
+                                tags += '<span>'+(region ? region : item.ip)+'</span>';
+                            }
+                            if (source) {
+                                tags += '<span>'+source+'</span>';
+                            }
+                            if (remark) {
+                                tags += '<span>'+remark+'</span>';
+                            }
                             var _tpl = [
-                                '<li class="flexbox wc__material-cell '+item.state+'" visiter_id="'+item.visiter_id+'" id="visiter-'+item.visiter_id+'" routeUrl="'+ item.mobile_route_url +'">\
+                                '<li class="flexbox wc__material-cell mobile-chat-card '+item.state+'" visiter_id="'+item.visiter_id+'" id="visiter-'+item.visiter_id+'" routeUrl="'+ item.mobile_route_url +'">\
                                 <div class="img"><img src="'+item.avatar+'"/>'+unread_str+'</div>\
                                     <div class="info flex1">\
-                                    <h2 class="title">'+uname+'</h2>\
+                                    <div class="mobile-chat-main"><h2 class="title">'+uname+'</h2><label class="time">'+item.timestamp+'</label></div>\
                                     <p class="desc clamp1">'+item.content.substring(0,60)+'</p>\
+                                    <div class="mobile-chat-tags">'+tags+'</div>\
                                 </div>\
-                                <label class="time">'+item.timestamp+'</label>\
                             </li>'
                             ].join("");
                             all_list += _tpl;
@@ -1053,8 +1126,10 @@
                     $(".wechat__tabBar .layui-icon-reply-fill").html('<em class="wc__badge">0</em>');
                 }
                 $(".wechat__tabBar .layui-icon-reply-fill .wc__badge").html(total_unread_count);
+                $('.mobile-workbench-tab[data-tab="chat"] .mobile-workbench-badge').text(total_unread_count).show();
             } else {
                 $(".wechat__tabBar .layui-icon-reply-fill .wc__badge").remove();
+                $('.mobile-workbench-tab[data-tab="chat"] .mobile-workbench-badge').hide().text('');
             }
         }
 
@@ -1335,5 +1410,6 @@
     });
 </script>
 
+<script src="__assets__/mobile/js/mobile-workbench-modern.js?v=__lkversion__"></script>
 </body>
 </html>
