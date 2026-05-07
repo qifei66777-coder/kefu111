@@ -43,8 +43,7 @@
     if (ip && ip !== '—') $meta.append('<span class="wb-chip">' + ip + '</span>');
     if (reg && reg !== '—') $meta.append('<span class="wb-chip wb-chip-loc">' + reg + '</span>');
     if (!$meta.children().length) $meta.text('设备与 IP 信息将在选中访客后显示');
-    // 选中访客后，移动端自动关闭抽屉，让聊天可见
-    if (isMobile()) wbCloseDrawers();
+    if (isMobile()) wbOpenMobileChat();
   };
 
   function wbApplyListFilter(mode) {
@@ -111,18 +110,29 @@
   window.wbOpenImage = wbOpenImage;
 
   // ===== 移动端视图切换 =====
-  // 移动端默认是聊天页（不加 class）；wb-mb-list 显示列表抽屉，wb-mb-side 显示资料抽屉
   function wbMobileShow(view) {
     if (!isMobile()) return;
     var $b = $('body');
-    $b.removeClass('wb-mb-list wb-mb-side');
-    if (view === 'list') $b.addClass('wb-mb-list');
-    else if (view === 'side') $b.addClass('wb-mb-side');
-    // chat 是默认态：不加 class
+    $b.removeClass('wb-mb-list wb-mb-side wb-mobile-tab-chat wb-mobile-tab-blacklist wb-mobile-tab-mine');
+    if (view === 'blacklist') {
+      $b.addClass('wb-mobile-tab-blacklist').removeClass('wb-mb-chat-open');
+      wbLoadMobileBlacklist();
+    } else if (view === 'mine') {
+      $b.addClass('wb-mobile-tab-mine').removeClass('wb-mb-chat-open');
+    } else {
+      $b.addClass('wb-mobile-tab-chat').removeClass('wb-mb-chat-open');
+    }
+    $('.wb-mobile-tabs [data-wb-mobile-tab="' + (view || 'chat') + '"]').addClass('is-active').siblings().removeClass('is-active');
   }
 
   function wbCloseDrawers() {
     $('body').removeClass('wb-mb-list wb-mb-side');
+  }
+
+  function wbOpenMobileChat() {
+    if (!isMobile()) return;
+    $('body').addClass('wb-mobile-tab-chat wb-mb-chat-open').removeClass('wb-mobile-tab-blacklist wb-mobile-tab-mine wb-mb-list wb-mb-side');
+    $('.wb-mobile-tabs [data-wb-mobile-tab="chat"]').addClass('is-active').siblings().removeClass('is-active');
   }
 
   // 同步顶栏"切换客户"按钮上的未读数量徽章
@@ -153,6 +163,59 @@
 
   window.wbSyncChatListHeight = wbListHeight;
   window.wbMobileShow = wbMobileShow;
+
+  function wbHtml(s) {
+    return $('<div/>').text(s == null ? '' : String(s)).html();
+  }
+
+  function wbCopyText(text) {
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        layer.msg('已复制接待链接');
+      }).catch(function () {
+        window.prompt('复制以下链接：', text);
+      });
+    } else {
+      window.prompt('复制以下链接：', text);
+    }
+  }
+
+  function wbLoadMobileBlacklist() {
+    var $box = $('#wb_mobile_black_list');
+    if (!$box.length) return;
+    $box.html('<div class="wb-mobile-empty">正在加载黑名单...</div>');
+    $.ajax({
+      url: (window.YMWL_ROOT_URL || '') + '/admin/qrchannel/blacklist',
+      type: 'get',
+      dataType: 'json',
+      data: { page: 1, limit: 100, ip: $('#wb_mobile_black_kw').val() || '' },
+      success: function (res) {
+        var rows = res && res.data ? res.data : [];
+        if (!rows.length) {
+          $box.html('<div class="wb-mobile-empty">暂无黑名单数据</div>');
+          return;
+        }
+        var html = '';
+        $.each(rows, function (_, row) {
+          var name = row.service_nickname || row.service_name || row.created_by_name || '客户';
+          html += '<div class="wb-mobile-black-item" data-ip="' + wbHtml(row.ip) + '" data-id="' + wbHtml(row.id) + '">';
+          html += '<div><div class="wb-mobile-black-ip">' + wbHtml(row.ip || '-') + '</div>';
+          html += '<div class="wb-mobile-black-meta">客户名：' + wbHtml(name) + '<br>封禁时间：' + wbHtml(row.created_at || '-') + '</div></div>';
+          html += '<button type="button" class="wb-mobile-unban">解除封禁</button></div>';
+        });
+        $box.html(html);
+      },
+      error: function () {
+        $box.html('<div class="wb-mobile-empty">黑名单接口不可用，请稍后重试</div>');
+      }
+    });
+  }
+
+  function wbCloseMobileActions() {
+    $('body').removeClass('wb-mobile-actions-open');
+    $('#wb_mobile_action_sheet').attr('aria-hidden', 'true');
+  }
 
   $(function () {
     if ($('body').hasClass('wb-modern')) {
@@ -212,14 +275,18 @@
       if (typeof window.getvideo === 'function') window.getvideo();
     });
 
-    // —— 移动端：选中会话进入聊天（默认就是聊天，关掉列表抽屉即可） ——
+    // —— 移动端：选中会话进入聊天窗口 ——
     $(document).on('click', '#chat_list .visit_content, #wait_list .visiter', function () {
-      if (isMobile()) wbCloseDrawers();
+      if (isMobile()) wbOpenMobileChat();
     });
 
-    // —— 顶栏 "切换客户"：打开会话列表抽屉（手机） ——
+    // —— 聊天窗口返回会话列表 ——
     $(document).on('click', '#wb_chat_back', function () {
-      wbMobileShow('list');
+      if (isMobile()) {
+        $('body').removeClass('wb-mb-chat-open');
+      } else {
+        wbMobileShow('list');
+      }
     });
 
     // —— 顶栏 "资料"：打开右侧资料抽屉（手机） ——
@@ -230,6 +297,90 @@
     // —— 资料抽屉关闭按钮 ——
     $(document).on('click', '#wb_side_close', function () {
       wbCloseDrawers();
+    });
+
+    // —— 移动底部 Tab ——
+    $(document).on('click', '.wb-mobile-tabs [data-wb-mobile-tab]', function () {
+      wbCloseMobileActions();
+      wbMobileShow($(this).data('wb-mobile-tab') || 'chat');
+    });
+
+    $(document).on('click', '#wb_mobile_plus', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $('body').toggleClass('wb-mobile-actions-open');
+      $('#wb_mobile_action_sheet').attr('aria-hidden', $('body').hasClass('wb-mobile-actions-open') ? 'false' : 'true');
+    });
+
+    $(document).on('click', '#wb_mobile_action_mask', function () {
+      wbCloseMobileActions();
+    });
+
+    $(document).on('click', '[data-wb-mobile-action]', function () {
+      var action = $(this).data('wb-mobile-action');
+      wbCloseMobileActions();
+      if (action === 'qr') {
+        if (typeof window.openQrChannel === 'function') window.openQrChannel();
+      } else if (action === 'copy') {
+        $.ajax({
+          url: (window.YMWL_ROOT_URL || '') + '/admin/qrchannel/create',
+          type: 'post',
+          dataType: 'json',
+          data: { template_id: 0, remark: '' },
+          success: function (res) {
+            if (res && res.code === 0 && res.data && res.data.url) {
+              wbCopyText(res.data.url);
+            } else {
+              layer.msg((res && res.msg) || '生成接待链接失败', { icon: 2 });
+            }
+          },
+          error: function () {
+            layer.msg('生成接待链接失败', { icon: 2 });
+          }
+        });
+      } else if (action === 'new') {
+        wbMobileShow('chat');
+        $('body').removeClass('wb-mb-chat-open');
+      }
+    });
+
+    $(document).on('input', '#wb_mobile_black_kw', function () {
+      clearTimeout($(this).data('timer'));
+      var el = this;
+      $(this).data('timer', setTimeout(function () {
+        wbLoadMobileBlacklist();
+      }, 260));
+    });
+
+    $(document).on('click', '.wb-mobile-unban', function () {
+      var $item = $(this).closest('.wb-mobile-black-item');
+      $.ajax({
+        url: (window.YMWL_ROOT_URL || '') + '/admin/qrchannel/unbanIp',
+        type: 'post',
+        dataType: 'json',
+        data: { id: $item.data('id'), ip: $item.data('ip') },
+        success: function (res) {
+          if (res && res.code === 0) {
+            layer.msg('已解除封禁', { icon: 1 });
+            wbLoadMobileBlacklist();
+          } else {
+            layer.msg((res && res.msg) || '解除失败', { icon: 2 });
+          }
+        },
+        error: function () {
+          layer.msg('解除失败', { icon: 2 });
+        }
+      });
+    });
+
+    $(document).on('click', '#wb_mobile_edit_profile', function () {
+      var $link = $('.am-dropdown-content a[href^="javascript:showinfo"]').first();
+      if ($link.length) $link[0].click();
+    });
+
+    $(document).on('click', '#wb_mobile_change_pwd', function () {
+      var $link = $('.am-dropdown-content a[href^="javascript:modify"]').first();
+      if ($link.length) $link[0].click();
     });
 
     // —— 点击抽屉遮罩关闭抽屉 ——
@@ -388,16 +539,9 @@
       if (typeof window.getwait === 'function') window.getwait();
     }, 8000);
 
-    // —— 移动端首屏：未选中访客时主动打开列表抽屉，引导用户选择 ——
+    // —— 移动端首屏：默认显示会话列表 ——
     if (isMobile()) {
-      var hasCu = false;
-      try {
-        var cu = (typeof $.cookie === 'function') ? $.cookie('cu_com') : null;
-        hasCu = !!(cu && cu.length > 4);
-      } catch (e) { hasCu = false; }
-      if (!hasCu) {
-        setTimeout(function () { wbMobileShow('list'); }, 300);
-      }
+      wbMobileShow('chat');
     }
   });
 })(window.jQuery);

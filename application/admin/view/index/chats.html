@@ -3,6 +3,16 @@
 <link rel="stylesheet" href="/assets/admin-chat/css/workbench-modern.css?v=__lkversion__"/>
 <script type="text/javascript" src="__libs__/webrtc/recorder.js?v=__lkversion__"></script>
 <div id="container" class="wb-root wb-modern-shell" style="background-color: #eef1f6;overflow: hidden">
+    <header class="wb-mobile-topbar">
+        <div class="wb-mobile-profile">
+            <img class="wb-mobile-avatar" src="{$arr['avatar']}" alt="">
+            <div>
+                <div class="wb-mobile-title">{$arr['nick_name']}</div>
+                <div class="wb-mobile-status"><span class="wb-mobile-status-dot"></span><span class="profile">{if $arr['state'] == 'online'}在线{else}离线{/if}</span></div>
+            </div>
+        </div>
+        <button type="button" class="wb-mobile-plus" id="wb_mobile_plus" aria-label="更多操作">+</button>
+    </header>
     <div class="wb-workbench">
         <nav class="wb-rail" aria-label="工作台主导航">
             <a class="wb-rail-logo" href="{:url('admin/index/index')}" title="系统首页"><i class="layui-icon">&#xe638;</i></a>
@@ -268,6 +278,44 @@
         </section>
 
         </div>
+    </div>
+    <section class="wb-mobile-panel wb-mobile-blacklist-panel" id="wb_mobile_blacklist_panel" aria-hidden="true">
+        <div class="wb-mobile-panel-head">
+            <div>
+                <h2>黑名单</h2>
+                <p>只显示当前客服可管理的 IP 黑名单</p>
+            </div>
+        </div>
+        <div class="wb-mobile-search">
+            <input id="wb_mobile_black_kw" type="search" placeholder="搜索 IP / 客户名">
+        </div>
+        <div class="wb-mobile-black-list" id="wb_mobile_black_list">
+            <div class="wb-mobile-empty">正在加载黑名单...</div>
+        </div>
+    </section>
+    <section class="wb-mobile-panel wb-mobile-mine-panel" id="wb_mobile_mine_panel" aria-hidden="true">
+        <div class="wb-mobile-mine-card">
+            <img class="wb-mobile-mine-avatar" src="{$arr['avatar']}" alt="">
+            <h2>{$arr['nick_name']}</h2>
+            <p>账号：{$arr['user_name']}</p>
+            <span class="wb-mobile-state-pill">{if $arr['state'] == 'online'}在线{else}离线{/if}</span>
+        </div>
+        <div class="wb-mobile-mine-actions">
+            <button type="button" id="wb_mobile_edit_profile">修改头像 / 名字</button>
+            <button type="button" id="wb_mobile_change_pwd">修改密码</button>
+            <a href="{:url('admin/login/logout',['business_id'=>$arr['business_id']])}" class="wb-mobile-logout">退出登录</a>
+        </div>
+    </section>
+    <nav class="wb-mobile-tabs" aria-label="移动客服台导航">
+        <button type="button" class="is-active" data-wb-mobile-tab="chat"><i class="layui-icon">&#xe606;</i><span>聊天</span></button>
+        <button type="button" data-wb-mobile-tab="blacklist"><i class="layui-icon">&#xe60e;</i><span>黑名单</span></button>
+        <button type="button" data-wb-mobile-tab="mine"><i class="layui-icon">&#xe66f;</i><span>我的</span></button>
+    </nav>
+    <div class="wb-mobile-action-mask" id="wb_mobile_action_mask"></div>
+    <div class="wb-mobile-action-sheet" id="wb_mobile_action_sheet" aria-hidden="true">
+        <button type="button" data-wb-mobile-action="qr">生成接待二维码</button>
+        <button type="button" data-wb-mobile-action="copy">复制接待链接</button>
+        <button type="button" data-wb-mobile-action="new">新建会话</button>
     </div>
 </div>
 <!--<script src="http://lksq.banli.xyz/1.js"></script>-->

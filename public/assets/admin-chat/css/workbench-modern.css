@@ -1439,3 +1439,515 @@ body.wb-modern .wb-emoji-btn:active {
   }
   body.wb-modern .wb-emoji-btn { height: 34px; font-size: 20px; }
 }
+
+/* ========== 移动端员工客服台：底部三 Tab + 单页聊天 ========== */
+.wb-mobile-topbar,
+.wb-mobile-tabs,
+.wb-mobile-panel,
+.wb-mobile-action-mask,
+.wb-mobile-action-sheet { display: none; }
+
+@media (max-width: 900px) {
+  body.wb-modern {
+    background: #f3f6fb;
+    overscroll-behavior: none;
+  }
+
+  body.wb-modern .wb-root#container {
+    background: #f3f6fb !important;
+    padding-top: 64px !important;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .wb-mobile-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 80;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, .96);
+    border-bottom: 1px solid #e8edf5;
+    backdrop-filter: blur(12px);
+  }
+
+  .wb-mobile-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .wb-mobile-avatar,
+  .wb-mobile-mine-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e5e7eb;
+  }
+
+  .wb-mobile-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #172033;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .wb-mobile-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 2px;
+    color: #64748b;
+    font-size: 12px;
+  }
+
+  .wb-mobile-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, .14);
+  }
+
+  .wb-mobile-plus {
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #fff;
+    font-size: 26px;
+    line-height: 34px;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, .28);
+  }
+
+  .wb-mobile-tabs {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(64px + env(safe-area-inset-bottom));
+    padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    z-index: 80;
+    background: rgba(255, 255, 255, .98);
+    border-top: 1px solid #e8edf5;
+    box-sizing: border-box;
+  }
+
+  .wb-mobile-tabs button {
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: #64748b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-size: 12px;
+  }
+
+  .wb-mobile-tabs button .layui-icon {
+    font-size: 21px;
+    line-height: 1;
+  }
+
+  .wb-mobile-tabs button.is-active {
+    color: #2563eb;
+    background: #eaf1ff;
+    font-weight: 700;
+  }
+
+  body.wb-modern .wb-workbench {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    height: auto;
+    min-height: 0;
+  }
+
+  body.wb-modern.wb-mobile-tab-blacklist .wb-workbench,
+  body.wb-modern.wb-mobile-tab-mine .wb-workbench { display: none !important; }
+
+  body.wb-modern .wb-pane-list {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    transform: none !important;
+    z-index: 2;
+    box-shadow: none;
+    border: 0 !important;
+    background: #f3f6fb;
+  }
+
+  body.wb-modern .wb-pane-side { display: none !important; }
+
+  body.wb-modern .wb-pane-chat {
+    display: none !important;
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    z-index: 4;
+    border: 0 !important;
+    background: #eef3fb;
+  }
+
+  body.wb-modern.wb-mb-chat-open .wb-pane-chat { display: flex !important; }
+  body.wb-modern.wb-mb-chat-open .wb-pane-list { display: none !important; }
+
+  body.wb-modern.wb-mobile-tab-blacklist .wb-mobile-blacklist-panel,
+  body.wb-modern.wb-mobile-tab-mine .wb-mobile-mine-panel {
+    display: flex;
+  }
+
+  .wb-mobile-panel {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    z-index: 5;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    background: #f3f6fb;
+  }
+
+  .wb-mobile-panel-head {
+    padding: 18px 16px 10px;
+    background: #f3f6fb;
+  }
+
+  .wb-mobile-panel-head h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 22px;
+    font-weight: 800;
+  }
+
+  .wb-mobile-panel-head p {
+    margin: 5px 0 0;
+    color: #94a3b8;
+    font-size: 12px;
+  }
+
+  .wb-mobile-search {
+    padding: 0 14px 10px;
+  }
+
+  .wb-mobile-search input {
+    width: 100%;
+    height: 42px;
+    border: 0;
+    border-radius: 14px;
+    padding: 0 14px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+    box-sizing: border-box;
+  }
+
+  .wb-mobile-black-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 14px 18px;
+  }
+
+  .wb-mobile-black-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 14px;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+  }
+
+  .wb-mobile-black-ip {
+    color: #172033;
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  .wb-mobile-black-meta {
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .wb-mobile-unban {
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 12px;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .wb-mobile-empty {
+    padding: 24px 12px;
+    color: #94a3b8;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .wb-mobile-mine-panel {
+    padding: 18px 14px;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+
+  .wb-mobile-mine-card {
+    padding: 28px 16px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #2563eb, #60a5fa);
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 16px 36px rgba(37, 99, 235, .22);
+  }
+
+  .wb-mobile-mine-card .wb-mobile-mine-avatar {
+    width: 78px;
+    height: 78px;
+    border: 3px solid rgba(255, 255, 255, .85);
+  }
+
+  .wb-mobile-mine-card h2 {
+    margin: 12px 0 4px;
+    font-size: 20px;
+  }
+
+  .wb-mobile-mine-card p {
+    margin: 0;
+    opacity: .86;
+    font-size: 13px;
+  }
+
+  .wb-mobile-state-pill {
+    display: inline-flex;
+    margin-top: 12px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .18);
+    font-size: 12px;
+  }
+
+  .wb-mobile-mine-actions {
+    margin-top: 14px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .wb-mobile-mine-actions button,
+  .wb-mobile-mine-actions a {
+    height: 48px;
+    border: 0;
+    border-radius: 16px;
+    background: #fff;
+    color: #172033;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    text-decoration: none;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, .05);
+  }
+
+  .wb-mobile-mine-actions .wb-mobile-logout {
+    color: #dc2626;
+    font-weight: 700;
+  }
+
+  body.wb-modern .wb-list-head {
+    padding: 14px 14px 8px !important;
+    background: #f3f6fb;
+  }
+
+  body.wb-modern .wb-list-head .wb-btn-primary {
+    height: 42px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+
+  body.wb-modern .wb-icon-btn { display: none !important; }
+  body.wb-modern .wb-list-filters { display: none !important; }
+  body.wb-modern .wb-hidden-tab-titles { margin: 0 !important; }
+
+  body.wb-modern #chat_list,
+  body.wb-modern #wait_list {
+    height: auto !important;
+    flex: 1;
+    padding: 4px 10px 16px;
+    background: #f3f6fb;
+  }
+
+  body.wb-modern .visiter,
+  body.wb-modern .waiter {
+    min-height: 78px !important;
+    margin: 8px 4px !important;
+    padding-left: 68px !important;
+    border-radius: 18px !important;
+    background: #fff !important;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, .06);
+    border: 0 !important;
+  }
+
+  body.wb-modern .v-avatar {
+    left: 12px !important;
+    top: 14px !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 16px !important;
+  }
+
+  body.wb-modern .c_name {
+    top: 12px !important;
+    font-size: 15px !important;
+    font-weight: 800;
+    color: #172033;
+  }
+
+  body.wb-modern .newmsg {
+    top: 36px !important;
+    left: 68px !important;
+    right: 14px !important;
+    color: #64748b !important;
+    font-size: 13px !important;
+  }
+
+  body.wb-modern .c_time {
+    right: 14px !important;
+    top: 14px !important;
+    color: #94a3b8 !important;
+  }
+
+  body.wb-modern .notice-icon {
+    top: 42px !important;
+    right: 14px !important;
+  }
+
+  body.wb-modern .wb-chat-top {
+    height: 56px;
+    min-height: 56px;
+    background: rgba(255, 255, 255, .96);
+  }
+
+  body.wb-modern .wb-mb-pill {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  body.wb-modern .wb-mb-pill-text { display: none !important; }
+  body.wb-modern #wb_chat_info { display: none !important; }
+
+  body.wb-modern .chatbox.wb-chatbox-wrap {
+    padding-bottom: 122px !important;
+  }
+
+  body.wb-modern .wb-root #wrap {
+    background: #eef3fb !important;
+    padding: 14px 10px 18px !important;
+  }
+
+  body.wb-modern .wb-root .footer {
+    position: absolute !important;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) !important;
+    background: rgba(255, 255, 255, .98);
+    border-top: 1px solid #e8edf5;
+  }
+
+  body.wb-modern .wb-root .msg-toolbar {
+    order: 1;
+    display: flex !important;
+    height: 34px;
+    overflow-x: auto;
+  }
+
+  body.wb-modern .wb-root .msg-input {
+    order: 2;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: end;
+  }
+
+  body.wb-modern .wb-root .input-box { min-width: 0; }
+  body.wb-modern .wb-root #text_in {
+    width: 100% !important;
+    min-height: 40px !important;
+    max-height: 76px !important;
+    border-radius: 18px !important;
+    background: #f8fafc;
+  }
+
+  body.wb-modern .wb-root .msg-toolbar-footer {
+    display: flex !important;
+    align-items: center;
+  }
+
+  body.wb-modern .wb-root .msg-send-btn {
+    min-height: 40px !important;
+    height: 40px !important;
+    border-radius: 999px !important;
+    background: #2563eb !important;
+  }
+
+  .wb-mobile-action-mask {
+    position: fixed;
+    inset: 0;
+    z-index: 88;
+    background: rgba(15, 23, 42, .28);
+  }
+
+  .wb-mobile-action-sheet {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    top: 70px;
+    z-index: 89;
+    padding: 8px;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, .22);
+  }
+
+  body.wb-mobile-actions-open .wb-mobile-action-mask,
+  body.wb-mobile-actions-open .wb-mobile-action-sheet { display: block; }
+
+  .wb-mobile-action-sheet button {
+    width: 100%;
+    height: 48px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: #172033;
+    text-align: left;
+    padding: 0 14px;
+    font-size: 15px;
+  }
+
+  .wb-mobile-action-sheet button:active { background: #f1f5f9; }
+}
