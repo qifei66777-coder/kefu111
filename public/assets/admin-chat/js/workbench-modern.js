@@ -280,11 +280,20 @@
       }, 50);
     });
 
-    // —— Emoji 表情面板：Unicode 直插入 textarea ——
+    // —— Emoji 表情面板：插入 face[...] 标记，发送时转 HTML 实体，避免 utf8 库无法存 4 字节 emoji ——
+    var WB_EMOJI_NAMES = [
+      '你好', '微笑', '偷笑', '大笑', '亲亲', '帅气', '问号', '害羞',
+      '亲亲', '色色', '高兴', '微笑', '敲你', '问号', '我晕', '大哭',
+      '惊讶', '发怒', '敲你', '鄙视', '害羞', '可怜', '阴险', '惊讶',
+      '点赞', '鄙视', '鼓掌', '祈祷', '加油', '爱心', '火', '满分'
+    ];
     // 委托到 .wl_faces_main，事件先在这里命中再冒到 body 的 tool_box 关闭逻辑
     $(document).on('click', '.wl_faces_main .wb-emoji-btn', function (e) {
       e.preventDefault();
-      var ch = $(this).attr('data-emoji') || $(this).text();
+      e.stopPropagation();
+      var idx = $('.wl_faces_main .wb-emoji-btn').index(this);
+      var name = WB_EMOJI_NAMES[idx] || '微笑';
+      var ch = ' face[' + name + ']';
       var ti = document.getElementById('text_in');
       if (!ti || !ch) return;
       // textarea / contenteditable 都兜一下
@@ -308,6 +317,76 @@
         ti.dispatchEvent(ev);
       } catch (err) {}
     });
+
+    // —— WebSocket 断开时的轻量轮询兜底（不替代 Pusher，连接正常时不工作） ——
+    function wbCurrentVisitor() {
+      try {
+        var raw = (typeof $.cookie === 'function') ? $.cookie('cu_com') : '';
+        return raw ? $.parseJSON(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function wbMessageHtml(v, avatar) {
+      var cid = v && v.cid ? String(v.cid) : '';
+      if (!cid || $('#cu_' + cid).length) return '';
+      var content = v.content || '';
+      var ct;
+      if (typeof content === 'string' && content.indexOf('wolive-rich-reply') !== -1) {
+        ct = '<div class="chat-msg-rich-wrap">' + content + '</div>';
+      } else {
+        ct = '<pre>' + content + '</pre>';
+      }
+      var html = '<li class="chatmsg" id="cu_' + cid + '"><div class="showtime"></div>';
+      html += '<div class="" style="position: absolute;left:0;">';
+      html += '<img class="my-circle se_pic" src="' + (avatar || v.avatar || '') + '" ></div>';
+      html += "<div class='outer-left'><div class='customer'>";
+      html += ct;
+      html += '</div></div></li>';
+      return html;
+    }
+
+    function wbFallbackPoll() {
+      if (window.woliveRealtimeConnected === true) return;
+      var cur = wbCurrentVisitor();
+      if (!cur || !cur.visiter_id) return;
+      if (!$('.chatbox').length || $('.chatbox').hasClass('hide')) return;
+      $.ajax({
+        url: (window.YMWL_ROOT_URL || '') + '/admin/set/chatdata',
+        type: 'post',
+        dataType: 'json',
+        data: { visiter_id: cur.visiter_id, hid: '' },
+        success: function (res) {
+          if (!res || res.code !== 0 || !res.data || !res.data.length) return;
+          var html = '';
+          $.each(res.data, function (_, v) {
+            if (!v || v.direction !== 'to_service') return;
+            html += wbMessageHtml(v, cur.avatar || cur.avater || '');
+          });
+          if (!html) return;
+          $('.conversation').append(html);
+          if (typeof window.getwatch === 'function') {
+            window.getwatch(cur.visiter_id);
+          }
+          var wrap = document.getElementById('wrap');
+          if (wrap) {
+            setTimeout(function () { wrap.scrollTop = wrap.scrollHeight; }, 40);
+          }
+          setTimeout(function () { $('.chatmsg').css({ height: 'auto' }); }, 80);
+          if (typeof window.getchat === 'function') {
+            window.getchat();
+          }
+        }
+      });
+    }
+
+    window.setInterval(wbFallbackPoll, 4000);
+    window.setInterval(function () {
+      if (window.woliveRealtimeConnected === true) return;
+      if (typeof window.getchat === 'function') window.getchat();
+      if (typeof window.getwait === 'function') window.getwait();
+    }, 8000);
 
     // —— 移动端首屏：未选中访客时主动打开列表抽屉，引导用户选择 ——
     if (isMobile()) {

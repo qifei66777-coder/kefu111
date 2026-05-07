@@ -165,7 +165,7 @@ function getchat() {
                 $.each(data, function (k, v) {
                     var str = JSON.stringify(v);
                     chat_data['visiter'+v.vid] =v;
-                    v.visiter_name=v.visiter_name?v.visiter_name:'游客'+v.visiter_id;
+                    v.visiter_name=v.visiter_name?v.visiter_name:'客户'+v.visiter_id;
                     var qrLabel = (v.qr_remark && String(v.qr_remark).trim()) ? String(v.qr_remark).trim() : v.visiter_name;
                     uname=v.name?v.name:qrLabel;
                     v.cu_display_name = uname;
@@ -266,7 +266,7 @@ function getwait() {
                 }
                 var a = "";
                 $.each(res.data, function (k, v) {
-                    v.visiter_name=v.visiter_name?v.visiter_name:'游客'+v.visiter_id;
+                    v.visiter_name=v.visiter_name?v.visiter_name:'客户'+v.visiter_id;
                     var uname=v.name?v.name:v.visiter_name;
                     if(v.state == "online"){
                         a += '<div class="waiter">';
@@ -404,7 +404,7 @@ function getdata(cha) {
                     mindata = null;
                 }
                 var pic = $("#se_avatar").attr('src');
-                user.visiter_name=user.visiter_name?user.visiter_name:'游客'+user.visiter_id;
+                user.visiter_name=user.visiter_name?user.visiter_name:'客户'+user.visiter_id;
                 var uname=user.name?user.name:user.visiter_name;
                 str += '<div class="chatbox-name"><div class="chatbox-info">';
                 str += '<div style="float:left;width:auto;margin-right:5px">'+uname+'</div>';
@@ -493,7 +493,7 @@ function getdata(cha) {
                         str += "</div>";
                         str += "</li>";
                     } else{
-                        str += '<li class="chatmsg"><div class="showtime">' +showtime+ '</div><div class="" style="position: absolute;left:0;">';
+                        str += '<li class="chatmsg" id="cu_' + v.cid + '"><div class="showtime">' +showtime+ '</div><div class="" style="position: absolute;left:0;">';
                         str += '<img class="my-circle  se_pic" src="' + avatver + '" ></div>';
                         str += "<div class='outer-left'><div class='customer'>";
                         if (v.content && v.content.indexOf('wolive-rich-reply') !== -1) {

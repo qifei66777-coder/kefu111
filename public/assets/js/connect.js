@@ -58,7 +58,7 @@
             if (!json || String(json.visiter_id) !== String(msg.visiter_id)) return;
             var avatar = json.avatar || '';
             var content = msg.content || '';
-            var li = '<li class="chatmsg"><div class="showtime"></div>';
+            var li = '<li class="chatmsg" id="cu_' + (msg.cid || '') + '"><div class="showtime"></div>';
             li += '<div class="" style="position: absolute;left:0;">';
             li += '<img class="my-circle  se_pic" src="' + avatar + '" ></div>';
             li += "<div class='outer-left'><div class='customer'>";
