@@ -40,6 +40,44 @@ class Event extends Controller
     }
 
     /**
+     * 为未命名访客生成稳定昵称，避免客服台全部显示“游客xxx”。
+     * 仅基于访客 id / 商户 id 做确定性生成，不新增表、不改推送链路。
+     */
+    private function buildVisitorNickname($visiterId, $businessId)
+    {
+        $prefix = ['星河', '云朵', '青柠', '松果', '海盐', '山竹', '橘子', '白桃', '南风', '月影'];
+        $suffix = ['访客', '客户', '咨询者', '朋友', '用户'];
+        $seed = abs(crc32((string) $businessId . '|' . (string) $visiterId));
+        return $prefix[$seed % count($prefix)] . $suffix[($seed >> 4) % count($suffix)] . substr((string) $seed, -3);
+    }
+
+    /**
+     * 生成轻量 data-uri 头像，颜色和文字对同一访客保持稳定。
+     * data-uri 长度控制在 wolive_visiter.avatar varchar(1024) 内。
+     */
+    private function buildVisitorAvatar($visiterId, $businessId)
+    {
+        $colors = ['2563EB', '0EA5E9', '10B981', 'F59E0B', 'EF4444', '8B5CF6', 'EC4899', '14B8A6', 'F97316', '64748B'];
+        $seed = abs(crc32((string) $visiterId . '|' . (string) $businessId));
+        $bg = $colors[$seed % count($colors)];
+        $label = 'K' . substr((string) $seed, -2);
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><rect width="96" height="96" rx="48" fill="#' . $bg . '"/><text x="48" y="57" font-size="28" font-family="Arial" font-weight="700" fill="#fff" text-anchor="middle">' . $label . '</text></svg>';
+        return 'data:image/svg+xml,' . rawurlencode($svg);
+    }
+
+    private function isDefaultVisitorName($name)
+    {
+        $name = trim((string) $name);
+        return $name === '' || strpos($name, '游客') === 0;
+    }
+
+    private function isDefaultVisitorAvatar($avatar)
+    {
+        $avatar = trim((string) $avatar);
+        return $avatar === '' || strpos($avatar, 'avatar-red') !== false || strpos($avatar, 'workerman_logo') !== false;
+    }
+
+    /**
      * 确保访客在 wolive_queue 中存在可用的 normal 会话。
      *
      * 约束：
@@ -408,7 +446,7 @@ class Event extends Controller
                 $wechat = WechatPlatform::get(['business_id'=>$arr['business_id']]);
                 TplService::send($arr["business_id"],$service_data['open_id'],url('weixin/login/callback',['business_id'=>$arr['business_id'],'service_id'=>$service_id],true,true),$wechat['msg_tpl'],[
                     "first"  => "你有一条新的信息!",
-                    "keyword1"   => $visiter["visiter_name"] ?$visiter["visiter_name"]:'游客'.$arr['visiter_id'],
+                    "keyword1"   => $visiter["visiter_name"] ?$visiter["visiter_name"]:'客户'.$arr['visiter_id'],
                     "keyword2"  => date('Y-m-d H:i:s',time()),
                     "keyword3"  => $arr["content"],
                     "remark" => $business['business_name']."提示:客户等不及啦,快去回复吧~",
@@ -458,6 +496,12 @@ class Event extends Controller
         $arr['visiter_id'] = htmlspecialchars($arr['visiter_id']);
         $arr["channel"] = bin2hex($arr['visiter_id'] . '/' . $arr['business_id']);
         $arr['ip'] = $ip;
+        if ($this->isDefaultVisitorName($arr['visiter_name'])) {
+            $arr['visiter_name'] = $this->buildVisitorNickname($arr['visiter_id'], $arr['business_id']);
+        }
+        if ($this->isDefaultVisitorAvatar($arr['avatar'])) {
+            $arr['avatar'] = $this->buildVisitorAvatar($arr['visiter_id'], $arr['business_id']);
+        }
         // 与 application/index/controller/Index.php 一致使用 VENDOR_PATH，避免 "Use of undefined constant VENDOR" 致命错误
         include VENDOR_PATH . 'phpuseragent/lib/phpUserAgent.php';
         include VENDOR_PATH . 'phpuseragent/lib/phpUserAgentStringParser.php';
@@ -771,7 +815,7 @@ class Event extends Controller
                     try {
                         TplService::send($arr["business_id"],$service_data['open_id'],url('weixin/login/callback',['business_id'=>$arr['business_id'],'service_id'=>$service_data['service_id']],true,true),$wechat['visitor_tpl'],[
                             "first"  => "您有新访客！",
-                            "keyword1"   => $arr["visiter_name"] ?$arr["visiter_name"]:'游客'.$arr['visiter_id'],
+                            "keyword1"   => $arr["visiter_name"] ?$arr["visiter_name"]:'客户'.$arr['visiter_id'],
                             "keyword2"  => date('Y-m-d H:i:s',time()),
                             "remark" => $business['business_name']."提示:有新客户啦,快去撩一把~",
                         ]);
