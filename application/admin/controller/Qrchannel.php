@@ -231,9 +231,10 @@ class Qrchannel extends Base
         $page = max(1, (int) $this->request->param('page', 1));
         $limit = min(100, max(1, (int) $this->request->param('limit', 20)));
 
+        try {
         $query = Db::name('qr_channels')->alias('c')
-            ->leftJoin('service s', 'c.service_id = s.service_id')
-            ->leftJoin('qr_templates t', 'c.template_id = t.id AND t.business_id = ' . $bid)
+            ->join('service s', 'c.service_id = s.service_id', 'LEFT')
+            ->join('qr_templates t', 'c.template_id = t.id AND t.business_id = ' . $bid, 'LEFT')
             ->where('c.business_id', $bid);
 
         if (isset($login['level']) && $login['level'] === 'service') {
@@ -287,6 +288,9 @@ class Qrchannel extends Base
         }
 
         return json(['code' => 0, 'msg' => 'success', 'count' => $total, 'data' => $list]);
+        } catch (\Exception $e) {
+            return $this->emptyTableResponse('二维码管理数据查询异常：' . $e->getMessage());
+        }
     }
 
     /**
@@ -346,8 +350,8 @@ class Qrchannel extends Base
             return json(['code' => 1, 'msg' => '参数错误']);
         }
         $q = Db::name('qr_channels')->alias('c')
-            ->leftJoin('service s', 'c.service_id = s.service_id')
-            ->leftJoin('qr_templates t', 'c.template_id = t.id AND t.business_id = ' . $bid)
+            ->join('service s', 'c.service_id = s.service_id', 'LEFT')
+            ->join('qr_templates t', 'c.template_id = t.id AND t.business_id = ' . $bid, 'LEFT')
             ->where('c.id', $id)
             ->where('c.business_id', $bid);
         if (isset($login['level']) && $login['level'] === 'service') {
@@ -367,7 +371,7 @@ class Qrchannel extends Base
             ->count();
 
         $logs = Db::name('qr_scan_logs')->alias('l')
-            ->leftJoin('service s', 'l.service_id = s.service_id')
+            ->join('service s', 'l.service_id = s.service_id', 'LEFT')
             ->where('l.channel_id', $id)
             ->field('l.id,l.visiter_id,l.ip,l.ip_region,l.device_type,l.user_agent,l.from_url,l.scan_time,s.nick_name as service_nick_name')
             ->order('l.scan_time desc')
@@ -424,9 +428,10 @@ class Qrchannel extends Base
         $page = max(1, (int) $this->request->param('page', 1));
         $limit = min(100, max(1, (int) $this->request->param('limit', 20)));
 
+        try {
         $query = Db::name('qr_scan_logs')->alias('l')
-            ->leftJoin('qr_channels ch', 'l.channel_id = ch.id')
-            ->leftJoin('service s', 'l.service_id = s.service_id')
+            ->join('qr_channels ch', 'l.channel_id = ch.id', 'LEFT')
+            ->join('service s', 'l.service_id = s.service_id', 'LEFT')
             ->where('l.business_id', $bid);
 
         if (isset($login['level']) && $login['level'] === 'service') {
@@ -494,6 +499,9 @@ class Qrchannel extends Base
         }
 
         return json(['code' => 0, 'msg' => 'success', 'count' => $total, 'data' => $list]);
+        } catch (\Exception $e) {
+            return $this->emptyTableResponse('扫码记录数据查询异常：' . $e->getMessage());
+        }
     }
 
     /**
@@ -581,9 +589,10 @@ class Qrchannel extends Base
         $page = max(1, (int) $this->request->param('page', 1));
         $limit = min(100, max(1, (int) $this->request->param('limit', 20)));
 
+        try {
         $query = Db::name('ip_blacklist')->alias('b')
-            ->leftJoin('service s', 'b.service_id = s.service_id')
-            ->leftJoin('service s2', 'b.created_by = s2.service_id')
+            ->join('service s', 'b.service_id = s.service_id', 'LEFT')
+            ->join('service s2', 'b.created_by = s2.service_id', 'LEFT')
             ->where('b.business_id', $bid)
             ->where('b.status', 1);
 
@@ -705,6 +714,9 @@ class Qrchannel extends Base
         }
 
         return json(['code' => 0, 'msg' => 'success', 'count' => $total, 'data' => $list]);
+        } catch (\Exception $e) {
+            return $this->emptyTableResponse('IP黑名单数据查询异常：' . $e->getMessage());
+        }
     }
 
     public function banIp()
@@ -826,7 +838,7 @@ class Qrchannel extends Base
         }
 
         $logs = Db::name('qr_scan_logs')->alias('l')
-            ->leftJoin('service s', 'l.service_id = s.service_id')
+            ->join('service s', 'l.service_id = s.service_id', 'LEFT')
             ->where('l.business_id', $bid)
             ->where('l.ip', $ip);
         if ($sidFilter !== null) {
@@ -917,6 +929,11 @@ class Qrchannel extends Base
      * @param int    $bid
      * @return array
      */
+    private function emptyTableResponse($msg = '')
+    {
+        return json(['code' => 0, 'msg' => $msg, 'count' => 0, 'data' => []]);
+    }
+
     private function formatChannelRow(array $r, $bid)
     {
         $tid = (int) $r['template_id'];
