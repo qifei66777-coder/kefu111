@@ -47,13 +47,21 @@ class Passport extends Controller
             $ismoblie =$common->isMobile();
             $ip = $this->request->ip();
             $login_side=$ismoblie?2:1;
-            $area=\app\admin\iplocation\Ip::find($ip);
+            try {
+                $area = \app\admin\iplocation\Ip::find($ip);
+            } catch (\Exception $e) {
+                $area = [];
+                Log::error('platform login ip lookup failed: ' . $e->getMessage());
+            }
+            if (!is_array($area)) {
+                $area = [];
+            }
             @Db::name('login_log')->insert([
                 'uid'=>$user->id,
                 'name'=>$user->username,
                 'ip'=>$ip,
                 'source'=>1,
-                'area'=>$area[0].$area[1].$area[2].$area[3],
+                'area'=>(isset($area[0]) ? $area[0] : '') . (isset($area[1]) ? $area[1] : '') . (isset($area[2]) ? $area[2] : '') . (isset($area[3]) ? $area[3] : ''),
                 'login_side'=>$login_side,
                 'createtime'=>time()
             ]);
