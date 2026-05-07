@@ -18,52 +18,50 @@ function formatServiceToVisitorHtml(content) {
 }
 
 var e = {
-            '你好': 'emo_01',
-            '偷笑': 'emo_02',
-            '可怜': 'emo_03',
-            '惊讶': 'emo_04',
-            '敲你': 'emo_05',
-            '帅气': 'emo_06',
-            '害羞': 'emo_07',
-            '阴险': 'emo_08',
-            '拜拜': 'emo_09',
-            '大哭': 'emo_10',
-            '亲亲': 'emo_11',
-            '发怒': 'emo_12',
-            '鼓掌': 'emo_13',
-            '高兴': 'emo_14',
-            '鄙视': 'emo_15',
-            '冒汗': 'emo_16',
-            '问号': 'emo_17',
-            '抠鼻': 'emo_18',
-            '我晕': 'emo_19',
-            '色色': 'emo_20',
+            '你好': '&#x1F600;',
+            '微笑': '&#x1F60A;',
+            '偷笑': '&#x1F602;',
+            '大笑': '&#x1F923;',
+            '可怜': '&#x1F97A;',
+            '惊讶': '&#x1F631;',
+            '敲你': '&#x1F62C;',
+            '帅气': '&#x1F60E;',
+            '害羞': '&#x1F633;',
+            '阴险': '&#x1F608;',
+            '拜拜': '&#x1F44B;',
+            '大哭': '&#x1F62D;',
+            '亲亲': '&#x1F618;',
+            '发怒': '&#x1F621;',
+            '鼓掌': '&#x1F44F;',
+            '高兴': '&#x1F929;',
+            '鄙视': '&#x1F644;',
+            '冒汗': '&#x1F605;',
+            '问号': '&#x1F914;',
+            '抠鼻': '&#x1F443;',
+            '我晕': '&#x1F635;',
+            '色色': '&#x1F60D;',
+            '点赞': '&#x1F44D;',
+            '爱心': '&#x2764;&#xFE0F;',
+            '火': '&#x1F525;'
         };
+
+var emojiPanelItems = [
+            ['你好', '&#x1F600;'], ['微笑', '&#x1F60A;'], ['偷笑', '&#x1F602;'], ['大笑', '&#x1F923;'],
+            ['可怜', '&#x1F97A;'], ['惊讶', '&#x1F631;'], ['敲你', '&#x1F62C;'], ['帅气', '&#x1F60E;'],
+            ['害羞', '&#x1F633;'], ['阴险', '&#x1F608;'], ['拜拜', '&#x1F44B;'], ['大哭', '&#x1F62D;'],
+            ['亲亲', '&#x1F618;'], ['发怒', '&#x1F621;'], ['鼓掌', '&#x1F44F;'], ['高兴', '&#x1F929;'],
+            ['鄙视', '&#x1F644;'], ['冒汗', '&#x1F605;'], ['问号', '&#x1F914;'], ['抠鼻', '&#x1F443;'],
+            ['我晕', '&#x1F635;'], ['色色', '&#x1F60D;'], ['点赞', '&#x1F44D;'], ['爱心', '&#x2764;&#xFE0F;'],
+            ['火', '&#x1F525;']
+        ];
 
 var faceon = function () {
     $(".wl_faces_main").empty();
     var str =""
     str += '<ul>';
-    str += '<li><img title="你好" src="/upload/emoji/emo_01.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="偷笑" src="/upload/emoji/emo_02.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="可怜" src="/upload/emoji/emo_03.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="惊讶" src="/upload/emoji/emo_04.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="敲你" src="/upload/emoji/emo_05.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="帅气" src="/upload/emoji/emo_06.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="害羞" src="/upload/emoji/emo_07.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="阴险" src="/upload/emoji/emo_08.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="拜拜" src="/upload/emoji/emo_09.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="大哭" src="/upload/emoji/emo_10.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="亲亲" src="/upload/emoji/emo_11.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="发怒" src="/upload/emoji/emo_12.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="鼓掌" src="/upload/emoji/emo_13.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="高兴" src="/upload/emoji/emo_14.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="鄙视" src="/upload/emoji/emo_15.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="冒汗" src="/upload/emoji/emo_16.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="问号" src="/upload/emoji/emo_17.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="抠鼻" src="/upload/emoji/emo_18.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="我晕" src="/upload/emoji/emo_19.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="色色" src="/upload/emoji/emo_20.gif" onclick="emoj(this)"/></li>';
+    for (var i = 0; i < emojiPanelItems.length; i++) {
+        str += '<li><span title="' + emojiPanelItems[i][0] + '" onclick="emoj(this)">' + emojiPanelItems[i][1] + '</span></li>';
+    }
     str += "</ul>";
     $(".wl_faces_main").append(str);
     $(".tool_box").toggle();
@@ -758,7 +756,7 @@ var send = function () {
          var a = i.replace(/^face/g, "");
              a=a.replace('[','');
              a=a.replace(']','');  
-         return '<img src="'+YMWL_ROOT_URL+'/upload/emoji/'+e[a]+'.gif" />'
+         return e[a] || i;
       });
 
     }
@@ -791,14 +789,14 @@ var send = function () {
 
         var str = '';
         
-           let  dat  = msg.replace(/<[^>]+>/g,"");
+           let  dat  = msg2.replace(/<[^>]+>/g,"");
                      console.log("dat",dat);
                      let ct='';
                      if(isValidHttpUrl(dat)){
                          console.log("是链接");javascript:;
-                            ct ="<pre>" + msg + "</pre><button data-url=\""+dat+"\" class=\"copy_url\">复制</button>";
+                            ct ="<pre>" + msg2 + "</pre><button data-url=\""+dat+"\" class=\"copy_url\">复制</button>";
                      }else{
-                        ct ="<pre>" +msg + "</pre>";
+                        ct ="<pre>" + msg2 + "</pre>";
          }
         
         str += '<li class="chatmsg"><div class="showtime">' + time + '</div>';

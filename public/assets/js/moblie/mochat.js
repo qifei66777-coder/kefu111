@@ -43,6 +43,16 @@ var e = {
     '满分': '&#x1F4AF;'
 };
 
+var emojiPanelItems = [
+    ['你好', '&#x1F600;'], ['微笑', '&#x1F60A;'], ['偷笑', '&#x1F602;'], ['大笑', '&#x1F923;'],
+    ['可怜', '&#x1F97A;'], ['惊讶', '&#x1F631;'], ['敲你', '&#x1F62C;'], ['帅气', '&#x1F60E;'],
+    ['害羞', '&#x1F633;'], ['阴险', '&#x1F608;'], ['拜拜', '&#x1F44B;'], ['大哭', '&#x1F62D;'],
+    ['亲亲', '&#x1F618;'], ['发怒', '&#x1F621;'], ['鼓掌', '&#x1F44F;'], ['高兴', '&#x1F929;'],
+    ['鄙视', '&#x1F644;'], ['冒汗', '&#x1F605;'], ['问号', '&#x1F914;'], ['抠鼻', '&#x1F443;'],
+    ['我晕', '&#x1F635;'], ['色色', '&#x1F60D;'], ['点赞', '&#x1F44D;'], ['爱心', '&#x2764;&#xFE0F;'],
+    ['火', '&#x1F525;']
+];
+
 var faceon = function () {
     var h5p = document.getElementById('h5_tools_panel');
     var h5plus = document.getElementById('h5_btn_plus');
@@ -54,28 +64,11 @@ var faceon = function () {
         document.body.classList.add('h5-tools-open');
     }
     $(".wl_faces_main").empty();
-    var str = ""
+    var str = "";
     str += '<ul>';
-    str += '<li><img title="你好" src="/upload/emoji/emo_01.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="偷笑" src="/upload/emoji/emo_02.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="可怜" src="/upload/emoji/emo_03.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="惊讶" src="/upload/emoji/emo_04.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="敲你" src="/upload/emoji/emo_05.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="帅气" src="/upload/emoji/emo_06.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="害羞" src="/upload/emoji/emo_07.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="阴险" src="/upload/emoji/emo_08.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="拜拜" src="/upload/emoji/emo_09.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="大哭" src="/upload/emoji/emo_10.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="亲亲" src="/upload/emoji/emo_11.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="发怒" src="/upload/emoji/emo_12.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="鼓掌" src="/upload/emoji/emo_13.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="高兴" src="/upload/emoji/emo_14.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="鄙视" src="/upload/emoji/emo_15.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="冒汗" src="/upload/emoji/emo_16.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="问号" src="/upload/emoji/emo_17.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="抠鼻" src="/upload/emoji/emo_18.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="我晕" src="/upload/emoji/emo_19.gif" onclick="emoj(this)"/></li>';
-    str += '<li><img title="色色" src="/upload/emoji/emo_20.gif" onclick="emoj(this)"/></li>';
+    for (var i = 0; i < emojiPanelItems.length; i++) {
+        str += '<li><span title="' + emojiPanelItems[i][0] + '" onclick="emoj(this)">' + emojiPanelItems[i][1] + '</span></li>';
+    }
     str += "</ul>";
     $(".wl_faces_main").append(str);
     $(".tool_box").toggle();
