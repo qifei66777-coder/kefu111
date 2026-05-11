@@ -1113,51 +1113,6 @@
    }
 </script>
 <script>
-// let  useridk = business_id
-// let messageshuru = ''
-//   let shuru =  document.querySelector('#text_in')
-//   shuru.addEventListener('keyup',function () {
-    
-//      messageshuru = shuru.value
-      
-//   })
-
-
- var useridk = visiter_id;
-// let useridk = visiter_id;
-let messageshuru = '';
-let shuru = document.querySelector('#text_in');
- setInterval(function() {
-  messageshuru = shuru.value;
-  // 在这里添加发送请求的代码
- console.log(useridk);
-  sendRequest('/admin/event/postinput', {
-    user: useridk,
-    message: messageshuru
-  });
-}, 500); 
-
-// 发送请求函数
-function sendRequest(url, data) {
-  fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  })
-  .then(response => {
-    if (response.ok) {
-      console.log('数据提交成功');
-    } else {
-      console.error('数据提交失败');
-    }
-  })
-  .catch(error => {
-    console.error(error);
-  });
-}
-
 window.h5ChatMoreHandler = function () {
     if (typeof layer === 'undefined') {
         return;

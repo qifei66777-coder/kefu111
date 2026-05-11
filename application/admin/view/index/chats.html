@@ -232,10 +232,6 @@
             <div class="wb-side-stack">
                 <div class="wb-card wb-card-cust">
                     <div class="wb-card-hd">客户资料<button type="button" class="wb-mb-only" id="wb_side_close" aria-label="关闭" title="关闭"><i class="layui-icon">&#x1006;</i></button></div>
-                    <div class="wb-live-input-panel">
-                        <div class="wb-live-input-label">访客实时输入</div>
-                        <textarea id="getinput" class="layui-input wb-live-input-ta" placeholder="访客正在输入的内容将显示在此处（约每 0.5 秒刷新）" onblur="saveinfo()" rows="4"></textarea>
-                    </div>
                     <div class="wb-card-bd wb-card-bd-scroll">
                         <div class="wb-kv"><span class="k">来源渠道</span><span class="v"><span class="record"></span></span></div>
                         <div class="wb-kv"><span class="k">设备类型</span><span class="v" id="v_device_type">—</span></div>
@@ -248,12 +244,7 @@
                         <div class="wb-kv"><span class="k">二维码备注</span><span class="v" id="v_qr_remark">—</span></div>
                         <div class="wb-kv"><span class="k">扫码时间</span><span class="v" id="v_scan_time">—</span></div>
                         <div class="wb-kv"><span class="k">状态</span><span class="v" id="v_state"></span></div>
-                        <div class="wb-session-tags" aria-label="示例会话标签">
-                            <span class="wb-tag">VIP客户</span>
-                            <span class="wb-tag green">关注价格</span>
-                            <span class="wb-tag gray">未下单</span>
-                        </div>
-                        <button type="button" class="wb-btn-ban wb-btn-ban-block" id="wb_side_ban_ip">一键封禁 IP</button>
+                        <button type="button" class="wb-btn-ban wb-btn-ban-block" id="wb_side_ban_ip">封禁该访客 IP</button>
                         <div style="margin-top: 16px; font-size: 12px; color:#888;">上次登录：<span id="last_login_time"></span>　登录次数：<span id="login_times"></span></div>
                         <div style="margin-top: 8px; font-size: 12px; color:#888;">登录设备：<span id="login_device"></span></div>
                         <div style="margin-top: 16px;">
