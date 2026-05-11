@@ -179,9 +179,13 @@
                     channels.bind('cu_notice', function (data) {
                         $("#img_head").attr("src", data.message.avatar);
                         $("#services").text(data.message.nick_name);
+                        var line = document.getElementById('h5_status_line');
+                        if (line) line.textContent = '在线 · 正在为您服务';
+                        var hdr = document.querySelector('.h5-chat-header');
+                        if (hdr) hdr.classList.remove('is-offline');
                         $(".chatmsg_notice").remove();
                         $.cookie("services",data.message.service_id);
-                        service_id =data.message.service_id;
+                        service_id = data.message.service_id;
                         getquestion(business_id);
                         getdata();
                     });
@@ -191,9 +195,11 @@
                         $("#services").text(data.message.nick_name);
                         $("#services").attr("data", data.message.service_id);
                         service_id = data.message.service_id;
+                        var line = document.getElementById('h5_status_line');
+                        if (line) line.textContent = '在线 · 正在为您服务';
                         $("#log").html('');
                         getdata();
-                        layer.msg("已经将您转接到其他客服" + data.message.nick_name);
+                        layer.msg("已转接至客服 " + data.message.nick_name);
                     });
                                         channels.bind('check-event', function (data) {
                         $.each(data.message,function(index,value){
@@ -204,13 +210,19 @@
                    function getlisten(chas){
                         var channels = pusher.subscribe("se"+chas);
 
-                        //通知游客 客服离线
                         channels.bind('logout', function (data) {
                             $("#status").text("[离线]");
+                            var line = document.getElementById('h5_status_line');
+                            if (line) line.textContent = '客服暂时离开';
+                            var hdr = document.querySelector('.h5-chat-header');
+                            if (hdr) hdr.classList.add('is-offline');
                         });
-                        //表示客服在线
                         channels.bind("geton", function (data) {
                             $("#status").text('');
+                            var line = document.getElementById('h5_status_line');
+                            if (line) line.textContent = '在线 · 正在为您服务';
+                            var hdr = document.querySelector('.h5-chat-header');
+                            if (hdr) hdr.classList.remove('is-offline');
                         });
                     }
                     if($.cookie("services")){
@@ -219,8 +231,16 @@
                     }
 
                      pusher.connection.bind('state_change', function(states) {
+                        if(states.current == 'connecting' || states.current == 'initialized') {
+                            var line = document.getElementById('h5_status_line');
+                            if (line) line.textContent = '连接中…';
+                        }
                         if(states.current == 'unavailable' || states.current == "disconnected" || states.current == "failed" ){
                             window.woliveRealtimeConnected = false;
+                            var line = document.getElementById('h5_status_line');
+                            if (line) line.textContent = '连接已断开，正在重连…';
+                            var hdr = document.querySelector('.h5-chat-header');
+                            if (hdr) hdr.classList.add('is-offline');
                             $.cookie("cid","");
                             var id =$.cookie("services");
                             if(id){
@@ -242,7 +262,12 @@
                     pusher.connection.bind('connected', function() {
                         window.woliveRealtimeConnected = true;
                         $.cookie("cid","");
-                    
+                        var s = document.getElementById('status');
+                        if (s) s.textContent = '';
+                        var line = document.getElementById('h5_status_line');
+                        if (line) line.textContent = '在线 · 正在为您服务';
+                        var hdr = document.querySelector('.h5-chat-header');
+                        if (hdr) hdr.classList.remove('is-offline');
                     });
 
                     if (typeof SCAN_WELCOME !== 'undefined' && SCAN_WELCOME && SCAN_WELCOME.content) {
