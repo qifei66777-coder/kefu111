@@ -84,8 +84,9 @@ class Richreply extends Base
             $query->where('status', 0);
         }
 
-        $count = (clone $query)->count();
-        $list = $query->order('sort desc,id desc')->page($page, $limit)->select();
+        $pager = $query->order('sort desc,id desc')->paginate($limit, false, ['page' => $page]);
+        $count = $pager->total();
+        $list  = $pager->items();
 
         $typeMap = [
             'text' => '文本', 'link' => '链接按钮', 'card' => '图文卡片',

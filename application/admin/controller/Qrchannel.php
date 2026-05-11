@@ -276,11 +276,11 @@ class Qrchannel extends Base
             }
         }
 
-        $total = (int) $query->count('c.id');
-        $rows = $query->field('c.*,s.user_name as service_user_name,s.nick_name as service_nick_name,t.template_name,t.image as template_image')
+        $pager = $query->field('c.*,s.user_name as service_user_name,s.nick_name as service_nick_name,t.template_name,t.image as template_image')
             ->order('c.id desc')
-            ->page($page, $limit)
-            ->select();
+            ->paginate($limit, false, ['page' => $page]);
+        $total = $pager->total();
+        $rows  = $pager->items();
 
         $list = [];
         foreach ($rows as $r) {
@@ -631,11 +631,11 @@ class Qrchannel extends Base
             }
         }
 
-        $total = (int) $query->count('b.id');
-        $rows = $query->field('b.*,s.user_name as svc_user,s.nick_name as svc_nick,s2.user_name as cb_user,s2.nick_name as cb_nick')
+        $pager = $query->field('b.*,s.user_name as svc_user,s.nick_name as svc_nick,s2.user_name as cb_user,s2.nick_name as cb_nick')
             ->order('b.id desc')
-            ->page($page, $limit)
-            ->select();
+            ->paginate($limit, false, ['page' => $page]);
+        $total = $pager->total();
+        $rows  = $pager->items();
 
         $ips = [];
         foreach ($rows as $r) {

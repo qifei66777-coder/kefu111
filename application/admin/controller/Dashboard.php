@@ -268,7 +268,7 @@ class Dashboard extends Base
         $limit = min(50, max(1, (int) $this->request->param('limit', 10)));
 
         $q = Db::name('qr_channels')->alias('c')
-            ->leftJoin('service s', 'c.service_id = s.service_id')
+            ->join('service s', 'c.service_id = s.service_id', 'LEFT')
             ->where('c.business_id', $bid)
             ->where('c.status', '<>', -1)
             ->field('c.id,c.remark,c.service_id,c.scan_count,c.last_scan_time,c.status,s.nick_name as service_nickname')

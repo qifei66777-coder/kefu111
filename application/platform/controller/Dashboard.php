@@ -311,7 +311,7 @@ class Dashboard extends Base
         }
 
         $rows = Db::name('qr_channels')->alias('c')
-            ->leftJoin('service s', 'c.service_id = s.service_id')
+            ->join('service s', 'c.service_id = s.service_id', 'LEFT')
             ->where('c.business_id', 'in', $bids)
             ->where('c.status', '<>', -1)
             ->field('c.id,c.business_id,c.remark,c.service_id,c.scan_count,c.last_scan_time,c.status,s.nick_name as service_nickname')

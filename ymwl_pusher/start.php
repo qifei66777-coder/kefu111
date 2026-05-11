@@ -8,9 +8,9 @@ require_once __DIR__ . '/src/Pusher.php';
 require_once __DIR__ . '/config.php';
 
 //WSS证书', '一般为fullchain.pem，宝塔默认位置：/www/server/panel/vhost/cert/kf.otozxgj.com/fullchain.pem'
-$ws_ssl_cert='';
+$ws_ssl_cert='/www/server/panel/vhost/cert/kefu.kcktx.com/fullchain.pem';
 //WSS私钥', '一般为privkey.pem，宝塔默认位置：/www/server/panel/vhost/cert/kf.otozxgj.com/privkey.pem'
-$ws_ssl_pk='';
+$ws_ssl_pk='/www/server/panel/vhost/cert/kefu.kcktx.com/privkey.pem';
 //&& strpos($whost,'wss://')!==false
 if(trim($ws_ssl_cert) && trim($ws_ssl_pk)){
     if (!is_file($ws_ssl_cert)) exit("file $ws_ssl_cert not exist\n");

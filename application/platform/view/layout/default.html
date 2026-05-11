@@ -468,11 +468,13 @@
                 {volist name="menu" id="vo"}
                     {if condition="$vo"}
                         <div class="child-menu" data-url="{:$vo['route']}">
+                            {if condition="isset($vo['children']) && is_array($vo['children'])"}
                             {volist name="vo.children" id="i"}
                                 <a class="{if condition="$route == $i['route']"}active{/if}" href="{:url($i['route'])}">
                                     <span>{$i['name']}</span>
                                 </a>
                             {/volist}
+                            {/if}
                         </div>
                     {/if}
                 {/volist}                
