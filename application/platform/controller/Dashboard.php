@@ -11,6 +11,8 @@ use think\Db;
 
 class Dashboard extends Base
 {
+    protected $noNeedLogin = [];
+
     /**
      * 获取当前管理员可见的 business_id 列表（基于 wolive_business.admin_id）
      *
