@@ -553,7 +553,12 @@ function getdata() {
                         str += '<li class="chatmsg" id="xiaox_' + v.cid + '"><div class="showtime">' + showtime + '</div>';
                         str += '<div class="" style="position: absolute;top: 26px;right: 5px;"><img  class="my-circle cu_pic" src="' + v.avatar + '" ></div>';
                         str += "<div class='outer-right'><div class='service'>";
-                        str += "<pre>" + v.content + "&nbsp;&nbsp;<span onclick='revoke(" + v.cid + ",1);' class='revoke-text'>(撤销)</span></pre>";
+                        if (v.content && v.content.indexOf('wolive-rich-reply') !== -1) {
+                            str += '<div class="chat-msg-rich-wrap">' + v.content + '</div>';
+                            str += '<span onclick="revoke(' + v.cid + ',1);" class="revoke-text" style="font-size:11px;color:#aaa;">(撤销)</span>';
+                        } else {
+                            str += "<pre>" + v.content + "&nbsp;&nbsp;<span onclick='revoke(" + v.cid + ",1);' class='revoke-text'>(撤销)</span></pre>";
+                        }
                         str += "</div></div>";
                         str += "</li>";
 

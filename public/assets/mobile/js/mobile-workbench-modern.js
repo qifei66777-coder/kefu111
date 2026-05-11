@@ -184,9 +184,21 @@
             });
         } else if (action === 'qrcode') {
             var link = (window.MOBILE_WORKBENCH_CONFIG && window.MOBILE_WORKBENCH_CONFIG.receptionLink) || '';
-            if (link) {
+            if (!link) {
+                if (window.layer) layer.msg('暂无接待链接');
+            } else if (typeof AraleQRCode !== 'undefined') {
+                var wrap = $('<div style="text-align:center;padding:16px 20px 8px;"></div>');
+                var node = new AraleQRCode({ render: 'canvas', text: link, size: 220, background: '#fff', foreground: '#000' });
+                wrap.append(node);
+                wrap.append('<p style="margin-top:10px;font-size:12px;color:#666;word-break:break-all;">' + link + '</p>');
+                wrap.append('<button id="mqr-copy-btn" style="margin-top:8px;background:#1677ff;color:#fff;border:none;border-radius:4px;padding:6px 20px;font-size:13px;cursor:pointer;">复制链接</button>');
+                var idx = layer.open({ type: 1, title: '接待二维码', content: wrap, area: ['280px', 'auto'] });
+                $(document).one('click', '#mqr-copy-btn', function () {
+                    copyText(link).then(function () { layer.msg('已复制'); });
+                });
+            } else {
                 copyText(link).then(function () {
-                    layer.msg('接待链接已复制，发送给访客即可开始会话');
+                    if (window.layer) layer.msg('接待链接已复制（二维码库未加载）');
                 });
             }
         } else if (action === 'new-chat') {

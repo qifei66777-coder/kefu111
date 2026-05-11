@@ -145,7 +145,88 @@
         }
     </script>
     <link rel="stylesheet" href="__assets__/css/admin/mtalk.css?v=__lkversion__" />
+    <link rel="stylesheet" href="__assets__/css/rich-reply.css?v=__lkversion__" />
     <style type="text/css">
+        /* Mobile rich reply panel */
+        #mRichPanel {
+            display: none;
+            position: fixed;
+            bottom: 94px;
+            left: 0;
+            right: 0;
+            max-height: 50vh;
+            overflow-y: auto;
+            background: #fff;
+            border-top: 1px solid #e8e8e8;
+            z-index: 300;
+            box-shadow: 0 -4px 16px rgba(0,0,0,.1);
+        }
+        #mRichPanel .mrp-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px 6px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            color: #666;
+        }
+        #mRichPanel .mrp-filter {
+            padding: 6px 14px;
+            display: flex;
+            gap: 6px;
+        }
+        #mRichPanel .mrp-filter input {
+            flex: 1;
+            height: 30px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0 8px;
+            font-size: 12px;
+        }
+        #mRichPanel .mrp-filter select {
+            height: 30px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0 4px;
+            font-size: 12px;
+        }
+        #mRichPanel .mrp-list { padding: 0 8px 8px; }
+        #mRichPanel .mrp-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 10px;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+        }
+        #mRichPanel .mrp-item:active { background: #f5f7fa; }
+        #mRichPanel .mrp-item .mrp-title {
+            font-size: 14px;
+            color: #222;
+            font-weight: 500;
+        }
+        #mRichPanel .mrp-item .mrp-meta {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+        #mRichPanel .mrp-send-btn {
+            flex-shrink: 0;
+            margin-left: 10px;
+            background: #1677ff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        #mRichPanel .mrp-empty {
+            text-align: center;
+            color: #aaa;
+            padding: 24px;
+            font-size: 13px;
+        }
         #showUserInfo{width: 100%;position:fixed;top: 0;left: 0;right: 0;bottom: 0;z-index: 99999;}
         .showUserInfoUl{background:#fff;}
         .showUserInfoUl  li {
@@ -234,6 +315,7 @@
                     <a id="evaluate" href="javascript:" onclick="toEvaluate()"><i class="layui-icon" style="font-size: 28px; line-height:46px; color:#888;" title="推送评价">&#xe6c9;</i></a>
                     <a href="javascript:getblack()" onClick="return confirm('确定移入黑名单?');"><i class="layui-icon" style="font-size: 26px; line-height:46px; color:#888;" title="移入黑名单">&#xe616;</i></a>
                     <a onclick="getswitch()"><i class="layui-icon" style="font-size: 30px; line-height:46px; color:#888;" title="客户转接">&#xe674;</i></a>
+                    <a href="javascript:" onclick="toggleMobileRichPanel()"><i class="layui-icon" style="font-size: 26px; line-height:46px; color:#888;" title="富媒体快捷回复">&#xe656;</i></a>
                     <!-- <a href="javascript:" onclick="back()"><img src="__image__/admin/B/return.png" alt=""></a> -->
                 </div>
             </div>
@@ -314,6 +396,26 @@
 </div>
 
 
+<!-- 富媒体快捷回复面板 -->
+<div id="mRichPanel">
+    <div class="mrp-head">
+        <span>富媒体快捷回复</span>
+        <a href="javascript:" onclick="toggleMobileRichPanel()" style="color:#aaa;font-size:12px;">关闭</a>
+    </div>
+    <div class="mrp-filter">
+        <input type="text" id="mrpKw" placeholder="搜索标题">
+        <select id="mrpType">
+            <option value="">全部类型</option>
+            <option value="text">文本</option>
+            <option value="link">链接</option>
+            <option value="card">卡片</option>
+            <option value="image">图片</option>
+        </select>
+        <button type="button" onclick="loadMobileRichPanel()" style="height:30px;padding:0 10px;background:#1677ff;color:#fff;border:none;border-radius:4px;font-size:12px;">搜索</button>
+    </div>
+    <div class="mrp-list" id="mrpList"></div>
+</div>
+
 <script type="application/javascript">
     var se = '{$se.nick_name}';
     var visiter_id = '{$data.visiter_id}';
@@ -328,6 +430,104 @@
         sendContent($(this).find('.replycont').html());
         domQuickreplyList.hide();
     });
+
+    var mRichPanelLoaded = false;
+    function toggleMobileRichPanel() {
+        var $p = $('#mRichPanel');
+        if ($p.is(':visible')) {
+            $p.hide();
+        } else {
+            $p.show();
+            if (!mRichPanelLoaded) {
+                loadMobileRichPanel();
+            }
+        }
+    }
+
+    function loadMobileRichPanel() {
+        var kw = $.trim($('#mrpKw').val());
+        var typ = $('#mrpType').val();
+        $('#mrpList').html('<div class="mrp-empty">加载中...</div>');
+        $.post(YMWL_ROOT_URL + '/admin/richreply/chatlist', { keyword: kw, reply_type: typ }, function (res) {
+            mRichPanelLoaded = true;
+            if (!res || res.code !== 0) {
+                $('#mrpList').html('<div class="mrp-empty">加载失败</div>');
+                return;
+            }
+            var items = (res.data && res.data.items) ? res.data.items : [];
+            if (!items.length) {
+                $('#mrpList').html('<div class="mrp-empty">无匹配快捷回复</div>');
+                return;
+            }
+            var h = '';
+            $.each(items, function (_, v) {
+                var typeLabel = v.reply_type_label || v.reply_type || '';
+                var cat = v.category ? (' · ' + v.category) : '';
+                h += '<div class="mrp-item" data-rid="' + v.id + '">' +
+                    '<div><div class="mrp-title">' + esc(v.title) + '</div>' +
+                    '<div class="mrp-meta">' + esc(typeLabel) + esc(cat) + '</div></div>' +
+                    '<button type="button" class="mrp-send-btn" data-rid="' + v.id + '">发送</button></div>';
+            });
+            $('#mrpList').html(h);
+        }, 'json').fail(function () {
+            $('#mrpList').html('<div class="mrp-empty">请求失败</div>');
+        });
+    }
+
+    function esc(s) {
+        if (s == null) return '';
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+    }
+
+    $(document).on('click', '#mrpList .mrp-send-btn', function (e) {
+        e.stopPropagation();
+        sendMobileRichReply(parseInt($(this).data('rid'), 10));
+    });
+
+    function sendMobileRichReply(replyId) {
+        var chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        var rand = '';
+        for (var i = 0; i < 5; i++) rand += chars.charAt(Math.floor(Math.random() * chars.length));
+        var unstr = Date.now() + rand + visiter_id;
+
+        $.post(YMWL_ROOT_URL + '/admin/richreply/send', {
+            reply_id: replyId,
+            visiter_id: visiter_id,
+            unstr: unstr
+        }, function (res) {
+            if (!res || res.code !== 0) {
+                alert((res && res.msg) ? res.msg : '发送失败');
+                return;
+            }
+            var content = res.data.content || '';
+            var isRich = content.indexOf('wolive-rich-reply') !== -1;
+            var str = '';
+            var timeStr = (function () {
+                var ts = Date.now();
+                var last = $.cookie('time');
+                var d = new Date(ts);
+                var hh = d.getHours(), mm = d.getMinutes();
+                if (mm < 10) mm = '0' + mm;
+                $.cookie('time', Math.floor(ts / 1000));
+                if (last && (Math.floor(ts / 1000) - parseInt(last, 10)) <= 30) return '';
+                return hh + ':' + mm;
+            })();
+            str += '<li class="chatmsg" id="xiaox_' + unstr + '"><div class="showtime">' + timeStr + '</div>';
+            str += '<div style="float:right;"><img class="my-circle se_pic" src="' + imghead + '" /></div>';
+            str += "<div class='outer-right'><div class='service'>";
+            if (isRich) {
+                str += '<div class="chat-msg-rich-wrap">' + content + '</div>';
+            } else {
+                str += '<pre>' + content + '</pre>';
+            }
+            str += '</div></div></li>';
+            $('.conversation').append(str);
+            $('#mRichPanel').hide();
+            var div = document.getElementById('wrap');
+            div.scrollTop = div.scrollHeight;
+            setTimeout(function () { $('.chatmsg').css({ height: 'auto' }); }, 0);
+        }, 'json');
+    }
 </script>
 <script type="text/javascript" src="__script__/admin/mchat.js?v=__lkversion__"></script>
 
