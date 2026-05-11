@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -l *)",
+      "Bash(php start.php status)",
+      "Bash(php start.php check)",
+      "Bash(php --version *)",
+      "Bash(curl -sI *)",
+      "Bash(curl -s -b *)",
+      "Bash(curl -s -o /dev/null *)",
+      "Bash(mysql --version)",
+      "Bash(nginx -t)",
+      "Bash(nginx -T)"
+    ]
+  }
+}

@@ -309,7 +309,6 @@
         <button type="button" data-wb-mobile-action="new">新建会话</button>
     </div>
 </div>
-<!--<script src="http://lksq.banli.xyz/1.js"></script>-->
 <script type="text/javascript" src="/assets/js/arale-qrcode.js"></script>
 <script type="text/javascript">
     function toEvaluate() {
@@ -534,15 +533,13 @@
                     }
                     var str = '';
                     
-                    let  dat  = msg.replace(/<[^>]+>/g,"");
-                     console.log("dat",dat);
-                     let ct='';
-                     if(isValidHttpUrl(dat)){
-                         console.log("是链接");javascript:;
-                            ct ="<pre>" + msg + "</pre><button data-url=\""+dat+"\" class=\"copy_url\">复制</button>";
-                     }else{
-                        ct ="<pre>" +msg + "</pre>";
-                     }
+                    let dat = msg.replace(/<[^>]+>/g,"");
+                    let ct = '';
+                    if(isValidHttpUrl(dat)){
+                        ct = "<pre>" + msg + "</pre><button data-url=\""+dat+"\" class=\"copy_url\">复制</button>";
+                    }else{
+                        ct = "<pre>" + msg + "</pre>";
+                    }
                     
                     str += '<li class="chatmsg""><div class="showtime">' + time + '</div>';
                     str += '<div style="float: right;"><img  class="my-circle se_pic" src="' + pic + '" width="50px" height="50px"></div>';
@@ -994,25 +991,6 @@ var getstate =function(obj){
         });
     }
 
-</script>
-<script>
-
-
-
-
-
-    setInterval(function() {
-        var sdata = $.cookie("cu_com");
- var jsondata = $.parseJSON(sdata);
-var userid = jsondata.visiter_id;
-  var url = '/admin/event/getinput?userid=' + userid;
- console.log($.parseJSON(sdata));
-  // 发送 GET 请求获取数据
-  $.get(url, function(data) {
-    // 处理返回的数据
-    $('#getinput').val(data.message); // 将 message 显示在 input 元素中
-  });
-}, 500); // 每隔 1 秒刷新一次
 </script>
 {/* 原行 `jqyert.mi.js` 是拼写错误的 404 路径（恰好不影响业务）；切勿换回 `jquery.min.js`：
  *   header.html 已加载过 jQuery，二次加载会清空 $.cookie / $.fn.ajaxSubmit / layer / Pusher 绑定，

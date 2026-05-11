@@ -421,7 +421,6 @@ function getdata(cha) {
                 str +='<button class="layui-btn '+btnClass+' chat2top js-ajax-btn"  onclick="chat2top(\''+user.visiter_id+'\',this)" data-istop="'+changetop+'">'+changetips+'</button>';
                 str +='</div></div></div></div>';
                 $.each(data, function (k, v) {
-                    console.log(v);
                     if (v.cid < mindata) {
                         mindata = v.cid;
                     }

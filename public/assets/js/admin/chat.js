@@ -468,10 +468,8 @@ var send = function () {
     var unstr=(new Date()).valueOf()+randomChar(5)+sid;
         var str = '';
              let  dat  = msg.replace(/<[^>]+>/g,"");
-                     console.log("dat",dat);
                      let ct='';
         if(isValidHttpUrl(dat)){
-               console.log("是链接");
                             ct ="<pre>" + msg + "</pre><button data-url=\""+dat+"\" class=\"copy_url\">复制</button> &nbsp;&nbsp;<span onclick=revoke('" + unstr + "',2); class='revoke-text'>(撤销)</span></pre>";
             }else{
                         ct ="<pre>" + msg + "&nbsp;&nbsp;<span onclick=revoke('" + unstr + "',2); class='revoke-text'>(撤销)</span></pre>";
@@ -515,8 +513,6 @@ var send = function () {
 }
 function showon(domid){
 
-    /*console.log("$('#reply'+domid+' .del-reply').is(':visible')=",$('#reply'+domid+' .del-reply').is(':visible'))
-    console.log(domid);*/
     if($('#reply'+domid+' .del-reply').is(':visible')){
     //    如果是显示说明是管理
         addreply(domid);
@@ -567,10 +563,8 @@ function showon(domid){
         var str = '';
         
            let  dat  = kjmsg.replace(/<[^>]+>/g,"");
-                     console.log("dat",dat);
                      let ct='';
         if(isValidHttpUrl(dat)){
-               console.log("是链接");
                             ct ="<pre>" + kjmsg + "</pre><button data-url=\""+dat+"\" class=\"copy_url\">复制</button> &nbsp;&nbsp;<span onclick=revoke('" + unstr + "',2); class='revoke-text'>(撤销)</span></pre>";
             }else{
                         ct ="<pre>" + kjmsg + "&nbsp;&nbsp;<span onclick=revoke('" + unstr + "',2); class='revoke-text'>(撤销)</span></pre>";

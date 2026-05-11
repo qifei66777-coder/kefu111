@@ -54,4 +54,4 @@ desktop.ini
 
 # Dependency and test caches
 .phpunit.result.cache
-composer.phar
+composer.pharbackups/
