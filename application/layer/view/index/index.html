@@ -2,9 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <link rel="shortcut icon" href="/favicon.ico"/>
-    <!--<script src="http://lksq.banli.xyz/1.js"></script>-->
-    <title>{$business_name}</title>
+    <link rel="shortcut icon" href="/favicon.ico"/>    <title>{$business_name}</title>
     <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
     <script>
         YMWL_ROOT_URL = '{$baseroot}';
@@ -169,7 +167,6 @@
             });
 
             channels.bind('getswitch', function (data) {
-                console.log('触发转接了');
                 $("#img_head").attr("src", data.message.avatar);
                 $("#services").text(data.message.nick_name);
                 $("#services").attr("data", data.message.service_id);
@@ -855,11 +852,9 @@
                 audio_context = new AudioContext;
 
                 if (!navigator.getUserMedia) {
-                    console.log('语音创建失败');
                 }
                 ;
             } catch (e) {
-                console.log(e);
                 return;
             }
             navigator.getUserMedia({audio: true}, function (stream) {

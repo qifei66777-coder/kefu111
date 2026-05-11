@@ -143,8 +143,6 @@
 
     // 文件上传成功后会调用
     uploader.on( 'uploadSuccess', function( file ,response) {
-        console.log('文件上传成功后会调用',file);
-        console.log(response.msg);
         if(response.code>0){
             //表示成功
             layer.msg(response.msg,function (){
@@ -159,7 +157,6 @@
 
     // 文件上传失败后会调用
     uploader.on( 'uploadError', function( file ) {
-        console.log(file);
         $( '#'+file.id ).find('p.state').text('上传出错');
     });
 

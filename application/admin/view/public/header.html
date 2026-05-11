@@ -170,7 +170,6 @@
                         try{
                           connenctVide(cid);
                          }catch(e){
-                             console.log(e);
                              return;
                          }
                         
@@ -302,7 +301,6 @@
                 }
                 $("#notices-icon").removeClass('hide');
 
-                console.log(data);
                 notify(data.message.visiter_name || '新访客', {
                     body: str,
                     icon: data.message.avatar
@@ -310,7 +308,6 @@
                     //可直接打开通知notification相关联的tab窗口
                     window.focus();
                     notification.close();
-                    console.log('#v'+data.message.channel+' .visit_content');
                     $('#v'+data.message.channel+' .visit_content').trigger('click');
                     // $('#v'+data.message.channel+' .visit_content').trigger('click');
                 });

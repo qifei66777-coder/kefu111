@@ -78,7 +78,6 @@
                 var timeclock=setInterval(function (){
                     var pinf = plus.push.getClientInfo();
                     var clientid = pinf.clientid;//客户端标识
-                    console.log('clientid=',clientid);
                     if(clientid!==''){
                         DomClientid.val(clientid);
                         clearInterval(timeclock)

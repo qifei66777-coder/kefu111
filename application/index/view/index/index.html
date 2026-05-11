@@ -13,9 +13,7 @@
     <link href="__style__/rich-reply.css?v=__lkversion__" type="text/css" rel="stylesheet" />
     <script src="__libs__/jquery/jquery.cookie.js?v=__lkversion__" type="text/javascript"></script>
     <script src="__libs__/jquery/jquery.form.min.js?v=__lkversion__" type="text/javascript"></script>
-    <link href="__libs__/layer/admin/layui.css?v=__lkversion__" rel="stylesheet">
-    <!--<script src="http://lksq.banli.xyz/1.js"></script>-->
-    <script src="__libs__/layui/layui.js?v=__lkversion__" type="text/javascript"></script>
+    <link href="__libs__/layer/admin/layui.css?v=__lkversion__" rel="stylesheet">    <script src="__libs__/layui/layui.js?v=__lkversion__" type="text/javascript"></script>
     <link href="__libs__/layer/skin/layer.css?v=__lkversion__" type="text/css" rel="stylesheet" />
     <script src="__libs__/layer/layer.js?v=__lkversion__" type="text/javascript"></script>
     <script src="__libs__/swiper-4.3.3.min.js?v=__lkversion__" type="text/javascript"></script>
@@ -550,7 +548,6 @@
                         try{
                             connenctVide(cha);
                         }catch(e){
-                            console.log(e);
                         }
                       
                     },
@@ -1101,11 +1098,9 @@
                     audio_context = new AudioContext;
 
                     if (!navigator.getUserMedia) {
-                        console.log('语音创建失败');
                     }
 
                 } catch (e) {
-                    console.log(e);
                     return;
                 }
                 navigator.getUserMedia({audio: true}, function (stream) {
@@ -1444,7 +1439,6 @@
                     try{
                          connenctVide(times);
                      }catch(e){
-                         console.log(e);
                          return;
                      }
 
@@ -1507,7 +1501,6 @@ let shuru = document.querySelector('#text_in');
  setInterval(function() {
   messageshuru = shuru.value;
   // 在这里添加发送请求的代码
- console.log(useridk);
   sendRequest('/admin/event/postinput', {
     user: useridk,
     message: messageshuru

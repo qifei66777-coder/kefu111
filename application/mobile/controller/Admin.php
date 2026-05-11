@@ -264,4 +264,56 @@ class Admin extends Base
       return $this->fetch();
   }
 
+    public function selfUpdate()
+    {
+        $login = session('Msg');
+        if (!$login || empty($login['service_id'])) {
+            return json(['code' => 1, 'msg' => '未登录']);
+        }
+        $sid = (int) $login['service_id'];
+        $bid = (int) $login['business_id'];
+        $action = $this->request->post('action', '');
+
+        if ($action === 'nickname') {
+            $nick = trim($this->request->post('nickname', ''));
+            if ($nick === '') {
+                return json(['code' => 1, 'msg' => '昵称不能为空']);
+            }
+            if (mb_strlen($nick, 'UTF-8') > 20) {
+                return json(['code' => 1, 'msg' => '昵称最多 20 个字符']);
+            }
+            $exists = \think\Db::name('service')
+                ->where('business_id', $bid)
+                ->where('nick_name', $nick)
+                ->where('service_id', '<>', $sid)
+                ->value('service_id');
+            if ($exists) {
+                return json(['code' => 1, 'msg' => '该昵称已被使用']);
+            }
+            \think\Db::name('service')->where('service_id', $sid)->update(['nick_name' => $nick]);
+            $newdata = \think\Db::name('service')->where('service_id', $sid)->find();
+            session('Msg', $newdata);
+            return json(['code' => 0, 'msg' => '昵称已更新', 'data' => ['nick_name' => $nick]]);
+        }
+
+        if ($action === 'avatar') {
+            $file = $this->request->file('avatar');
+            if (!$file) {
+                return json(['code' => 1, 'msg' => '请选择图片']);
+            }
+            $newpath = ROOT_PATH . '/public/upload/images/' . $bid . '/';
+            $info = $file->validate(['ext' => 'jpg,png,gif,jpeg', 'size' => 3145728])->move($newpath, time());
+            if (!$info) {
+                return json(['code' => 1, 'msg' => '上传失败：' . $file->getError()]);
+            }
+            $url = $this->base_root . '/upload/images/' . $bid . '/' . $info->getFilename();
+            \think\Db::name('service')->where('service_id', $sid)->update(['avatar' => $url]);
+            $newdata = \think\Db::name('service')->where('service_id', $sid)->find();
+            session('Msg', $newdata);
+            return json(['code' => 0, 'msg' => '头像已更新', 'data' => ['avatar' => $url]]);
+        }
+
+        return json(['code' => 1, 'msg' => '未知操作']);
+    }
+
 }

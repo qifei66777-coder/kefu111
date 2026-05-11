@@ -643,7 +643,6 @@
                      try{
                          connenctVide(times);
                      }catch(e){
-                         console.log(e);
                          return;
                      }
 
@@ -689,11 +688,9 @@
                     audio_context = new AudioContext;
 
                     if (!navigator.getUserMedia) {
-                        console.log('语音创建失败');
                     }
                     ;
                 } catch (e) {
-                    console.log(e);
                     return;
                 }
                 navigator.getUserMedia({audio: true}, function (stream) {

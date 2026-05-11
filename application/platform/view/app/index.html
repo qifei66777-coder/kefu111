@@ -211,7 +211,6 @@
     $(document).on("click", ".disabled-btn", function () {
         var href = $(this).attr("href");
         var aText = $(this).text();
-        console.log(aText);
         $.myConfirm({
             content: "确认将客服系统" + aText + "?",
             confirm: function () {

@@ -183,15 +183,99 @@
                 }
             });
         } else if (action === 'qrcode') {
-            if (window.layer) {
-                layer.msg('二维码模板接口待对接');
+            var link = (window.MOBILE_WORKBENCH_CONFIG && window.MOBILE_WORKBENCH_CONFIG.receptionLink) || '';
+            if (link) {
+                copyText(link).then(function () {
+                    layer.msg('接待链接已复制，发送给访客即可开始会话');
+                });
             }
         } else if (action === 'new-chat') {
-            if (window.layer) {
-                layer.msg('新建会话入口待对接');
+            var link = (window.MOBILE_WORKBENCH_CONFIG && window.MOBILE_WORKBENCH_CONFIG.receptionLink) || '';
+            if (link) {
+                window.open(link, '_blank');
             }
         }
         closeActions();
+    }
+
+    function openNicknameEditor() {
+        if (!window.layer) {
+            return;
+        }
+        var html = '<div style="padding:20px 16px 8px;">' +
+            '<input id="MobileNickInput" type="text" placeholder="输入新昵称（最多20字）" ' +
+            'style="width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:10px;font-size:15px;box-sizing:border-box;">' +
+            '</div>';
+        layer.open({
+            type: 1,
+            title: '修改昵称',
+            area: ['88%', 'auto'],
+            content: html,
+            btn: ['保存', '取消'],
+            yes: function (idx) {
+                var nick = $.trim($('#MobileNickInput').val());
+                if (!nick) {
+                    layer.msg('昵称不能为空');
+                    return;
+                }
+                $.ajax({
+                    url: rootUrl('/mobile/admin/selfUpdate'),
+                    type: 'post',
+                    dataType: 'json',
+                    data: { action: 'nickname', nickname: nick },
+                    success: function (res) {
+                        layer.close(idx);
+                        if (res.code === 0) {
+                            layer.msg('昵称已更新');
+                            $('.mobile-workbench-name').text(nick);
+                        } else {
+                            layer.msg(res.msg || '修改失败');
+                        }
+                    },
+                    error: function () {
+                        layer.msg('网络错误');
+                    }
+                });
+            }
+        });
+    }
+
+    function openAvatarUploader() {
+        var $input = $('<input type="file" accept="image/*" style="display:none">');
+        $('body').append($input);
+        $input.on('change', function () {
+            var file = this.files[0];
+            if (!file) {
+                $input.remove();
+                return;
+            }
+            var fd = new FormData();
+            fd.append('action', 'avatar');
+            fd.append('avatar', file);
+            $.ajax({
+                url: rootUrl('/mobile/admin/selfUpdate'),
+                type: 'post',
+                data: fd,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function (res) {
+                    if (res.code === 0) {
+                        layer.msg('头像已更新');
+                        $('.mobile-workbench-avatar').attr('src', res.data.avatar + '?t=' + Date.now());
+                    } else {
+                        layer.msg(res.msg || '上传失败');
+                    }
+                },
+                error: function () {
+                    layer.msg('上传失败');
+                },
+                complete: function () {
+                    $input.remove();
+                }
+            });
+        });
+        $input.trigger('click');
     }
 
     $(function () {
@@ -216,8 +300,11 @@
         });
 
         $('.mobile-mine-action').on('click', function () {
-            if (window.layer) {
-                layer.msg('资料修改入口待对接');
+            var action = $(this).attr('data-action');
+            if (action === 'nickname') {
+                openNicknameEditor();
+            } else if (action === 'avatar') {
+                openAvatarUploader();
             }
         });
 

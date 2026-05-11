@@ -790,10 +790,8 @@
                 audio_context = new AudioContext;
 
                 if (!navigator.getUserMedia) {
-                    console.log('语音创建失败');
                 };
             } catch (e) {
-                console.log(e);
                 return;
             }
             navigator.getUserMedia({ audio: true }, function(stream) {
@@ -1478,7 +1476,6 @@
             var t = document.getElementById("wrap").scrollTop;
             if (t == 0) {
                 if ($.cookie("hid") != "") {
-                    console.log(t);
                     getdata();
                 }
             }

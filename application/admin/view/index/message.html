@@ -72,7 +72,6 @@
         if (chk_value == "") {
             layer.msg("请选择删除项");
         } else {
-            console.log(chk_value);
             $.ajax({
                 url:YMWL_ROOT_URL+"/admin/manager/deleteForMsg",
                 type: "post",
