@@ -21,8 +21,6 @@
                 <option value="link">链接按钮</option>
                 <option value="card">图文卡片</option>
                 <option value="image">图片</option>
-                <option value="video">视频</option>
-                <option value="guide">步骤引导</option>
             </select>
         </div>
         <div class="layui-inline">
@@ -68,8 +66,6 @@
                     <option value="link">链接按钮</option>
                     <option value="card">图文卡片</option>
                     <option value="image">图片</option>
-                    <option value="video">视频</option>
-                    <option value="guide">步骤引导</option>
                 </select>
             </div>
         </div>
@@ -122,7 +118,7 @@
             </div>
         </div>
 
-        <div class="rr-type-block rr-t-text rr-show" data-rr-for="text,link,image,video,guide,card">
+        <div class="rr-type-block rr-t-text rr-show" data-rr-for="text,link,image,card">
             <div class="layui-form-item">
                 <label class="layui-form-label">正文</label>
                 <div class="layui-input-block">
@@ -173,24 +169,6 @@
                     <input type="text" name="image_url_img" id="rr-f-imgonly" placeholder="https://" class="layui-input"/>
                     <button type="button" class="layui-btn layui-btn-xs" id="rr-up-img2" style="margin-top:6px;">上传图片</button>
                     <input type="file" id="rr-file-img2" class="layui-hide"/>
-                </div>
-            </div>
-        </div>
-        <div class="rr-type-block rr-t-video" data-rr-for="video">
-            <div class="layui-form-item">
-                <label class="layui-form-label">视频地址</label>
-                <div class="layui-input-block">
-                    <input type="text" name="video_url" id="rr-f-vid" placeholder="https://" class="layui-input"/>
-                    <button type="button" class="layui-btn layui-btn-xs" id="rr-up-vid" style="margin-top:6px;">上传文件</button>
-                    <input type="file" id="rr-file-vid" class="layui-hide"/>
-                </div>
-            </div>
-        </div>
-        <div class="rr-type-block rr-t-guide" data-rr-for="guide">
-            <div class="layui-form-item">
-                <label class="layui-form-label">步骤JSON</label>
-                <div class="layui-input-block">
-                    <textarea name="payload_json" id="rr-f-payload" placeholder='{"steps":["第一步","第二步"]}' class="layui-textarea"></textarea>
                 </div>
             </div>
         </div>
@@ -302,8 +280,6 @@ layui.use(['table', 'form', 'layer', 'util'], function () {
         root.find('#rr-f-cdesc').val(d.card_desc || '');
         root.find('#rr-f-img').val(d.image_url || '');
         root.find('#rr-f-imgonly').val(d.image_url || '');
-        root.find('#rr-f-vid').val(d.video_url || '');
-        root.find('#rr-f-payload').val(d.payload_json || '');
         var $svc = root.find('#rr-f-service');
         if ($svc.length && $svc.is('select')) {
             $svc.val(d.service_id != null ? String(d.service_id) : '0');
@@ -330,8 +306,6 @@ layui.use(['table', 'form', 'layer', 'util'], function () {
             link_url: root.find('#rr-f-link').val(),
             card_title: root.find('#rr-f-ctitle').val(),
             card_desc: root.find('#rr-f-cdesc').val(),
-            payload_json: root.find('#rr-f-payload').val(),
-            video_url: root.find('#rr-f-vid').val(),
             service_id: root.find('#rr-f-service').val()
         };
         if (t === 'image') {

@@ -185,8 +185,6 @@ function getrichreply(){
             h += '<option value="link">链接</option>';
             h += '<option value="card">卡片</option>';
             h += '<option value="image">图片</option>';
-            h += '<option value="video">视频</option>';
-            h += '<option value="guide">步骤</option>';
             h += '</select>';
             h += '<select id="rr-chat-cat" class="rich-reply-select">';
             h += '<option value="">全部分类</option>';
