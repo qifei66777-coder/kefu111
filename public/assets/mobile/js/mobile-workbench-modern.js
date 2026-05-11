@@ -252,6 +252,48 @@
         });
     }
 
+    function openPasswordEditor() {
+        if (!window.layer) {
+            return;
+        }
+        var html = '<div style="padding:20px 16px 8px;">' +
+            '<input id="MobileOldPass" type="password" placeholder="当前密码" ' +
+            'style="width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:10px;font-size:15px;box-sizing:border-box;margin-bottom:10px;">' +
+            '<input id="MobileNewPass" type="password" placeholder="新密码（至少6位）" ' +
+            'style="width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:10px;font-size:15px;box-sizing:border-box;margin-bottom:10px;">' +
+            '<input id="MobileNewPass2" type="password" placeholder="确认新密码" ' +
+            'style="width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:10px;font-size:15px;box-sizing:border-box;">' +
+            '</div>';
+        layer.open({
+            type: 1,
+            title: '修改密码',
+            area: ['88%', 'auto'],
+            content: html,
+            btn: ['保存', '取消'],
+            yes: function (idx) {
+                var oldPass = $('#MobileOldPass').val();
+                var newPass = $('#MobileNewPass').val();
+                var newPass2 = $('#MobileNewPass2').val();
+                if (!oldPass) { layer.msg('请输入当前密码'); return; }
+                if (!newPass || newPass.length < 6) { layer.msg('新密码至少6位'); return; }
+                if (newPass !== newPass2) { layer.msg('两次输入的密码不一致'); return; }
+                $.ajax({
+                    url: rootUrl('/mobile/admin/selfUpdate'),
+                    type: 'post',
+                    dataType: 'json',
+                    data: { action: 'password', old_password: oldPass, new_password: newPass },
+                    success: function (res) {
+                        layer.close(idx);
+                        layer.msg(res.msg || (res.code === 0 ? '密码已更新' : '修改失败'));
+                    },
+                    error: function () {
+                        layer.msg('网络错误');
+                    }
+                });
+            }
+        });
+    }
+
     function openAvatarUploader() {
         var $input = $('<input type="file" accept="image/*" style="display:none">');
         $('body').append($input);
@@ -317,6 +359,8 @@
                 openNicknameEditor();
             } else if (action === 'avatar') {
                 openAvatarUploader();
+            } else if (action === 'password') {
+                openPasswordEditor();
             }
         });
 

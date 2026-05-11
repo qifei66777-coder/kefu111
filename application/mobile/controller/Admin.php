@@ -313,6 +313,28 @@ class Admin extends Base
             return json(['code' => 0, 'msg' => '头像已更新', 'data' => ['avatar' => $url]]);
         }
 
+        if ($action === 'password') {
+            $old_password = $this->request->post('old_password', '');
+            $new_password = $this->request->post('new_password', '');
+            if ($old_password === '' || $new_password === '') {
+                return json(['code' => 1, 'msg' => '密码不能为空']);
+            }
+            if (mb_strlen($new_password, 'UTF-8') < 6) {
+                return json(['code' => 1, 'msg' => '新密码至少6位']);
+            }
+            $service = \think\Db::name('service')->where('service_id', $sid)->find();
+            if (!$service) {
+                return json(['code' => 1, 'msg' => '账号不存在']);
+            }
+            $old_hash = md5($service['user_name'] . 'hjkj' . $old_password);
+            if ($old_hash !== $service['password']) {
+                return json(['code' => 1, 'msg' => '当前密码不正确']);
+            }
+            $new_hash = md5($service['user_name'] . 'hjkj' . $new_password);
+            \think\Db::name('service')->where('service_id', $sid)->update(['password' => $new_hash]);
+            return json(['code' => 0, 'msg' => '密码已更新']);
+        }
+
         return json(['code' => 1, 'msg' => '未知操作']);
     }
 
