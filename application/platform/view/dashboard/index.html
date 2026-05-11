@@ -182,10 +182,10 @@
             </div>
         </div>
         <div class="pf-card">
-            <div class="pf-card-hd">应用预览</div>
+            <div class="pf-card-hd">应用预览 <a href="{:url('platform/app/index')}" style="font-size:12px;font-weight:400;color:#1677ff;">查看全部</a></div>
             <div class="pf-card-bd" style="overflow-x:auto;">
                 <table class="table pf-table">
-                    <thead><tr><th>应用</th><th>在线客服</th><th>今日消息</th><th>状态</th></tr></thead>
+                    <thead><tr><th>应用</th><th>在线客服</th><th>今日消息</th><th>状态</th><th>操作</th></tr></thead>
                     <tbody id="pf-business-preview"></tbody>
                 </table>
             </div>
@@ -312,9 +312,13 @@
         if (!res || res.code !== 0) return;
         var h = '';
         (res.data || []).forEach(function (r) {
-            h += '<tr><td>' + esc(r.business_name) + '</td><td>' + esc(r.online_svc_count) + '</td><td>' + esc(r.today_msg_count) + '</td><td>' + statusTag(parseInt(r.is_recycle, 10)) + '</td></tr>';
+            var st = parseInt(r.is_recycle, 10) === 1
+                ? '<span class="pf-tag-off">已回收</span>'
+                : '<span class="pf-tag-ok">正常</span>';
+            var editUrl = YMWL_ROOT_URL + '/platform/app/edit?id=' + encodeURIComponent(r.business_id);
+            h += '<tr><td>' + esc(r.business_name) + '</td><td>' + esc(r.online_svc_count) + '</td><td>' + esc(r.today_msg_count) + '</td><td>' + st + '</td><td><a href="' + editUrl + '" style="color:#1677ff;">管理</a></td></tr>';
         });
-        h ? $('#pf-business-preview').html(h) : fillEmpty($('#pf-business-preview'), 4);
+        h ? $('#pf-business-preview').html(h) : fillEmpty($('#pf-business-preview'), 5);
     }, 'json');
 
     $(window).on('resize', function () {

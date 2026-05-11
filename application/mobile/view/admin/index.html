@@ -1114,25 +1114,33 @@
             'voice_address': '{$voice_address}'
         };
 
+        var _pendingCount = 0;
+
         function count_unread_message() {
             var total_unread_count = 0;
             $.each($("#J__recordChatList .wc__badge"), function(i, n){
-                total_unread_count += parseInt($(n).html());
+                total_unread_count += parseInt($(n).html()) || 0;
             });
             if (total_unread_count) {
                 if (!$(".wechat__tabBar .layui-icon-reply-fill .wc__badge").length) {
                     $(".wechat__tabBar .layui-icon-reply-fill").html('<em class="wc__badge">0</em>');
                 }
                 $(".wechat__tabBar .layui-icon-reply-fill .wc__badge").html(total_unread_count);
-                $('.mobile-workbench-tab[data-tab="chat"] .mobile-workbench-badge').text(total_unread_count).show();
             } else {
                 $(".wechat__tabBar .layui-icon-reply-fill .wc__badge").remove();
+            }
+            var total = total_unread_count + _pendingCount;
+            if (total > 0) {
+                var label = total > 99 ? '99+' : total;
+                $('.mobile-workbench-tab[data-tab="chat"] .mobile-workbench-badge').text(label).show();
+            } else {
                 $('.mobile-workbench-tab[data-tab="chat"] .mobile-workbench-badge').hide().text('');
             }
         }
 
         function count_unaccept() {
             var total_unaccept_count = $("#J__addrFriendList ul li").length;
+            _pendingCount = total_unaccept_count;
             if (total_unaccept_count) {
                 if (!$(".wechat__tabBar .layui-icon-group .wc__badge").length) {
                     $(".wechat__tabBar .layui-icon-group").html('<em class="wc__badge">0</em>');
@@ -1143,6 +1151,7 @@
                 $(".wechat__tabBar .layui-icon-group .wc__badge").remove();
                 $("#J__addrFriendList .msg").html('<div class="nothing">无数据<div>');
             }
+            count_unread_message();
         }
 
         var wolive_connect = function () {
