@@ -136,7 +136,7 @@ function getchat() {
             let visiter_id;
             if(url.indexOf('=') > -1) {
                 var arrUrl = url.split("=");
-　　　　             visiter_id = arrUrl[1];
+            visiter_id = arrUrl[1];
                 $.ajax({
                     url:YMWL_ROOT_URL+"/admin/custom/opencs",
                     type: 'post',
@@ -342,12 +342,11 @@ var getip = function (cip) {
 
             if(res.code == 0){
                 var data = res.data;
-                var str = "";
-                str += data[0] + " 、";
-                str += data[1] + " 、";
-                str += data[2];
-                $(".iparea").text(str);
-                $(".iparea").text(res.data.ip);
+                if (Array.isArray(data)) {
+                    $(".iparea").text(data[0] + " " + (data[1] || '') + " " + (data[2] || ''));
+                } else if (data && data.ip) {
+                    $(".iparea").text(data.ip);
+                }
             }
            
         }
