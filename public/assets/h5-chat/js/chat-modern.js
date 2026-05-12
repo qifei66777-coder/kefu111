@@ -4,28 +4,36 @@
 (function () {
   function doScrollNow() {
     var wrap = document.getElementById('wrap');
-    if (!wrap) return;
-    wrap.scrollTop = wrap.scrollHeight + 9999;
+    if (wrap) {
+      wrap.scrollTop = wrap.scrollHeight;
+      if (wrap.scrollTop > 0 || wrap.scrollHeight <= wrap.clientHeight) return;
+    }
+    var se = document.scrollingElement || document.documentElement;
+    se.scrollTop = se.scrollHeight;
   }
 
   function scrollChatToBottom(delay) {
     if (delay) {
-      setTimeout(doScrollNow, delay);
+      setTimeout(function () { doScrollNow(); requestAnimationFrame(doScrollNow); }, delay);
       return;
     }
     doScrollNow();
     requestAnimationFrame(doScrollNow);
-    setTimeout(doScrollNow, 80);
-    setTimeout(doScrollNow, 250);
-    var imgs = document.querySelectorAll('#log img');
+    setTimeout(doScrollNow, 60);
+    setTimeout(doScrollNow, 200);
+  }
+
+  function bindH5ImageScroll(root) {
+    var imgs = (root || document).querySelectorAll('#log img:not([data-sb])');
     for (var i = 0; i < imgs.length; i++) {
-      if (!imgs[i].complete && !imgs[i]._h5ScrollBound) {
-        imgs[i]._h5ScrollBound = true;
+      imgs[i].setAttribute('data-sb', '1');
+      if (!imgs[i].complete) {
         imgs[i].addEventListener('load', doScrollNow);
         imgs[i].addEventListener('error', doScrollNow);
       }
     }
   }
+
   window.scrollChatToBottom = scrollChatToBottom;
 
   function syncLayoutVars() {
@@ -125,36 +133,18 @@
     if (typeof MutationObserver !== 'undefined') {
       var log = document.getElementById('log');
       if (log) {
-        var logObserver = new MutationObserver(function (mutations) {
+        new MutationObserver(function (mutations) {
           syncLayoutVars();
           var hasAppend = false;
           for (var i = 0; i < mutations.length; i++) {
-            var m = mutations[i];
-            if (m.type !== 'childList' || !m.addedNodes || m.addedNodes.length === 0) continue;
-            for (var j = 0; j < m.addedNodes.length; j++) {
-              var node = m.addedNodes[j];
-              if (!node || node.nodeType !== 1 || !node.parentNode) continue;
-              if (node === node.parentNode.lastElementChild) {
-                hasAppend = true;
-                var nodeImgs = node.querySelectorAll ? node.querySelectorAll('img') : [];
-                for (var k = 0; k < nodeImgs.length; k++) {
-                  if (!nodeImgs[k].complete && !nodeImgs[k]._h5ScrollBound) {
-                    nodeImgs[k]._h5ScrollBound = true;
-                    nodeImgs[k].addEventListener('load', doScrollNow);
-                    nodeImgs[k].addEventListener('error', doScrollNow);
-                  }
-                }
-                break;
-              }
-            }
-            if (hasAppend) break;
+            if (mutations[i].addedNodes && mutations[i].addedNodes.length) { hasAppend = true; break; }
           }
           if (hasAppend) {
             scrollChatToBottom();
             scrollChatToBottom(400);
+            bindH5ImageScroll(log);
           }
-        });
-        logObserver.observe(log, { childList: true, subtree: false });
+        }).observe(log, { childList: true });
       }
     }
 

@@ -964,28 +964,7 @@ function sendContent(msg) {
     });
 }
 
-function scrollChatToBottom() {
-    var div = document.getElementById('wrap');
-    if (!div) return;
-    div.scrollTop = div.scrollHeight + 9999;
-    requestAnimationFrame(function () { div.scrollTop = div.scrollHeight + 9999; });
-    setTimeout(function () { div.scrollTop = div.scrollHeight + 9999; }, 150);
-    setTimeout(function () { div.scrollTop = div.scrollHeight + 9999; }, 400);
-    var imgs = document.querySelectorAll('#log img');
-    for (var i = 0; i < imgs.length; i++) {
-        if (!imgs[i].complete && !imgs[i]._agentScrollBound) {
-            imgs[i]._agentScrollBound = true;
-            imgs[i].addEventListener('load', function () {
-                var w = document.getElementById('wrap');
-                if (w) { w.scrollTop = w.scrollHeight + 9999; }
-            });
-            imgs[i].addEventListener('error', function () {
-                var w = document.getElementById('wrap');
-                if (w) { w.scrollTop = w.scrollHeight + 9999; }
-            });
-        }
-    }
-}
+// scrollChatToBottom defined in talk.html IIFE (with MutationObserver + image load handlers)
 
 document.getElementById("wrap").onscroll = function () {
     var t = document.getElementById("wrap").scrollTop;

@@ -324,7 +324,7 @@
     #bottom { height: 100px !important; }
 
     .conversation { padding: 8px 10px; }
-    .chatmsg, .chatmsg_no { position: relative; margin-bottom: 14px; min-height: 50px; list-style: none; }
+    .chatmsg, .chatmsg_no { position: relative; margin-bottom: 14px; min-height: 50px; list-style: none; height: auto !important; }
     .chatmsg .showtime {
         text-align: center;
         font-size: 11px;
@@ -718,16 +718,50 @@
     }
 </script>
 <script>
-function scrollChatToBottom() {
-    var wrap = document.getElementById('wrap');
-    if (!wrap) return;
-    wrap.scrollTop = wrap.scrollHeight + 9999;
-    requestAnimationFrame(function () {
-        var w = document.getElementById('wrap');
-        if (w) w.scrollTop = w.scrollHeight + 9999;
+(function() {
+    var _wrap = null;
+    function getWrap() {
+        if (!_wrap) _wrap = document.getElementById('wrap');
+        return _wrap;
+    }
+    function doScroll() {
+        var w = getWrap();
+        if (w) w.scrollTop = w.scrollHeight;
+    }
+    function scrollChatToBottom() {
+        doScroll();
+        requestAnimationFrame(doScroll);
+        setTimeout(doScroll, 60);
+        setTimeout(doScroll, 200);
+    }
+    function bindImageScroll(root) {
+        var imgs = (root || getWrap() || document).querySelectorAll('img:not([data-sb])');
+        for (var i = 0; i < imgs.length; i++) {
+            imgs[i].setAttribute('data-sb', '1');
+            if (!imgs[i].complete) {
+                imgs[i].addEventListener('load', scrollChatToBottom);
+                imgs[i].addEventListener('error', scrollChatToBottom);
+            }
+        }
+    }
+    window.scrollChatToBottom = scrollChatToBottom;
+    window.bindImageScroll = bindImageScroll;
+    document.addEventListener('DOMContentLoaded', function() {
+        var log = document.getElementById('log');
+        if (log && typeof MutationObserver !== 'undefined') {
+            new MutationObserver(function(muts) {
+                var added = false;
+                for (var i = 0; i < muts.length; i++) {
+                    if (muts[i].addedNodes && muts[i].addedNodes.length) { added = true; break; }
+                }
+                if (added) {
+                    scrollChatToBottom();
+                    bindImageScroll(log);
+                }
+            }).observe(log, { childList: true });
+        }
     });
-}
-window.scrollChatToBottom = scrollChatToBottom;
+})();
 </script>
 <script type="text/javascript" src="__script__/admin/mchat.js?v=__lkversion__"></script>
 
