@@ -178,7 +178,7 @@
 
     var THEME_LABELS = { blue: '蓝色', green: '绿色', purple: '紫色', orange: '橙色', red: '红色' };
 
-    function buildPosterHtml(url, remark, oneToOne, theme) {
+    function buildPosterHtml(url, oneToOne, theme) {
         theme = theme || 'blue';
         return '<div class="qr-poster theme-' + theme + '">'
             + '<div class="qr-poster__bg"></div>'
@@ -191,6 +191,7 @@
             + '<p class="qr-poster__subtitle">— 欢迎咨询在线客服 —</p>'
             + '<div class="qr-poster__badge">服务时间：全天24小时</div>'
             + '<div class="qr-poster__qr-card"><div id="mqr-canvas-host"></div></div>'
+            + (oneToOne ? '<div class="qr-poster__one-tag">一客户一码 · 仅首次扫码者可用</div>' : '')
             + '<div class="qr-poster__url">' + html(url) + '</div>'
             + '<div class="qr-poster__footer"><div class="qr-poster__avatar">👩‍💼</div></div>'
             + '<button id="mqr-copy-btn" type="button" class="qr-poster__copy-btn">复制链接</button>'
@@ -198,10 +199,10 @@
             + '</div>';
     }
 
-    function showChannelResult(url, remark, oneToOne, theme) {
+    function showChannelResult(url, oneToOne, theme) {
         var isMobile = window.innerWidth <= 768;
         var qrSize = isMobile ? 160 : 200;
-        var contentHtml = buildPosterHtml(url, remark, oneToOne, theme);
+        var contentHtml = buildPosterHtml(url, oneToOne, theme);
         layer.open({
             type: 1,
             title: false,
@@ -244,15 +245,15 @@
     function openChannelCreator(mode) {
         if (!window.layer) return;
         var content = '<div style="padding:16px 16px 4px;">'
-            + '<label style="display:block;font-size:13px;color:#0f172a;margin-bottom:6px;">备注 <span style="color:#94a3b8;font-weight:400;">（可选）</span></label>'
-            + '<input id="mWbChRemark" type="text" placeholder="例如：抖音客户A / 展会客户 / 渠道1" maxlength="100" '
+            + '<label style="display:block;font-size:13px;color:#0f172a;margin-bottom:6px;">备注</label>'
+            + '<input id="mWbChRemark" type="text" placeholder="可选，仅后台可见，如：抖音客户A / 展会渠道" maxlength="100" '
             + 'style="width:100%;padding:11px 12px;border:1px solid #e0e6ee;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;">'
             + '<div style="margin-top:14px;display:flex;align-items:center;gap:8px;">'
             + '<input id="mWbChOne" type="checkbox" style="width:16px;height:16px;">'
             + '<label for="mWbChOne" style="font-size:13px;color:#374151;">一客户一码（仅首次扫码者可用）</label>'
             + '</div>'
             + buildThemeSelector()
-            + '<div style="margin-top:8px;font-size:11px;color:#94a3b8;">仅用于内部识别此二维码，不展示给扫码客户</div>'
+            + '<div style="margin-top:8px;font-size:11px;color:#94a3b8;">备注仅用于内部识别此二维码，不展示给扫码客户</div>'
             + '</div>';
         layer.open({
             type: 1,
@@ -284,9 +285,9 @@
                             loadQrChannels();
                         }
                         if (mode === 'link') {
-                            copyText(url).then(function () { layer.msg('链接已复制：' + remark); });
+                            copyText(url).then(function () { layer.msg('链接已复制'); });
                         } else {
-                            showChannelResult(url, remark, oneToOne, theme);
+                            showChannelResult(url, oneToOne, theme);
                         }
                     },
                     error: function () { layer.msg('网络错误'); }
@@ -344,7 +345,6 @@
         var output = '';
         $.each(rows, function (_, item) {
             var name = item.remark || '';
-            var remarkDisplay = name ? name : '未填写备注';
             var scanCount = item.scan_count || 0;
             var lastScan = item.last_scan_time || '';
             var createdAt = item.created_at || '';
@@ -364,9 +364,10 @@
             var posterTheme = item.poster_theme || 'blue';
             var themeLabel = THEME_LABELS[posterTheme] || '蓝色';
             var themeTagClass = 'tag-' + posterTheme;
-            output += '<div class="mobile-qr-card" data-url="' + html(url) + '" data-remark="' + html(name) + '" data-one="' + (item.one_to_one || 0) + '" data-theme="' + html(posterTheme) + '">'
+            var remarkDisplay = name ? html(name) : '<span style="color:#b0b8c4;">—</span>';
+            output += '<div class="mobile-qr-card" data-url="' + html(url) + '" data-one="' + (item.one_to_one || 0) + '" data-theme="' + html(posterTheme) + '">'
                 + '<div class="mobile-qr-card-head">'
-                + '<div class="mobile-qr-card-name">' + html(remarkDisplay) + '</div>'
+                + '<div class="mobile-qr-card-name">备注：' + remarkDisplay + '</div>'
                 + '<span class="mobile-qr-card-status ' + statusClass + '">' + statusLabel + '</span>'
                 + '</div>'
                 + '<div class="mobile-qr-card-meta">'
@@ -572,14 +573,13 @@
         $('#MobileQrList').on('click', '.mobile-qr-btn-view', function () {
             var $card = $(this).closest('.mobile-qr-card');
             var url = $card.attr('data-url');
-            var remark = $card.attr('data-remark');
             var oneToOne = parseInt($card.attr('data-one'), 10);
             var theme = $card.attr('data-theme') || 'blue';
             if (!url) {
                 if (window.layer) layer.msg('该渠道链接为空');
                 return;
             }
-            showChannelResult(url, remark, oneToOne, theme);
+            showChannelResult(url, oneToOne, theme);
         });
 
         $('#MobileQrList').on('click', '.mobile-qr-btn-copy', function () {

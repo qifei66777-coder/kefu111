@@ -94,6 +94,11 @@
     border-radius: 6px;
 }
 
+.qr-poster__one-tag {
+    font-size: 11px;
+    color: var(--qp-accent);
+    margin-bottom: 6px;
+}
 .qr-poster__url {
     font-size: 9px;
     color: var(--qp-muted);
