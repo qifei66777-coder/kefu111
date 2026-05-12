@@ -84,7 +84,9 @@
                 <div class="input-group mb-2">
                     <input class="form-control" value="{$option['logo']}" name="logo">
                     <span class="input-group-btn upload">
-                        <a class="btn btn-secondary upload-btn" href="javascript:">上传图片</a>
+                        <label class="btn btn-secondary upload-btn" style="margin:0;cursor:pointer;">上传图片
+                            <input type="file" class="logo-file-input" accept="image/jpeg,image/png,image/gif" style="display:none;">
+                        </label>
                     </span>
                 </div>
                 {if condition="empty($option['logo'])"}
@@ -105,7 +107,9 @@
                 <div class="input-group">
                     <input class="form-control" value="{$option['mp_verify']}" name="mp_verify">
                     <span class="input-group-btn upload">
-                        <a class="btn btn-secondary mp_verify" href="javascript:">上传文件</a>
+                        <label class="btn btn-secondary mp_verify" style="margin:0;cursor:pointer;">上传文件
+                            <input type="file" class="verify-file-input" accept=".txt" style="display:none;">
+                        </label>
                     </span>
                 </div>
             </div>
@@ -124,7 +128,9 @@
                 <div class="input-group mb-2">
                     <input class="form-control" value="{$option['passport_bg']}" name="passport_bg">
                     <span class="input-group-btn upload">
-                        <a class="btn btn-secondary upload-passport-btn" href="javascript:">上传图片</a>
+                        <label class="btn btn-secondary upload-passport-btn" style="margin:0;cursor:pointer;">上传图片
+                            <input type="file" class="passport-file-input" accept="image/jpeg,image/png,image/gif" style="display:none;">
+                        </label>
                     </span>
                 </div>
                 <div class="preview">
@@ -205,35 +211,46 @@
 </form>
 
 <script>
-    $('.upload-btn').plupload({
-        url: "{:url('upload/image')}",
-        success: function (e, res, status) {
-            res = JSON.parse(res);
-            if (res.code == 0) {
-                $('input[name=logo]').val(res.data.url);
-                $('.logo-preview').attr('src', res.data.url);
-            } else { $.myToast({ content: res.msg }); }
-        },
+    function nativeUpload(fileInput, url, onSuccess) {
+        if (!fileInput.files || !fileInput.files[0]) return;
+        var file = fileInput.files[0];
+        if (file.size > 5 * 1024 * 1024) { $.myToast({ content: '文件不能超过5MB' }); fileInput.value = ''; return; }
+        var fd = new FormData();
+        fd.append('file', file);
+        var btn = $(fileInput).closest('.btn');
+        var origHtml = btn.contents().filter(function(){ return this.nodeType === 3; }).first();
+        btn.css('opacity', '.6');
+        $.ajax({
+            url: url, type: 'POST', data: fd,
+            processData: false, contentType: false, dataType: 'json',
+            success: function (res) {
+                btn.css('opacity', '1');
+                if (res.code == 0) { onSuccess(res); }
+                else { $.myToast({ content: res.msg || '上传失败' }); }
+            },
+            error: function () { btn.css('opacity', '1'); $.myToast({ content: '上传请求失败' }); },
+            complete: function () { fileInput.value = ''; }
+        });
+    }
+
+    $(document).on('change', '.logo-file-input', function () {
+        nativeUpload(this, "{:url('upload/image')}", function (res) {
+            $('input[name=logo]').val(res.data.url);
+            if ($('.logo-preview img').length) { $('.logo-preview img').attr('src', res.data.url); }
+            else { $('.logo-preview').html('<img src="' + res.data.url + '">'); }
+        });
     });
 
-    $('.mp_verify').plupload({
-        url: "{:url('upload/file')}",
-        success: function (e, res, status) {
-            res = JSON.parse(res);
-            if (res.code == 0) {
-                $('input[name=mp_verify]').val(res.data.url);
-            } else { $.myToast({ content: res.msg }); }
-        },
+    $(document).on('change', '.verify-file-input', function () {
+        nativeUpload(this, "{:url('upload/file')}", function (res) {
+            $('input[name=mp_verify]').val(res.data.url);
+        });
     });
 
-    $('.upload-passport-btn').plupload({
-        url: "{:url('upload/image')}",
-        success: function (e, res, status) {
-            res = JSON.parse(res);
-            if (res.code == 0) {
-                $('input[name=passport_bg]').val(res.data.url);
-                $('.passport-preview').attr('src', res.data.url);
-            } else { $.myToast({ content: res.msg }); }
-        },
+    $(document).on('change', '.passport-file-input', function () {
+        nativeUpload(this, "{:url('upload/image')}", function (res) {
+            $('input[name=passport_bg]').val(res.data.url);
+            if ($('.passport-preview').length) { $('.passport-preview').attr('src', res.data.url); }
+        });
     });
 </script>

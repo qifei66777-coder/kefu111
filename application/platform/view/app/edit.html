@@ -202,7 +202,9 @@
                     <input class="form-control " value="{$option['logo']}" name="logo">
                     {/if}
                     <span class="input-group-btn upload">
-                        <a class="btn btn-secondary upload-btn" href="javascript:">上传图片</a>
+                        <label class="btn btn-secondary upload-btn" style="margin:0;cursor:pointer;">上传图片
+                            <input type="file" class="logo-file-input" accept="image/jpeg,image/png,image/gif" style="display:none;">
+                        </label>
                     </span>
                 </div>
                 <div class="preview">
@@ -297,19 +299,46 @@
 </script>
 <script>
 
-    $('.upload-btn').plupload({
-        url: "{:url('upload/image')}",
-        success: function (e, res, status) {
-            res = JSON.parse(res);
-            if (res.code == 0) {
-                $('input[name=logo]').val(res.data.url);
-                $('.logo-preview').attr('src', res.data.url);
-            } else {
-                $.alert({
-                    content: res.msg,
-                });
-            }
-        },
+    $(document).on('change', '.logo-file-input', function () {
+        var fileInput = this;
+        if (!fileInput.files || !fileInput.files[0]) return;
+        var file = fileInput.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+            $.alert({ content: '图片不能超过5MB' });
+            fileInput.value = '';
+            return;
+        }
+        var fd = new FormData();
+        fd.append('file', file);
+        var btn = $(fileInput).closest('.upload-btn');
+        var origText = btn.text();
+        btn.text('上传中...');
+        $.ajax({
+            url: "{:url('upload/image')}",
+            type: 'POST',
+            data: fd,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function (res) {
+                btn.text(origText);
+                if (res.code == 0) {
+                    $('input[name=logo]').val(res.data.url);
+                    if ($('.logo-preview').length) {
+                        $('.logo-preview').attr('src', res.data.url);
+                    } else {
+                        $('.preview').append('<img src="' + res.data.url + '" class="logo-preview">');
+                    }
+                } else {
+                    $.alert({ content: res.msg || '上传失败' });
+                }
+            },
+            error: function () {
+                btn.text(origText);
+                $.alert({ content: '上传请求失败，请稍后再试' });
+            },
+            complete: function () { fileInput.value = ''; }
+        });
     });
 
     $.datetimepicker.setLocale('zh');
