@@ -15,7 +15,15 @@
 .pf-pagination { padding:14px 20px; display:flex; justify-content:center; }
 </style>
 
-<div class="pf-page-title">登录日志</div>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+    <div class="pf-page-title" style="margin-bottom:0;">登录日志</div>
+    <button type="button" class="pf-btn-clear-log" id="btn-clear-log" style="
+        display:inline-flex;align-items:center;gap:6px;
+        height:36px;padding:0 18px;border-radius:10px;
+        background:#fef2f2;color:#dc2626;font-size:13px;font-weight:600;
+        border:1px solid #fecaca;cursor:pointer;transition:background .18s;
+    ">一键清除日志</button>
+</div>
 
 <div class="pf-card">
     <table class="pf-table">
@@ -48,3 +56,25 @@
     </table>
     <div class="pf-pagination">{$list->render()}</div>
 </div>
+
+<script>
+$('#btn-clear-log').on('click', function () {
+    if (!confirm('确定清除所有登录日志？此操作不可恢复。')) return;
+    var btn = $(this);
+    btn.prop('disabled', true).text('清除中...');
+    $.ajax({
+        url: '{:url("admin/clearLoginLog")}',
+        type: 'post',
+        dataType: 'json',
+        success: function (res) {
+            alert(res.msg || '操作完成');
+            if (res.code === 0) location.reload();
+            else btn.prop('disabled', false).text('一键清除日志');
+        },
+        error: function () {
+            alert('请求失败，请稍后再试');
+            btn.prop('disabled', false).text('一键清除日志');
+        }
+    });
+});
+</script>

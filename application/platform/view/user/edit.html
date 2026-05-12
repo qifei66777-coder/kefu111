@@ -104,6 +104,50 @@
         padding: 4px 0;
     }
     .modal-dialog { margin-top: 5%; }
+
+    @media (max-width: 768px) {
+        .new-account {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+            padding: 12px 16px;
+        }
+        .card-body {
+            padding: 16px 12px 8px !important;
+        }
+        .form-group.row {
+            flex-direction: column;
+            gap: 2px;
+        }
+        .account-label {
+            text-align: left !important;
+            padding-top: 0 !important;
+            padding-bottom: 4px;
+            width: 100%;
+            flex: none;
+            max-width: none !important;
+        }
+        .account-label span { display: inline; }
+        .form-input {
+            max-width: none;
+            width: 100%;
+            flex: none;
+        }
+        .form-inline {
+            flex-direction: row;
+            gap: 10px;
+        }
+        .form-inline .form-control { min-width: 0; flex: 1; }
+        .col-sm-6 { max-width: 100%; flex: 0 0 100%; }
+        .custom-checkbox { margin-right: 10px; }
+        .form-group.row label.col-sm-3 {
+            max-width: none !important;
+            flex: none !important;
+        }
+        .form-input.offset-sm-3 {
+            margin-left: 0 !important;
+        }
+    }
 </style>
 
 <form method="post" return="{:url('user/index')}" class="auto-form card">

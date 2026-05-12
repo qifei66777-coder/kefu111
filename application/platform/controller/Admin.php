@@ -31,4 +31,15 @@ class Admin extends Base
             ->where("`createtime`<{$threemonthbf}")->delete();
         return $this->fetch();
     }
+
+    public function clearLoginLog()
+    {
+        if (!$this->request->isPost()) {
+            return json(['code' => 1, 'msg' => '请求方式错误']);
+        }
+        $count = Db::name('login_log')
+            ->where(['uid' => $this->admin['id'], 'source' => 1])
+            ->delete();
+        return json(['code' => 0, 'msg' => '已清除 ' . $count . ' 条登录日志']);
+    }
 }
