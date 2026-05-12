@@ -547,28 +547,57 @@
 
             @media (max-width: 900px) {
                 body.pf-modern .navbar {
-                    position: sticky;
-                    width: 100%;
-                    height: auto;
-                    padding: 14px;
-                    border-radius: 0 0 22px 22px;
+                    position: sticky !important;
+                    top: 0 !important;
+                    bottom: auto !important;
+                    left: auto !important;
+                    right: auto !important;
+                    width: 100% !important;
+                    height: auto !important;
+                    min-width: 0 !important;
+                    min-height: 0 !important;
+                    max-height: none !important;
+                    padding: 12px 14px 6px !important;
+                    border-radius: 0 0 18px 18px;
+                    z-index: 20;
+                    overflow-y: visible !important;
+                    overflow-x: visible !important;
+                }
+                body.pf-modern .nav-top {
+                    margin-bottom: 10px;
+                }
+                body.pf-modern .nav-text {
+                    padding: 0 4px 8px;
+                    margin-bottom: 8px;
+                    font-size: 17px;
                 }
                 body.pf-modern .nav-menu > div {
                     flex-direction: row;
                     overflow-x: auto;
                     padding-bottom: 4px !important;
+                    gap: 4px;
                 }
-                body.pf-modern .menu-item {
+                body.pf-modern .menu-item,
+                body.pf-modern .menu-item:first-of-type {
                     width: auto;
                     min-width: max-content;
-                    padding: 0 14px;
-                }
-                body.pf-modern main.container,
-                body.pf-modern footer {
-                    margin-left: 0;
+                    height: 34px;
+                    padding: 0 12px;
+                    font-size: 13px;
                 }
                 body.pf-modern main.container {
-                    padding: 14px;
+                    margin-left: 0 !important;
+                    padding: 14px !important;
+                    min-height: auto;
+                    background: #f4f7fb;
+                }
+                body.pf-modern footer {
+                    margin-left: 0 !important;
+                }
+                body.pf-modern .child-menu {
+                    border-radius: 12px;
+                    padding: 8px 10px;
+                    margin-bottom: 10px;
                 }
             }
         </style>
