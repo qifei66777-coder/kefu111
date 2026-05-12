@@ -913,9 +913,9 @@ var getstate =function(obj){
                     opts += '<option value="' + t.id + '">' + (t.template_name || '模板') + '</option>';
                 }
                 var html = '<div style="padding:16px 20px;">' +
-                    '<p style="margin-bottom:6px;">客户名称 <span style="color:#dc2626">*</span></p>' +
-                    '<input id="qr_remark_inp" type="text" class="layui-input" placeholder="该名称将作为扫码客户的显示名" maxlength="100" style="height:36px;">' +
-                    '<p style="margin:12px 0 6px;color:#94a3b8;font-size:12px;">建议填写客户真实姓名，便于后续识别</p>' +
+                    '<p style="margin-bottom:6px;">备注 <span style="color:#94a3b8;font-size:12px;font-weight:400;">（可选）</span></p>' +
+                    '<input id="qr_remark_inp" type="text" class="layui-input" placeholder="例如：抖音客户A / 展会客户 / 渠道1" maxlength="100" style="height:36px;">' +
+                    '<p style="margin:12px 0 6px;color:#94a3b8;font-size:12px;">仅用于内部识别此二维码，不展示给扫码客户</p>' +
                     '<p style="margin:14px 0 6px;">选择模板</p><select id="qr_tpl_id" class="layui-input" style="height:36px;">' + opts + '</select>' +
                     '<div style="margin-top:14px;display:flex;align-items:center;gap:8px;">' +
                     '<input id="qr_one_to_one_inp" type="checkbox" style="width:16px;height:16px;">' +
@@ -946,10 +946,6 @@ var getstate =function(obj){
                         var templateId = $('#qr_tpl_id').val();
                         var remark = $.trim($('#qr_remark_inp').val());
                         var oneToOne = $('#qr_one_to_one_inp').prop('checked') ? 1 : 0;
-                        if (!remark) {
-                            layer.msg('请填写客户名称', {icon: 2});
-                            return false;
-                        }
                         var tplImage = '';
                         for (var j = 0; j < res.data.length; j++) {
                             if (String(res.data[j].id) === String(templateId)) {

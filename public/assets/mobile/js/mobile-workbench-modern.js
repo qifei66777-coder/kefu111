@@ -191,8 +191,6 @@
             + '<p class="qr-poster__subtitle">— 欢迎咨询在线客服 —</p>'
             + '<div class="qr-poster__badge">服务时间：全天24小时</div>'
             + '<div class="qr-poster__qr-card"><div id="mqr-canvas-host"></div></div>'
-            + '<div class="qr-poster__remark">' + html(remark) + '</div>'
-            + (oneToOne ? '<div class="qr-poster__one-tag">一客户一码 · 仅首次扫码者可用</div>' : '')
             + '<div class="qr-poster__url">' + html(url) + '</div>'
             + '<div class="qr-poster__footer"><div class="qr-poster__avatar">👩‍💼</div></div>'
             + '<button id="mqr-copy-btn" type="button" class="qr-poster__copy-btn">复制链接</button>'
@@ -246,15 +244,15 @@
     function openChannelCreator(mode) {
         if (!window.layer) return;
         var content = '<div style="padding:16px 16px 4px;">'
-            + '<label style="display:block;font-size:13px;color:#0f172a;margin-bottom:6px;">客户名称 <span style="color:#dc2626;">*</span></label>'
-            + '<input id="mWbChRemark" type="text" placeholder="将显示为该客户名字" maxlength="100" '
+            + '<label style="display:block;font-size:13px;color:#0f172a;margin-bottom:6px;">备注 <span style="color:#94a3b8;font-weight:400;">（可选）</span></label>'
+            + '<input id="mWbChRemark" type="text" placeholder="例如：抖音客户A / 展会客户 / 渠道1" maxlength="100" '
             + 'style="width:100%;padding:11px 12px;border:1px solid #e0e6ee;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;">'
             + '<div style="margin-top:14px;display:flex;align-items:center;gap:8px;">'
             + '<input id="mWbChOne" type="checkbox" style="width:16px;height:16px;">'
             + '<label for="mWbChOne" style="font-size:13px;color:#374151;">一客户一码（仅首次扫码者可用）</label>'
             + '</div>'
             + buildThemeSelector()
-            + '<div style="margin-top:8px;font-size:11px;color:#94a3b8;">备注名即扫码客户的名字，建议填写客户真实姓名</div>'
+            + '<div style="margin-top:8px;font-size:11px;color:#94a3b8;">仅用于内部识别此二维码，不展示给扫码客户</div>'
             + '</div>';
         layer.open({
             type: 1,
@@ -264,10 +262,6 @@
             btn: ['生成', '取消'],
             yes: function (idx) {
                 var remark = $.trim($('#mWbChRemark').val());
-                if (!remark) {
-                    layer.msg('请填写客户名称');
-                    return false;
-                }
                 var oneToOne = $('#mWbChOne').prop('checked') ? 1 : 0;
                 var theme = $('#mWbThemeSelector .qp-theme-option.is-selected').attr('data-theme') || 'blue';
                 $.ajax({
@@ -349,7 +343,8 @@
         }
         var output = '';
         $.each(rows, function (_, item) {
-            var name = item.remark || '未命名';
+            var name = item.remark || '';
+            var remarkDisplay = name ? name : '未填写备注';
             var scanCount = item.scan_count || 0;
             var lastScan = item.last_scan_time || '';
             var createdAt = item.created_at || '';
@@ -371,7 +366,7 @@
             var themeTagClass = 'tag-' + posterTheme;
             output += '<div class="mobile-qr-card" data-url="' + html(url) + '" data-remark="' + html(name) + '" data-one="' + (item.one_to_one || 0) + '" data-theme="' + html(posterTheme) + '">'
                 + '<div class="mobile-qr-card-head">'
-                + '<div class="mobile-qr-card-name">' + html(name) + '</div>'
+                + '<div class="mobile-qr-card-name">' + html(remarkDisplay) + '</div>'
                 + '<span class="mobile-qr-card-status ' + statusClass + '">' + statusLabel + '</span>'
                 + '</div>'
                 + '<div class="mobile-qr-card-meta">'
