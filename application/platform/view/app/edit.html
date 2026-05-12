@@ -98,6 +98,34 @@
     }
     #login-input .eyes:hover { opacity: 1; }
     .custom-control-description { font-size: 13px; color: #374151; }
+
+    @media (max-width: 768px) {
+        .add-form-body { padding: 4px 0 8px; }
+        .add-form-body .form-group {
+            flex-direction: column;
+            gap: 4px;
+        }
+        .add-form-body .add-label {
+            width: auto;
+            flex: none;
+            text-align: left;
+            padding-top: 0;
+            padding-bottom: 2px;
+            font-size: 13px;
+        }
+        .add-form-body .form-input { width: 100%; }
+        .input-group { flex-wrap: nowrap; }
+        .input-group .form-control { min-width: 0; flex: 1; }
+        .input-group .upload a {
+            white-space: nowrap;
+            border-radius: 0 10px 10px 0 !important;
+        }
+        .preview { width: 100%; max-width: 196px; }
+        .add-form-body .form-submit {
+            justify-content: center;
+            gap: 10px;
+        }
+    }
 </style>
 
 <form method="post" return="{:url('app/index')}" action="{$action_url}" class="auto-form">
