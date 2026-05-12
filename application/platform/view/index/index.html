@@ -1,34 +1,58 @@
-<div class="my-app">
-    <div class="left"><a href="javascript:" class="btn btn-sm btn-primary mr-3 add-app" >投诉信息</a></div>
-</div>
-<table class="table bg-white app-list">
-    <thead>
-    <tr style="font-size: 13px;color: #555555">
-        <th>ID</th>
-        <th>投诉类型</th>
-        <th>投诉内容</th>
-        <th>联系信息</th>
-        <th>来源商家</th>
-        <!--<th>操作</th>-->
-    </tr>
-    </thead>
+<style>
+.pf-page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 12px; }
+.pf-page-title { font-size: 18px; font-weight: 700; color: #0f172a; }
+.pf-page-tag {
+    display: inline-block; padding: 4px 12px; border-radius: 999px;
+    background: #fef2f2; color: #dc2626; font-size: 12px; font-weight: 600;
+    margin-left: 10px;
+}
+.pf-card { background: #fff; border-radius: 18px; box-shadow: 0 4px 20px rgba(15,23,42,.06); overflow: hidden; }
+.pf-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #374151; }
+.pf-table thead th { background: #f8fafc; padding: 13px 16px; font-weight: 600; color: #64748b; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+.pf-table tbody td { padding: 14px 16px; border-bottom: 1px solid #f8fafc; vertical-align: top; line-height: 1.6; }
+.pf-table tbody tr:last-child td { border-bottom: none; }
+.pf-table tbody tr:hover td { background: #f8fafc; }
+.pf-badge-id { display: inline-block; background: #f1f5f9; color: #64748b; border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 600; }
+.pf-type-tag { display: inline-block; padding: 3px 10px; border-radius: 6px; background: #fef3c7; color: #d97706; font-size: 12px; font-weight: 600; }
+.pf-contact { color: #2563eb; font-weight: 500; }
+.pf-merchant { color: #475569; font-size: 12px; }
+.pf-content { color: #475569; word-break: break-word; max-width: 400px; }
+.pf-empty-state { text-align: center; padding: 48px; color: #94a3b8; font-size: 14px; }
+.pf-pagination { padding: 14px 20px; display: flex; justify-content: center; }
+</style>
 
-    {if condition="empty(count($list))"}
-    <tr>
-        <td colspan="5" class="text-center p-5">
-            <span class="text-muted">暂无相关投诉信息</span>
-        </td>
-    </tr>
-    {/if}
-    
-    {volist name="list" id="vo"}
-    <tr>
-        <td>{$vo.id}</td>
-        <td>{$reporttype[$vo['type']]}</td>
-        <td>{$vo.content}</td>
-        <td>{$vo.contact}</td>
-        <td>{$vo.business.business_name}</td>
-    </tr>
-    {/volist}
-</table>
-{$page}
+<div class="pf-page-header">
+    <div>
+        <span class="pf-page-title">投诉信息</span>
+        <span class="pf-page-tag">用户反馈</span>
+    </div>
+</div>
+
+<div class="pf-card">
+    <table class="pf-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>投诉类型</th>
+                <th>投诉内容</th>
+                <th>联系信息</th>
+                <th>来源商家</th>
+            </tr>
+        </thead>
+        <tbody>
+        {if condition="empty(count($list))"}
+            <tr><td colspan="5"><div class="pf-empty-state">暂无投诉信息</div></td></tr>
+        {/if}
+        {volist name="list" id="vo"}
+        <tr>
+            <td><span class="pf-badge-id">{$vo.id}</span></td>
+            <td><span class="pf-type-tag">{$reporttype[$vo['type']]}</span></td>
+            <td><div class="pf-content">{$vo.content}</div></td>
+            <td><span class="pf-contact">{$vo.contact}</span></td>
+            <td><span class="pf-merchant">{$vo.business.business_name}</span></td>
+        </tr>
+        {/volist}
+        </tbody>
+    </table>
+    <div class="pf-pagination">{$page}</div>
+</div>

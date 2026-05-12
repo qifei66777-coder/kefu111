@@ -20,16 +20,19 @@
         $('.mobile-workbench-tab').removeClass('is-active');
         $('.mobile-workbench-tab[data-tab="' + tab + '"]').addClass('is-active');
 
-        if (tab === 'chat') {
-            window.chatSwiper.slideTo(0, 0);
-            $('.mobile-workbench-plus').show();
-        } else if (tab === 'blacklist') {
-            window.chatSwiper.slideTo(2, 0);
+        if (tab === 'blacklist') {
+            $('#MobileBlacklistPanel').addClass('is-overlay-active');
             $('.mobile-workbench-plus').hide();
             loadBlacklist();
-        } else if (tab === 'my') {
-            window.chatSwiper.slideTo($('.swiper-slide').length - 1, 0);
-            $('.mobile-workbench-plus').hide();
+        } else {
+            $('#MobileBlacklistPanel').removeClass('is-overlay-active');
+            if (tab === 'chat') {
+                try { window.chatSwiper.slideTo(0, 0); } catch (e) {}
+                $('.mobile-workbench-plus').show();
+            } else if (tab === 'my') {
+                try { window.chatSwiper.slideTo($('.swiper-slide').length - 1, 0); } catch (e) {}
+                $('.mobile-workbench-plus').hide();
+            }
         }
     }
 
@@ -169,6 +172,92 @@
         };
     }
 
+    function showChannelResult(url, remark, oneToOne) {
+        var contentHtml = '<div id="mqr-result-wrap" style="padding:18px 16px 8px;text-align:center;background:#fff;">'
+            + '<div style="font-size:15px;color:#0f172a;margin-bottom:6px;font-weight:600;">' + html(remark) + '</div>'
+            + (oneToOne ? '<div style="font-size:11px;color:#ea580c;margin-bottom:10px;">一客户一码 · 仅首次扫码者可用</div>' : '')
+            + '<div id="mqr-canvas-host" style="display:flex;justify-content:center;margin:10px 0;"></div>'
+            + '<p style="margin-top:8px;font-size:11px;color:#64748b;word-break:break-all;padding:0 8px;line-height:1.5;">' + html(url) + '</p>'
+            + '<button id="mqr-copy-btn" type="button" style="margin:8px 0 12px;background:#1677ff;color:#fff;border:none;border-radius:10px;padding:9px 26px;font-size:14px;cursor:pointer;">复制链接</button>'
+            + '</div>';
+        layer.open({
+            type: 1,
+            title: '专属接待二维码',
+            area: ['88%', 'auto'],
+            content: contentHtml,
+            success: function () {
+                if (typeof AraleQRCode !== 'undefined') {
+                    var host = document.getElementById('mqr-canvas-host');
+                    if (host) {
+                        try {
+                            host.appendChild(new AraleQRCode({ render: 'canvas', text: url, size: 200, background: '#fff', foreground: '#000' }));
+                        } catch (e) {
+                            host.innerHTML = '<div style="color:#94a3b8;font-size:12px;">二维码生成失败，请使用链接</div>';
+                        }
+                    }
+                }
+                $(document).off('click.mqr').on('click.mqr', '#mqr-copy-btn', function () {
+                    copyText(url).then(function () { layer.msg('已复制'); });
+                });
+            }
+        });
+    }
+
+    function openChannelCreator(mode) {
+        if (!window.layer) return;
+        var content = '<div style="padding:16px 16px 4px;">'
+            + '<label style="display:block;font-size:13px;color:#0f172a;margin-bottom:6px;">客户名称 <span style="color:#dc2626;">*</span></label>'
+            + '<input id="mWbChRemark" type="text" placeholder="将显示为该客户名字" maxlength="100" '
+            + 'style="width:100%;padding:11px 12px;border:1px solid #e0e6ee;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;">'
+            + '<div style="margin-top:14px;display:flex;align-items:center;gap:8px;">'
+            + '<input id="mWbChOne" type="checkbox" style="width:16px;height:16px;">'
+            + '<label for="mWbChOne" style="font-size:13px;color:#374151;">一客户一码（仅首次扫码者可用）</label>'
+            + '</div>'
+            + '<div style="margin-top:8px;font-size:11px;color:#94a3b8;">备注名即扫码客户的名字，建议填写客户真实姓名</div>'
+            + '</div>';
+        layer.open({
+            type: 1,
+            title: mode === 'link' ? '生成接待链接' : '生成接待二维码',
+            area: ['88%', 'auto'],
+            content: content,
+            btn: ['生成', '取消'],
+            yes: function (idx) {
+                var remark = $.trim($('#mWbChRemark').val());
+                if (!remark) {
+                    layer.msg('请填写客户名称');
+                    return false;
+                }
+                var oneToOne = $('#mWbChOne').prop('checked') ? 1 : 0;
+                $.ajax({
+                    url: rootUrl('/admin/qrchannel/create'),
+                    type: 'post',
+                    dataType: 'json',
+                    data: { remark: remark, template_id: 0, one_to_one: oneToOne },
+                    success: function (res) {
+                        if (!res || res.code !== 0) {
+                            layer.msg((res && res.msg) ? res.msg : '生成失败');
+                            return;
+                        }
+                        layer.close(idx);
+                        var url = res.data && res.data.url ? res.data.url : '';
+                        if (!url) {
+                            layer.msg('链接生成异常');
+                            return;
+                        }
+                        if (mode === 'link') {
+                            copyText(url).then(function () { layer.msg('链接已复制：' + remark); });
+                        } else {
+                            showChannelResult(url, remark, oneToOne);
+                        }
+                    },
+                    error: function () { layer.msg('网络错误'); }
+                });
+                return false;
+            }
+        });
+        setTimeout(function () { $('#mWbChRemark').focus(); }, 80);
+    }
+
     function handleAction(action) {
         if (action === 'cancel') {
             closeActions();
@@ -176,38 +265,17 @@
         }
 
         if (action === 'copy-link') {
-            var link = (window.MOBILE_WORKBENCH_CONFIG && window.MOBILE_WORKBENCH_CONFIG.receptionLink) || '';
-            copyText(link).then(function () {
-                if (window.layer) {
-                    layer.msg('接待链接已复制');
-                }
-            });
+            closeActions();
+            openChannelCreator('link');
         } else if (action === 'qrcode') {
-            var link = (window.MOBILE_WORKBENCH_CONFIG && window.MOBILE_WORKBENCH_CONFIG.receptionLink) || '';
-            if (!link) {
-                if (window.layer) layer.msg('暂无接待链接');
-            } else if (typeof AraleQRCode !== 'undefined') {
-                var wrap = $('<div style="text-align:center;padding:16px 20px 8px;"></div>');
-                var node = new AraleQRCode({ render: 'canvas', text: link, size: 220, background: '#fff', foreground: '#000' });
-                wrap.append(node);
-                wrap.append('<p style="margin-top:10px;font-size:12px;color:#666;word-break:break-all;">' + link + '</p>');
-                wrap.append('<button id="mqr-copy-btn" style="margin-top:8px;background:#1677ff;color:#fff;border:none;border-radius:4px;padding:6px 20px;font-size:13px;cursor:pointer;">复制链接</button>');
-                var idx = layer.open({ type: 1, title: '接待二维码', content: wrap, area: ['280px', 'auto'] });
-                $(document).one('click', '#mqr-copy-btn', function () {
-                    copyText(link).then(function () { layer.msg('已复制'); });
-                });
-            } else {
-                copyText(link).then(function () {
-                    if (window.layer) layer.msg('接待链接已复制（二维码库未加载）');
-                });
-            }
+            closeActions();
+            openChannelCreator('qr');
         } else if (action === 'new-chat') {
-            var link = (window.MOBILE_WORKBENCH_CONFIG && window.MOBILE_WORKBENCH_CONFIG.receptionLink) || '';
-            if (link) {
-                window.open(link, '_blank');
-            }
+            closeActions();
+            openChannelCreator('qr');
+        } else {
+            closeActions();
         }
-        closeActions();
     }
 
     function openNicknameEditor() {
@@ -331,6 +399,8 @@
         });
         $input.trigger('click');
     }
+
+    window.showTab = showTab;
 
     $(function () {
         $('.mobile-workbench-tab').on('click', function () {

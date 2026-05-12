@@ -4,11 +4,47 @@
     .qr-toolbar { margin-bottom: 12px; }
     .qr-toolbar .layui-input-inline { margin-right: 8px; margin-bottom: 8px; }
     #qr-preview-box { text-align: center; padding: 12px 0; }
+    .qr-create-form .layui-form-item { margin-bottom: 14px; }
+    .qr-create-form label.layui-form-label { width: 90px; }
+    .qr-create-form .layui-input-block { margin-left: 100px; }
 </style>
 <script type="text/javascript" src="/assets/js/arale-qrcode.js"></script>
 <div id="container" class="adm-content-shell">
     <h2 class="page-header" style="font-size: 18px;color: #555;">二维码渠道管理</h2>
-    <p style="color:#888;font-size:13px;margin:8px 0 16px;">手动访问接口示例：<code>{:url('admin/qrchannel/channelList')}</code>（需登录后 AJAX 调用）</p>
+    <div style="margin-bottom:12px;">
+        <button type="button" class="layui-btn layui-btn-sm" id="btn-create-channel">+ 创建渠道</button>
+    </div>
+
+    <!-- 创建渠道弹窗内容 -->
+    <div id="create-channel-form" style="display:none;padding:20px 24px 8px;">
+        <form class="layui-form qr-create-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">备注名称 <span style="color:red">*</span></label>
+                <div class="layui-input-block">
+                    <input type="text" id="cr_remark" placeholder="客户名称，扫码后将作为访客显示名" class="layui-input" autocomplete="off" maxlength="100">
+                    <div style="color:#999;font-size:12px;margin-top:4px;">该备注即扫码客户的名字，建议填写客户真实姓名</div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">模板</label>
+                <div class="layui-input-block">
+                    <select id="cr_template">
+                        <option value="0">默认模板（无特殊外观）</option>
+                        {volist name="templates" id="tp"}
+                        <option value="{$tp.id}">{$tp.template_name}</option>
+                        {/volist}
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">一对一模式</label>
+                <div class="layui-input-block" style="padding-top:8px;">
+                    <input type="checkbox" id="cr_one_to_one" lay-skin="primary" title="启用（该链接只允许首次访问的客户使用，其他人扫码将被拒绝）">
+                    <div style="color:#999;font-size:12px;margin-top:4px;">启用后，该链接仅限首次扫码的访客使用，实现"一客户一码"</div>
+                </div>
+            </div>
+        </form>
+    </div>
 
     <form class="layui-form qr-toolbar" lay-filter="qr-filter" onsubmit="return false;">
         <div class="layui-input-inline" style="width:140px;">
@@ -58,6 +94,9 @@
     <a class="layui-btn layui-btn-xs layui-btn-normal" lay-event="copy">复制链接</a>
     <a class="layui-btn layui-btn-xs layui-btn-primary" lay-event="download">下载</a>
     <a class="layui-btn layui-btn-xs" lay-event="logs">扫码记录</a>
+    {{# if(d.one_to_one == 1 && d.locked_visiter_id){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="unlock">解锁</a>
+    {{# } }}
     {{# if(d.status == 1){ }}
     <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="off">禁用</a>
     {{# } else if(d.status == 0){ }}
@@ -75,6 +114,69 @@ layui.use(['table', 'form', 'layer', 'laydate'], function () {
     laydate.render({ elem: '#f_start', type: 'date' });
     laydate.render({ elem: '#f_end', type: 'date' });
 
+    // 创建渠道
+    $('#btn-create-channel').on('click', function () {
+        $('#cr_remark').val('');
+        $('#cr_template').val('0');
+        document.getElementById('cr_one_to_one').checked = false;
+        layer.open({
+            type: 1,
+            title: '创建二维码渠道',
+            area: ['480px', 'auto'],
+            content: $('#create-channel-form'),
+            btn: ['生成二维码', '取消'],
+            success: function () {
+                form.render('select');
+                form.render('checkbox');
+            },
+            yes: function (idx) {
+                var remark = $.trim($('#cr_remark').val());
+                if (!remark) {
+                    layer.msg('请填写备注名称（客户名字）', { icon: 2 });
+                    return false;
+                }
+                var templateId = $('#cr_template').val() || '0';
+                var oneToOne = document.getElementById('cr_one_to_one').checked ? 1 : 0;
+                $.ajax({
+                    url: YMWL_ROOT_URL + '/admin/qrchannel/create',
+                    type: 'post',
+                    dataType: 'json',
+                    data: { remark: remark, template_id: templateId, one_to_one: oneToOne },
+                    success: function (res) {
+                        if (res.code !== 0) {
+                            layer.msg(res.msg || '创建失败', { icon: 2 });
+                            return;
+                        }
+                        layer.close(idx);
+                        reload();
+                        var url = res.data.url || '';
+                        var html = '<div style="padding:16px;">'
+                            + '<p style="margin-bottom:10px;font-size:13px;">渠道已创建！以下链接即为该客户的专属入口：</p>'
+                            + '<div id="new-qr-box" style="text-align:center;margin:12px 0;"></div>'
+                            + '<p style="word-break:break-all;font-size:12px;color:#555;background:#f5f5f5;padding:8px;border-radius:4px;">' + url + '</p>'
+                            + '<button class="layui-btn layui-btn-sm layui-btn-normal" onclick="(function(){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(\'' + url.replace(/'/g, "\\'") + '\').then(function(){layui.layer.msg(\'已复制\')}).catch(function(){prompt(\'复制链接\',\'' + url.replace(/'/g, "\\'") + '\')});}else{prompt(\'复制链接\',\'' + url.replace(/'/g, "\\'") + '\');}})()">复制链接</button>'
+                            + '</div>';
+                        layer.open({
+                            type: 1,
+                            title: '创建成功 - ' + remark,
+                            area: ['400px', 'auto'],
+                            content: html,
+                            success: function () {
+                                setTimeout(function () {
+                                    var box = document.getElementById('new-qr-box');
+                                    if (box && url) {
+                                        box.appendChild(new AraleQRCode({ render: 'canvas', correctLevel: 0, text: url, size: 200, background: '#fff', foreground: '#000' }));
+                                    }
+                                }, 50);
+                            }
+                        });
+                    },
+                    error: function () { layer.msg('请求失败，请稍后再试', { icon: 2 }); }
+                });
+            }
+        });
+    });
+
     var tableIns = table.render({
         elem: '#qr-channel-table',
         url: YMWL_ROOT_URL + '/admin/qrchannel/channelList',
@@ -89,6 +191,13 @@ layui.use(['table', 'form', 'layer', 'laydate'], function () {
             }},
             { field: 'template_name', title: '模板', width: 120 },
             { field: 'scan_count', title: '扫码次数', width: 100 },
+            { field: 'one_to_one', title: '一对一', width: 80, templet: function (d) {
+                if (d.one_to_one == 1) {
+                    var locked = d.locked_visiter_id ? '<span style="color:green">已锁定</span>' : '<span style="color:orange">待锁定</span>';
+                    return locked;
+                }
+                return '—';
+            }},
             { field: 'last_scan_time', title: '最后扫码', width: 160 },
             { field: 'status', title: '状态', width: 90, templet: function (d) {
                 if (d.status == 1) return '<span style="color:green">启用</span>';
@@ -209,6 +318,16 @@ layui.use(['table', 'form', 'layer', 'laydate'], function () {
                 $.post(YMWL_ROOT_URL + '/admin/qrchannel/channelDelete', { id: d.channel_id }, function (res) {
                     layer.close(idx);
                     if (res.code === 0) { layer.msg('已删除'); reload(); }
+                    else { layer.msg(res.msg || '失败', { icon: 2 }); }
+                }, 'json');
+            });
+            return;
+        }
+        if (obj.event === 'unlock') {
+            layer.confirm('解锁后该链接可被新访客使用，确定？', function (idx) {
+                $.post(YMWL_ROOT_URL + '/admin/qrchannel/channelUnlock', { id: d.channel_id }, function (res) {
+                    layer.close(idx);
+                    if (res.code === 0) { layer.msg('已解锁'); reload(); }
                     else { layer.msg(res.msg || '失败', { icon: 2 }); }
                 }, 'json');
             });

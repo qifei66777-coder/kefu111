@@ -1,101 +1,109 @@
 <link href="__style__/jquery.datetimepicker.min.css?v=__lkversion__" rel="stylesheet">
 <style>
-    form {
-        position: relative;
-    }
-
+    form { position: relative; }
     .form-disable {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, .75);
-        z-index: 10;
-        text-align: center;
-        padding: 50px 0;
+        position: absolute; inset: 0; z-index: 10;
+        background: rgba(255, 255, 255, .85);
+        text-align: center; padding: 50px 0;
+        border-radius: 18px;
     }
-
+    .form-disable .alert { display: inline-block; }
     .new-account {
-        padding: 0 32px;
-        height: 56px;
-        line-height: 56px;
-        font-size: 13px;
-        color: #555555;
-        border: 0;
-        border-bottom: 1px solid #f7f7f7;
-        background-color: #fff;
+        padding: 14px 28px;
+        font-size: 14px;
+        color: #0f172a;
+        font-weight: 700;
+        background: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
+        border-radius: 18px 18px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
-
     .account-info {
-        float: right;
-        width: auto;
+        font-size: 12px;
+        color: #94a3b8;
+        font-weight: 400;
     }
-
+    .account-info span {
+        color: #2563eb;
+        font-weight: 700;
+        margin: 0 2px;
+    }
     .form-control:disabled, .form-control[readonly] {
-        opacity: .5;
+        opacity: .65;
+        background: #f8fafc;
     }
-
-    .new-account .account-info {
-        color: #999999;
+    .card-body { padding: 24px 32px 8px; }
+    .form-group.row { margin-bottom: 18px; align-items: flex-start; }
+    .account-label {
+        padding-top: 8px !important;
+        font-size: 13px !important;
+        color: #475569 !important;
+        font-weight: 500;
+        text-align: right;
     }
-
-    .new-account .account-info span {
-        color: #05202d;
+    .account-label span {
+        display: inline; font-size: inherit; color: inherit;
+        width: auto; text-align: inherit;
     }
-
-    .account-label span{
-        display: inline-block;
-        font-size: 13px;
-        color: #999999;
-        width: 80px;
-        text-align: left;
-    }
-
     label.required.account-label::before {
-        left: 100px;
+        content: '*';
+        color: #ef4444;
+        margin-right: 4px;
     }
-
-    .choose-date {
-        height: 20px;
-        width: 20px;
-        margin: 0 4px 0 16px;
-        cursor: pointer;
+    .form-input { max-width: 520px; }
+    .form-input .form-control { width: 100%; }
+    .text-muted.fs-sm {
+        margin-top: 6px;
+        font-size: 12px;
+        color: #94a3b8 !important;
+        max-width: 100%;
     }
-
+    .text-muted { width: auto; }
+    .choose-date { display: none; }
+    .form-inline { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .form-inline .form-control { width: auto; min-width: 200px; }
+    .custom-control-description { font-size: 13px; color: #374151; }
     .auto-form-btn {
-        padding: 0;
-        margin-left: 120px;
-        height: 32px;
-        line-height: 32px;
-        width: 66px;
-        border-radius: 16px;
+        margin: 8px 0 0;
+        padding: 0 24px !important;
+        height: 38px !important;
+        line-height: 38px !important;
+        width: auto !important;
+        border-radius: 10px !important;
         font-size: 13px;
+        font-weight: 600;
         color: #fff;
-        background-color: #05202d;
-        border: 1px solid #05202d;
+        background-color: #2563eb !important;
+        border: 1px solid #2563eb !important;
+        box-shadow: 0 6px 16px rgba(37, 99, 235, .25);
     }
-
-    #login-input {
-        position: relative;
+    .auto-form-btn:hover {
+        background-color: #1d4ed8 !important;
+        color: #fff;
+        transform: translateY(-1px);
     }
-
+    #login-input { position: relative; }
     #login-input .eyes {
         position: absolute;
-        top: 7px;
-        left: 580px;
-        width: 22px;
-        height: 22px;
+        top: 9px;
+        right: 14px;
+        left: auto;
+        width: 20px;
+        height: 20px;
         cursor: pointer;
+        opacity: .55;
     }
-
-    .text-muted {
-        width: 300px;
+    #login-input .eyes:hover { opacity: 1; }
+    .custom-checkbox {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-right: 18px;
+        padding: 4px 0;
     }
-
-    .modal-dialog {
-        margin-top: 20%;
-    }
+    .modal-dialog { margin-top: 5%; }
 </style>
 
 <form method="post" return="{:url('user/index')}" class="auto-form card">

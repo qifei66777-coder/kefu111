@@ -6,100 +6,266 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
     <link rel="shortcut icon" href="/favicon.ico">
-    <title>总后台管理登录</title>
-    <link href="/assets/login/css/login-modern.css?v=__lkversion__" rel="stylesheet">
-</head>
-<body class="login-modern login-modern-platform">
-<main class="login-shell">
-    <section class="login-brand-panel">
-        <div class="login-brand-mark">
-            {if condition="!empty($option['logo'])"}
-            <img src="{$option['logo']}" alt="{$option['title']?$option['title']:'客服系统'}">
-            {else/}
-            <span class="login-text-logo">来客客服</span>
-            {/if}
-        </div>
-        <p class="login-eyebrow">SaaS Admin Console</p>
-        <h1>统一管理数据中心、员工、渠道和系统运营配置。</h1>
-        <p class="login-brand-desc">保留原有账号体系和登录跳转逻辑，取消图形验证码，让后台入口更清爽、更适配移动宽度。</p>
-        <div class="login-feature-grid">
-            <span>数据看板</span>
-            <span>员工管理</span>
-            <span>渠道配置</span>
-            <span>安全运营</span>
-        </div>
-    </section>
+    <title>栗子集团 · 总后台登录</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; min-height: 100%; }
+        body {
+            min-height: 100vh;
+            font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, "Microsoft YaHei", Arial, sans-serif;
+            color: #fff8f1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 20px 60px;
+            background:
+                radial-gradient(circle at 15% 15%, rgba(201, 138, 81, .28), transparent 38%),
+                radial-gradient(circle at 85% 85%, rgba(176, 137, 104, .26), transparent 38%),
+                linear-gradient(135deg, #3e2723 0%, #5d4037 38%, #6f4e37 66%, #8d6e63 100%);
+        }
+        .kc-login-card {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 248, 241, .98);
+            border-radius: 22px;
+            box-shadow: 0 30px 80px rgba(62, 39, 35, .45), 0 0 0 1px rgba(255, 248, 241, .12);
+            padding: 36px 30px 28px;
+            color: #3e2723;
+            text-align: center;
+        }
+        .kc-login-mark {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            margin: 0 auto 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #c98a51 0%, #b08968 100%);
+            color: #fff;
+            font-size: 28px;
+            font-weight: 800;
+            box-shadow: 0 14px 28px rgba(201, 138, 81, .4);
+        }
+        .kc-login-brand {
+            font-size: 20px;
+            font-weight: 800;
+            color: #3e2723;
+            letter-spacing: .04em;
+            margin: 0;
+        }
+        .kc-login-sub {
+            margin: 4px 0 24px;
+            font-size: 13px;
+            color: #8d6e63;
+            letter-spacing: .15em;
+        }
+        .kc-login-title {
+            font-size: 14px;
+            color: #6f4e37;
+            margin: 0 0 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px dashed rgba(141, 110, 99, .3);
+            letter-spacing: .04em;
+        }
+        .kc-field {
+            display: block;
+            text-align: left;
+            margin-bottom: 14px;
+        }
+        .kc-field span {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6f4e37;
+            margin-bottom: 6px;
+            letter-spacing: .05em;
+        }
+        .kc-field input, .kc-field select {
+            width: 100%;
+            height: 44px;
+            padding: 0 14px;
+            border: 1.5px solid #e2d5c5;
+            border-radius: 12px;
+            background: #fff;
+            font-size: 14px;
+            color: #3e2723;
+            outline: none;
+            transition: border .18s, box-shadow .18s;
+        }
+        .kc-field input:focus, .kc-field select:focus {
+            border-color: #c98a51;
+            box-shadow: 0 0 0 3px rgba(201, 138, 81, .18);
+        }
+        .kc-submit {
+            width: 100%;
+            height: 46px;
+            margin-top: 6px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6f4e37 0%, #5d4037 50%, #3e2723 100%);
+            color: #fff8f1;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            cursor: pointer;
+            box-shadow: 0 12px 24px rgba(62, 39, 35, .35);
+            transition: transform .12s, box-shadow .18s;
+        }
+        .kc-submit:hover { transform: translateY(-1px); box-shadow: 0 16px 32px rgba(62, 39, 35, .45); }
+        .kc-submit:active { transform: translateY(0); }
+        .kc-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 14px;
+        }
+        .kc-actions a {
+            color: #8d6e63;
+            font-size: 13px;
+            text-decoration: none;
+        }
+        .kc-actions a:hover { color: #6f4e37; }
+        .kc-copy {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 16px;
+            margin: 0;
+            padding: 0 12px;
+            color: rgba(255, 248, 241, .6);
+            font-size: 11px;
+            text-align: center;
+        }
+        .kc-error {
+            min-height: 18px;
+            margin: -8px 0 8px;
+            color: #c0392b;
+            font-size: 12px;
+            text-align: left;
+        }
 
-    <section class="login-card">
-        <div class="login-card-head">
-            <p class="login-eyebrow">Sign in</p>
-            <h2>总后台管理登录</h2>
-            <p>{$option['title']?$option['title']:'请输入管理员账号和密码。'}</p>
+        /* 找回密码弹窗 */
+        .login-modal { display: none; position: fixed; inset: 0; z-index: 9999; }
+        .login-modal[aria-hidden="false"] { display: block; }
+        .login-modal-mask { position: absolute; inset: 0; background: rgba(62, 39, 35, .5); }
+        .login-modal-card {
+            position: relative;
+            margin: 4vh auto;
+            max-width: 380px;
+            background: #fff8f1;
+            border-radius: 18px;
+            padding: 24px 28px;
+            color: #3e2723;
+            box-shadow: 0 30px 80px rgba(62, 39, 35, .5);
+        }
+        .login-modal-close {
+            position: absolute; top: 12px; right: 14px;
+            background: transparent; border: 0; color: #8d6e63;
+            font-size: 22px; cursor: pointer;
+        }
+        .login-modal-card h2 { margin: 4px 0 6px; font-size: 18px; color: #3e2723; }
+        .login-modal-card p { margin: 0 0 18px; color: #8d6e63; font-size: 13px; }
+
+        @media (max-width: 480px) {
+            body { padding: 16px 14px 56px; }
+            .kc-login-card { padding: 28px 20px 22px; border-radius: 18px; }
+            .kc-login-mark { width: 56px; height: 56px; font-size: 24px; margin-bottom: 12px; }
+            .kc-login-brand { font-size: 18px; }
+            .kc-login-sub { margin-bottom: 18px; font-size: 12px; }
+            .kc-login-title { margin-bottom: 14px; padding-bottom: 12px; }
+            .kc-field { margin-bottom: 12px; }
+            .kc-field input, .kc-field select { height: 42px; font-size: 16px; }
+            .kc-submit { height: 44px; font-size: 14px; }
+            .login-modal-card { margin: 4vh 12px; padding: 20px 18px; border-radius: 14px; }
+        }
+        @media (max-height: 600px) {
+            .kc-login-card { padding: 22px 22px 18px; }
+            .kc-login-mark { width: 52px; height: 52px; font-size: 22px; margin-bottom: 10px; }
+            .kc-login-brand { font-size: 17px; }
+            .kc-login-sub { margin-bottom: 14px; }
+            .kc-login-title { margin-bottom: 14px; padding-bottom: 10px; }
+            .kc-field { margin-bottom: 10px; }
+            .kc-field input, .kc-field select { height: 40px; }
+            .kc-submit { height: 42px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="kc-login-card">
+        {if condition="!empty($option['logo'])"}
+        <div class="kc-login-mark" style="background:#fff8f1;padding:6px;">
+            <img src="{$option['logo']}" alt="logo" style="max-width:100%;max-height:100%;">
         </div>
-        <form class="login-form js-modern-login-form" method="post" action="{:url('platform/passport/login')}" data-success-code="0" data-success-url="{:url('platform/user/me')}">
-            <label class="login-field">
+        {else/}
+        <div class="kc-login-mark">栗</div>
+        {/if}
+        <p class="kc-login-brand">栗子集团</p>
+        <p class="kc-login-sub">《总后台管理》</p>
+        <p class="kc-login-title">{$option['title']?$option['title']:'管理员登录入口'}</p>
+        <form class="js-modern-login-form" method="post" action="{:url('platform/passport/login')}" data-success-code="0" data-success-url="{:url('platform/user/me')}">
+            <label class="kc-field">
                 <span>管理员账号</span>
                 <input class="username" name="username" autocomplete="username" placeholder="请输入管理员账号">
             </label>
-            <label class="login-field">
+            <label class="kc-field">
                 <span>登录密码</span>
                 <input class="password" name="password" type="password" autocomplete="current-password" placeholder="请输入登录密码">
             </label>
-            <button class="login-submit" type="submit">登录总后台</button>
+            <div class="kc-error login-form-error" style="display:none;"></div>
+            <button class="kc-submit login-submit" type="submit">登 录</button>
         </form>
-        <div class="login-card-actions">
+        <div class="kc-actions">
             <a href="javascript:" data-open-reset>忘记密码</a>
             {if condition="$option['open_register'] == 1"}
             <a href="{:url('platform/passport/register')}">注册账号</a>
             {/if}
         </div>
-        <p class="login-copyright">
-            {if condition="!empty($option['copyright']) || $option['copyright'] != ''"}{$option['copyright']}{else/}Powered by 来客PHP在线客服系统{/if}
-        </p>
-    </section>
-</main>
+    </div>
+    <p class="kc-copy">
+        {if condition="!empty($option['copyright']) || $option['copyright'] != ''"}{$option['copyright']}{else/}© 栗子集团 · 总后台管理系统{/if}
+    </p>
 
-<div class="login-modal" id="resetPassword" aria-hidden="true">
-    <div class="login-modal-mask" data-close-reset></div>
-    <div class="login-modal-card">
-        <button class="login-modal-close" type="button" data-close-reset>×</button>
-        <div class="login-card-head">
-            <p class="login-eyebrow">Reset Password</p>
+    <div class="login-modal" id="resetPassword" aria-hidden="true">
+        <div class="login-modal-mask" data-close-reset></div>
+        <div class="login-modal-card">
+            <button class="login-modal-close" type="button" data-close-reset>×</button>
             <h2>找回密码</h2>
             <p>已绑定手机号的账户可通过短信验证码重置密码。</p>
+            <form id="send_sms_code_form" action="{:url('sendsms')}">
+                <label class="kc-field">
+                    <span>绑定手机号</span>
+                    <input name="mobile" placeholder="请输入绑定手机号">
+                </label>
+                <div class="kc-error send-sms-code-error" style="display:none;"></div>
+                <button type="submit" class="kc-submit send-sms-code">发送短信验证码</button>
+            </form>
+            <form id="reset_password_form" action="{:url('resetPassword')}" style="display:none;margin-top:8px;">
+                <label class="kc-field">
+                    <span>选择账户</span>
+                    <select name="admin_id"></select>
+                </label>
+                <label class="kc-field">
+                    <span>短信验证码</span>
+                    <input name="sms_code" placeholder="请输入短信验证码">
+                </label>
+                <label class="kc-field">
+                    <span>新密码</span>
+                    <input type="password" name="password" placeholder="请输入新密码">
+                </label>
+                <label class="kc-field">
+                    <span>确认新密码</span>
+                    <input type="password" name="password2" placeholder="请再次输入新密码">
+                </label>
+                <div class="kc-error reset-password-error" style="display:none;"></div>
+                <button type="submit" class="kc-submit reset-password">重置密码</button>
+            </form>
         </div>
-        <form id="send_sms_code_form" class="login-form" action="{:url('sendsms')}">
-            <label class="login-field">
-                <span>绑定手机号</span>
-                <input name="mobile" placeholder="请输入绑定手机号">
-            </label>
-            <div class="login-form-error send-sms-code-error"></div>
-            <button type="submit" class="login-submit send-sms-code">发送短信验证码</button>
-        </form>
-        <form id="reset_password_form" class="login-form" action="{:url('resetPassword')}" style="display:none">
-            <label class="login-field">
-                <span>选择账户</span>
-                <select name="admin_id"></select>
-            </label>
-            <label class="login-field">
-                <span>短信验证码</span>
-                <input name="sms_code" placeholder="请输入短信验证码">
-            </label>
-            <label class="login-field">
-                <span>新密码</span>
-                <input type="password" name="password" placeholder="请输入新密码">
-            </label>
-            <label class="login-field">
-                <span>确认新密码</span>
-                <input type="password" name="password2" placeholder="请再次输入新密码">
-            </label>
-            <div class="login-form-error reset-password-error"></div>
-            <button type="submit" class="login-submit reset-password">重置密码</button>
-        </form>
     </div>
-</div>
 
-<script src="__libs__/jquery/jquery.min.js?v=__lkversion__"></script>
-<script src="/assets/login/js/login-modern.js?v=__lkversion__"></script>
+    <script src="__libs__/jquery/jquery.min.js?v=__lkversion__"></script>
+    <script src="/assets/login/js/login-modern.js?v=__lkversion__"></script>
 </body>
 </html>

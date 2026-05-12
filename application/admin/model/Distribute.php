@@ -51,6 +51,19 @@ class Distribute
             }
         }
         reset($service_data);
+
+        // 最终兜底：忽略分组，返回该商户任意客服（避免 groupid 不匹配导致分配失败）
+        if (empty($service_data)) {
+            $anyWhere = ['business_id' => $business_id];
+            if ($state !== null) {
+                $anyWhere['state'] = $state;
+            }
+            $anyServices = self::getList($anyWhere);
+            if ($anyServices) {
+                self::sort($anyServices, $service_data);
+            }
+        }
+
         return $service_data;
     }
 

@@ -123,6 +123,7 @@ class Qrchannel extends Base
         $login = session('Msg');
         $templateId = intval($this->request->post('template_id', 0));
         $remark = trim($this->request->post('remark', ''));
+        $oneToOne = intval($this->request->post('one_to_one', 0)) ? 1 : 0;
 
         if ($templateId > 0) {
             $template = Db::name('qr_templates')
@@ -148,6 +149,8 @@ class Qrchannel extends Base
             'remark' => htmlspecialchars($remark),
             'status' => 1,
             'scan_count' => 0,
+            'one_to_one' => $oneToOne,
+            'locked_visiter_id' => '',
             'last_scan_time' => 0,
             'create_time' => $now,
             'update_time' => $now,
@@ -314,6 +317,28 @@ class Qrchannel extends Base
         }
 
         return json(['code' => 0, 'msg' => '操作成功']);
+    }
+
+    /**
+     * 解锁一对一渠道（清空 locked_visiter_id）
+     */
+    public function channelUnlock()
+    {
+        $login = session('Msg');
+        $id = (int) $this->request->post('id', 0);
+        if ($id <= 0) {
+            return json(['code' => 1, 'msg' => '参数错误']);
+        }
+        $q = Db::name('qr_channels')->where('id', $id)->where('business_id', (int) $login['business_id']);
+        if (isset($login['level']) && $login['level'] === 'service') {
+            $q->where('service_id', (int) $login['service_id']);
+        }
+        $ok = $q->update(['locked_visiter_id' => '', 'update_time' => time()]);
+        if ($ok === false) {
+            return json(['code' => 1, 'msg' => '操作失败']);
+        }
+
+        return json(['code' => 0, 'msg' => '已解锁']);
     }
 
     /**
@@ -944,21 +969,23 @@ class Qrchannel extends Base
         }
 
         return [
-            'channel_id'     => (int) $r['id'],
-            'business_id'    => (int) $r['business_id'],
-            'service_id'     => (int) $r['service_id'],
-            'service_user'   => isset($r['service_user_name']) ? $r['service_user_name'] : '',
-            'service_nick'   => isset($r['service_nick_name']) ? $r['service_nick_name'] : '',
-            'template_id'    => $tid,
-            'template_name'  => $tplName,
-            'remark'         => $r['remark'],
-            'qr_url'         => $r['url'],
-            'qr_image'       => $tplImg,
-            'scan_count'     => (int) $r['scan_count'],
-            'status'         => (int) $r['status'],
-            'created_at'     => !empty($r['create_time']) ? date('Y-m-d H:i:s', (int) $r['create_time']) : '',
-            'updated_at'     => !empty($r['update_time']) ? date('Y-m-d H:i:s', (int) $r['update_time']) : '',
-            'last_scan_time' => !empty($r['last_scan_time']) ? date('Y-m-d H:i:s', (int) $r['last_scan_time']) : '',
+            'channel_id'        => (int) $r['id'],
+            'business_id'       => (int) $r['business_id'],
+            'service_id'        => (int) $r['service_id'],
+            'service_user'      => isset($r['service_user_name']) ? $r['service_user_name'] : '',
+            'service_nick'      => isset($r['service_nick_name']) ? $r['service_nick_name'] : '',
+            'template_id'       => $tid,
+            'template_name'     => $tplName,
+            'remark'            => $r['remark'],
+            'qr_url'            => $r['url'],
+            'qr_image'          => $tplImg,
+            'scan_count'        => (int) $r['scan_count'],
+            'one_to_one'        => (int) (isset($r['one_to_one']) ? $r['one_to_one'] : 0),
+            'locked_visiter_id' => isset($r['locked_visiter_id']) ? $r['locked_visiter_id'] : '',
+            'status'            => (int) $r['status'],
+            'created_at'        => !empty($r['create_time']) ? date('Y-m-d H:i:s', (int) $r['create_time']) : '',
+            'updated_at'        => !empty($r['update_time']) ? date('Y-m-d H:i:s', (int) $r['update_time']) : '',
+            'last_scan_time'    => !empty($r['last_scan_time']) ? date('Y-m-d H:i:s', (int) $r['last_scan_time']) : '',
         ];
     }
 

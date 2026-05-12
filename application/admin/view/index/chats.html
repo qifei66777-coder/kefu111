@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="/assets/css/rich-reply.css?v=__lkversion__"/>
 <link rel="stylesheet" href="/assets/admin-chat/css/workbench-modern.css?v=__lkversion__"/>
 <script type="text/javascript" src="__libs__/webrtc/recorder.js?v=__lkversion__"></script>
-<div id="container" class="wb-root wb-modern-shell" style="background-color: #eef1f6;overflow: hidden">
+<div id="container" class="wb-root wb-modern-shell" style="background:transparent;overflow:hidden;">
     <header class="wb-mobile-topbar">
         <div class="wb-mobile-profile">
             <img class="wb-mobile-avatar" src="{$arr['avatar']}" alt="">
@@ -913,9 +913,14 @@ var getstate =function(obj){
                     opts += '<option value="' + t.id + '">' + (t.template_name || '模板') + '</option>';
                 }
                 var html = '<div style="padding:16px 20px;">' +
-                    '<p style="margin-bottom:6px;">选择模板</p><select id="qr_tpl_id" class="layui-input" style="height:36px;">' + opts + '</select>' +
-                    '<p style="margin:12px 0 6px;">备注（展示在访客侧名称，可空）</p>' +
-                    '<textarea id="qr_remark_inp" class="layui-textarea" placeholder="选填" style="min-height:72px;"></textarea>' +
+                    '<p style="margin-bottom:6px;">客户名称 <span style="color:#dc2626">*</span></p>' +
+                    '<input id="qr_remark_inp" type="text" class="layui-input" placeholder="该名称将作为扫码客户的显示名" maxlength="100" style="height:36px;">' +
+                    '<p style="margin:12px 0 6px;color:#94a3b8;font-size:12px;">建议填写客户真实姓名，便于后续识别</p>' +
+                    '<p style="margin:14px 0 6px;">选择模板</p><select id="qr_tpl_id" class="layui-input" style="height:36px;">' + opts + '</select>' +
+                    '<div style="margin-top:14px;display:flex;align-items:center;gap:8px;">' +
+                    '<input id="qr_one_to_one_inp" type="checkbox" style="width:16px;height:16px;">' +
+                    '<label for="qr_one_to_one_inp" style="font-size:13px;color:#374151;cursor:pointer;">一客户一码（仅首次扫码者可用）</label>' +
+                    '</div>' +
                     '<div id="qr-channel-wrap" style="margin-top:16px;text-align:center;min-height:120px;"></div>' +
                     '<p id="qr-channel-link" style="margin-top:10px;word-break:break-all;font-size:12px;color:#666;"></p>' +
                     '<div style="text-align:center;margin-top:10px;">' +
@@ -925,10 +930,11 @@ var getstate =function(obj){
                 var idx = layer.open({
                     type: 1,
                     title: '新建二维码会话',
-                    area: ['440px', '560px'],
+                    area: ['460px', '580px'],
                     content: html,
                     btn: ['生成链接与二维码', '关闭'],
                     success: function () {
+                        setTimeout(function () { $('#qr_remark_inp').focus(); }, 50);
                         $('#qr-copy-btn').on('click', function () {
                             var v = $('#qr-channel-link').attr('data-url');
                             if (v) {
@@ -938,7 +944,12 @@ var getstate =function(obj){
                     },
                     yes: function () {
                         var templateId = $('#qr_tpl_id').val();
-                        var remark = $('#qr_remark_inp').val();
+                        var remark = $.trim($('#qr_remark_inp').val());
+                        var oneToOne = $('#qr_one_to_one_inp').prop('checked') ? 1 : 0;
+                        if (!remark) {
+                            layer.msg('请填写客户名称', {icon: 2});
+                            return false;
+                        }
                         var tplImage = '';
                         for (var j = 0; j < res.data.length; j++) {
                             if (String(res.data[j].id) === String(templateId)) {
@@ -950,7 +961,7 @@ var getstate =function(obj){
                             url: YMWL_ROOT_URL + '/admin/qrchannel/create',
                             type: 'POST',
                             dataType: 'json',
-                            data: { template_id: templateId, remark: remark },
+                            data: { template_id: templateId, remark: remark, one_to_one: oneToOne },
                             success: function (r) {
                                 if (!r || r.code !== 0) {
                                     layer.msg((r && r.msg) ? r.msg : '生成失败', {icon: 2});

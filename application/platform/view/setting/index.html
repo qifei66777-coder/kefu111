@@ -1,83 +1,86 @@
 <style>
-    form {
-        position: relative;
-    }
-
-    .form-input .upload a{
-        width: 80px;
-        height: 36px;
-        background-color: #2E9FFF;
-        line-height: 36px;
-        padding: 0;
-        border-color: #2E9FFF;
-        border-top-right-radius: 8px!important;
-        border-bottom-right-radius: 8px!important;
-    }
-
-    .preview {
-        display: block;
-        height: 72px;
-        width: 196px;
-        position: relative;
-        background-color: #f7f7f7;  
-    }
-
-    .logo-preview {
-        display: block;
-        height: 72px;        
-    }
-
-    .logo-preview img {
-        height: 100%;
-    }
-
-    .preview .upload-preview-tip {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        margin-top: 30px;
-        width: 196px;
-        text-align: center;
-        color: #bbbbbb;
-        font-size: 12px;
-        z-index: 2;
-    }
-
-    .preview img {
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 72px;
-        display: block;
-        z-index: 3;
-    }
-
-    .submit-btn {
-        padding: 0;
-        height: 32px;
-        line-height: 32px;
-        width: 66px;
-        border-radius: 16px;
-        font-size: 13px;
-        color: #fff;
-        background-color: #05202d;
-        border: 1px solid #05202d;
-    }
+.pf-page-title { font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 18px; }
+.pf-section-card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 24px 28px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, .06);
+}
+.pf-section-card h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 6px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.pf-section-card h3 .pf-section-icon {
+    width: 24px; height: 24px; border-radius: 7px;
+    background: #eff6ff; color: #2563eb;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px;
+}
+.pf-section-card .pf-section-desc {
+    font-size: 12px;
+    color: #94a3b8;
+    margin: 8px 0 18px;
+}
+.pf-section-card .form-group.row { margin-bottom: 18px; padding-top: 18px; }
+.pf-section-card .form-group.row:first-of-type { padding-top: 0; }
+.pf-section-card .col-form-label { padding-top: 8px; }
+.pf-section-card .form-input { width: 100%; max-width: 480px; }
+.preview {
+    display: block;
+    height: 72px;
+    width: 196px;
+    position: relative;
+    border-radius: 10px !important;
+    background: #f8fafc !important;
+    border: 1px dashed #e2e8f0;
+    overflow: hidden;
+}
+.logo-preview { display: block; height: 72px; border-radius: 10px; overflow: hidden; }
+.logo-preview img { height: 100%; }
+.preview .upload-preview-tip {
+    position: absolute; top: 0; left: 0; right: 0;
+    margin-top: 30px; width: 196px; text-align: center;
+    color: #94a3b8; font-size: 12px; z-index: 2;
+}
+.preview img {
+    position: absolute; left: 0; top: 0;
+    height: 72px; display: block; z-index: 3;
+}
+.pf-save-bar {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(to top, #f4f7fb 70%, rgba(244,247,251,0));
+    padding: 16px 0 4px;
+    text-align: center;
+    z-index: 5;
+}
 </style>
 
+<div class="pf-page-title">系统设置</div>
+
 <form method="post" return="{:url('platform/setting/index')}" class="auto-submit-form">
-    <div class="card-body">
-        <div style="margin-bottom: 24px;"><b>基础配置</b></div>
+    <div class="pf-section-card">
+        <h3><span class="pf-section-icon">⚙</span>基础配置</h3>
+        <p class="pf-section-desc">站点品牌、版权、登录页相关的展示信息</p>
+
         <div class="form-group row">
             <label class="col-sm-3 col-form-label">网站名称</label>
-            <div class="form-input">
+            <div class="col-sm-9 form-input">
                 <input class="form-control" value="{$option['title']}" name="title">
             </div>
         </div>
-        <div class="form-group row" style="height: 120px;">
-            <label class="col-sm-3 col-form-label">LOGO图片URL</label>
-            <div class="form-input">
+
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">LOGO 图片</label>
+            <div class="col-sm-9 form-input">
                 <div class="input-group mb-2">
                     <input class="form-control" value="{$option['logo']}" name="logo">
                     <span class="input-group-btn upload">
@@ -85,9 +88,9 @@
                     </span>
                 </div>
                 {if condition="empty($option['logo'])"}
-                    <div class="preview">
-                        <span class="upload-preview-tip">建议尺寸98&times;36</span>
-                    </div>
+                <div class="preview">
+                    <span class="upload-preview-tip">建议尺寸 98 × 36</span>
+                </div>
                 {else}
                 <div class="logo-preview">
                     <img src="{$option['logo']}">
@@ -95,10 +98,11 @@
                 {/if}
             </div>
         </div>
+
         <div class="form-group row">
             <label class="col-sm-3 col-form-label">业务域名验证文件</label>
-            <div class="form-input">
-                <div class="input-group mb-2">
+            <div class="col-sm-9 form-input">
+                <div class="input-group">
                     <input class="form-control" value="{$option['mp_verify']}" name="mp_verify">
                     <span class="input-group-btn upload">
                         <a class="btn btn-secondary mp_verify" href="javascript:">上传文件</a>
@@ -109,103 +113,97 @@
 
         <div class="form-group row">
             <label class="col-sm-3 col-form-label">底部版权信息</label>
-            <div class="form-input">
-                <input class="form-control" value="{:htmlspecialchars($option['copyright'])}"
-                       name="copyright">
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">是否开启注册</label>
-            <div class="form-input">
-                <select class="form-control" name="regist" >
-                    <option value="1" <?php if(isset($option['regist']) && $option['regist']==1){echo 'selected';} ?>>开启注册</option>
-                    <option value="0" <?php if(!isset($option['regist']) || $option['regist']==0){echo 'selected';} ?>>关闭注册</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">注册账户有效期</label>
-            <div class="form-input">
-                <input class="form-control" value="{$option['regist_expire']|default=7}" name="regist_expire">
-                <div class="text-muted fs-sm">自动注册账户有效期，0表示永久，单位天</div>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-3 col-form-label">注册可创建客服数</label>
-            <div class="form-input">
-                <input class="form-control" value="{$option['regist_crnum']|default=1}" name="regist_crnum">
-                <div class="text-muted fs-sm">注册客服可创建的客服数量（包括注册客服）</div>
+            <div class="col-sm-9 form-input">
+                <input class="form-control" value="{:htmlspecialchars($option['copyright'])}" name="copyright">
             </div>
         </div>
 
-        <div class="form-group row" style="height: 120px;">
+        <div class="form-group row">
             <label class="col-sm-3 col-form-label">登录页背景图</label>
-            <div class="form-input">
+            <div class="col-sm-9 form-input">
                 <div class="input-group mb-2">
                     <input class="form-control" value="{$option['passport_bg']}" name="passport_bg">
                     <span class="input-group-btn upload">
                         <a class="btn btn-secondary upload-passport-btn" href="javascript:">上传图片</a>
                     </span>
                 </div>
-<!--                 <div style="display: inline-block;background: #fff;border: 1px solid #e3e3e3">
-                    <img src="{$option['passport_bg']}" class="passport-preview"
-                         style="height: 50px;width: auto;display: inline-block" alt="请上传图片">
-                </div> -->
                 <div class="preview">
-                    <span class="upload-preview-tip">建议尺寸1920&times;1080</span>
+                    <span class="upload-preview-tip">建议尺寸 1920 × 1080</span>
                     {if condition="!empty($option['passport_bg'])"}
-                        <img style="width: 196px" src="{$option['passport_bg']}" class="passport-preview">
+                    <img style="width: 196px" src="{$option['passport_bg']}" class="passport-preview">
                     {/if}
                 </div>
             </div>
         </div>
+    </div>
 
+    <div class="pf-section-card">
+        <h3><span class="pf-section-icon">👥</span>注册配置</h3>
+        <p class="pf-section-desc">控制新用户能否自助注册及默认配额</p>
 
-
-        <hr>
-        <div class="mb-3">
-            <div style="margin-bottom: 6px;"><b>短信配置（阿里云）</b></div>
-            <div class="text-muted fs-sm">用于已设置手机号的账户修改密码</div>
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">是否开启注册</label>
+            <div class="col-sm-9 form-input">
+                <select class="form-control" name="regist">
+                    <option value="1" <?php if(isset($option['regist']) && $option['regist']==1){echo 'selected';} ?>>开启注册</option>
+                    <option value="0" <?php if(!isset($option['regist']) || $option['regist']==0){echo 'selected';} ?>>关闭注册</option>
+                </select>
+            </div>
         </div>
+
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">注册账户有效期</label>
+            <div class="col-sm-9 form-input">
+                <input class="form-control" value="{$option['regist_expire']|default=7}" name="regist_expire">
+                <div class="text-muted fs-sm">自动注册账户的有效期（天），0 表示永久</div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-3 col-form-label">注册可创建客服数</label>
+            <div class="col-sm-9 form-input">
+                <input class="form-control" value="{$option['regist_crnum']|default=1}" name="regist_crnum">
+                <div class="text-muted fs-sm">注册客服可创建的客服数量（包括注册客服）</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pf-section-card">
+        <h3><span class="pf-section-icon">✉</span>短信配置（阿里云）</h3>
+        <p class="pf-section-desc">用于已绑定手机号的账户重置密码</p>
+
         <div class="form-group row">
             <label class="col-sm-3 col-form-label">AccessKeyId</label>
-            <div class="col-sm-6">
-                <input class="form-control" value="{$option['ind_sms']['aliyun']['access_key_id']}"
-                       name="ind_sms[aliyun][access_key_id]">
+            <div class="col-sm-9 form-input">
+                <input class="form-control" value="{$option['ind_sms']['aliyun']['access_key_id']}" name="ind_sms[aliyun][access_key_id]">
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-3 col-form-label">AccessKeySecret</label>
-            <div class="col-sm-6">
-                <input class="form-control" value="{$option['ind_sms']['aliyun']['access_key_secret']}"
-                       name="ind_sms[aliyun][access_key_secret]">
+            <div class="col-sm-9 form-input">
+                <input class="form-control" value="{$option['ind_sms']['aliyun']['access_key_secret']}" name="ind_sms[aliyun][access_key_secret]">
             </div>
         </div>
         <div class="form-group row">
             <label class="col-sm-3 col-form-label">短信签名</label>
-            <div class="col-sm-6">
-                <input class="form-control" value="{$option['ind_sms']['aliyun']['sign']}"
-                       name="ind_sms[aliyun][sign]">
+            <div class="col-sm-9 form-input">
+                <input class="form-control" value="{$option['ind_sms']['aliyun']['sign']}" name="ind_sms[aliyun][sign]">
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-sm-3 col-form-label">验证码模板ID</label>
-            <div class="col-sm-6">
-                <input class="form-control" value="{$option['ind_sms']['aliyun']['tpl_id']}"
-                       name="ind_sms[aliyun][tpl_id]">
-                <div class="text-muted fs-sm">模板示例：您的验证码是${code}</div>
+            <label class="col-sm-3 col-form-label">验证码模板 ID</label>
+            <div class="col-sm-9 form-input">
+                <input class="form-control" value="{$option['ind_sms']['aliyun']['tpl_id']}" name="ind_sms[aliyun][tpl_id]">
+                <div class="text-muted fs-sm">模板示例：您的验证码是 ${code}</div>
             </div>
         </div>
+    </div>
 
-        <div class="form-group row">
-            <label class="col-sm-3"></label>
-            <div class="form-input offset-sm-3">
-                <a class="btn btn-primary submit-btn" href="javascript:">保存</a>
-            </div>
-        </div>
-
+    <div class="pf-save-bar">
+        <a class="btn btn-primary submit-btn" href="javascript:">保存设置</a>
     </div>
 </form>
+
 <script>
     $('.upload-btn').plupload({
         url: "{:url('upload/image')}",
@@ -214,11 +212,7 @@
             if (res.code == 0) {
                 $('input[name=logo]').val(res.data.url);
                 $('.logo-preview').attr('src', res.data.url);
-            } else {
-                $.myToast({
-                    content: res.msg,
-                });
-            }
+            } else { $.myToast({ content: res.msg }); }
         },
     });
 
@@ -228,11 +222,7 @@
             res = JSON.parse(res);
             if (res.code == 0) {
                 $('input[name=mp_verify]').val(res.data.url);
-            } else {
-                $.myToast({
-                    content: res.msg,
-                });
-            }
+            } else { $.myToast({ content: res.msg }); }
         },
     });
 
@@ -243,11 +233,7 @@
             if (res.code == 0) {
                 $('input[name=passport_bg]').val(res.data.url);
                 $('.passport-preview').attr('src', res.data.url);
-            } else {
-                $.myToast({
-                    content: res.msg,
-                });
-            }
+            } else { $.myToast({ content: res.msg }); }
         },
     });
 </script>

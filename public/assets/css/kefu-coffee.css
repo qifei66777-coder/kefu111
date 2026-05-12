@@ -1,0 +1,408 @@
+/* 栗子集团 · 客服专用 咖啡色主题
+   使用：在 body 上加 class="kefu-coffee" 启用；
+   覆盖范围：客服端登录、注册、工作台、移动客服台。 */
+
+:root {
+    --coffee-1: #3e2723;
+    --coffee-2: #5d4037;
+    --coffee-3: #6f4e37;
+    --coffee-4: #8d6e63;
+    --coffee-5: #b08968;
+    --coffee-cream: #efe5d6;
+    --coffee-foam: #fff8f1;
+    --coffee-text: #f5e6d3;
+    --coffee-accent: #c98a51;
+}
+
+/* ── 全局咖啡背景 ── */
+body.kefu-coffee {
+    background:
+        radial-gradient(circle at 15% 15%, rgba(201, 138, 81, .25), transparent 35%),
+        radial-gradient(circle at 85% 85%, rgba(176, 137, 104, .22), transparent 35%),
+        linear-gradient(135deg, #3e2723 0%, #5d4037 38%, #6f4e37 66%, #8d6e63 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--coffee-text);
+}
+
+/* ── 顶部品牌条（适用于工作台 / 移动端）── */
+.kefu-brand-strip {
+    height: 46px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: #fff8f1;
+    background: linear-gradient(90deg, rgba(62, 39, 35, .96) 0%, rgba(93, 64, 55, .96) 50%, rgba(111, 78, 55, .96) 100%);
+    box-shadow: 0 4px 18px rgba(62, 39, 35, .25);
+    font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, "Microsoft YaHei", sans-serif;
+    z-index: 9999;
+}
+.kefu-brand-strip .brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+}
+.kefu-brand-strip .brand-logo .brand-mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    background: linear-gradient(135deg, var(--coffee-accent), var(--coffee-5));
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+    font-weight: 900;
+    color: #fff;
+}
+.kefu-brand-strip .brand-name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+.kefu-brand-strip .brand-tag {
+    margin-left: 4px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgba(255, 248, 241, .14);
+    color: #fff8f1;
+    font-size: 11px;
+    letter-spacing: .08em;
+    border: 1px solid rgba(255, 248, 241, .18);
+}
+.kefu-brand-strip .brand-right {
+    font-size: 12px;
+    color: rgba(255, 248, 241, .68);
+    letter-spacing: .04em;
+}
+
+/* ── 登录页咖啡化（覆盖 login-modern） ── */
+body.kefu-coffee.login-modern {
+    background:
+        radial-gradient(circle at 15% 25%, rgba(201, 138, 81, .25), transparent 35%),
+        radial-gradient(circle at 85% 80%, rgba(176, 137, 104, .25), transparent 38%),
+        linear-gradient(135deg, #3e2723 0%, #5d4037 38%, #6f4e37 66%, #8d6e63 100%) !important;
+}
+body.kefu-coffee .login-brand-panel {
+    background:
+        linear-gradient(145deg, rgba(62, 39, 35, .94), rgba(111, 78, 55, .9)),
+        radial-gradient(circle at 20% 15%, rgba(201, 138, 81, .45), transparent 30%) !important;
+    border-color: rgba(255, 248, 241, .25) !important;
+    box-shadow: 0 30px 90px rgba(62, 39, 35, .28) !important;
+}
+body.kefu-coffee .login-brand-panel:after {
+    background: rgba(201, 138, 81, .18) !important;
+}
+body.kefu-coffee .login-brand-panel .login-eyebrow {
+    color: var(--coffee-accent) !important;
+    letter-spacing: .14em;
+}
+body.kefu-coffee .login-brand-mark {
+    background: rgba(255, 248, 241, .18) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 248, 241, .26) !important;
+    color: var(--coffee-cream);
+}
+body.kefu-coffee .login-feature-grid span {
+    background: rgba(255, 248, 241, .12) !important;
+    border: 1px solid rgba(255, 248, 241, .22) !important;
+    color: #fff8f1 !important;
+}
+body.kefu-coffee .login-card {
+    background: #fff !important;
+    box-shadow: 0 30px 80px rgba(62, 39, 35, .35) !important;
+    border: 1px solid rgba(176, 137, 104, .18) !important;
+}
+body.kefu-coffee .login-submit {
+    background: linear-gradient(135deg, var(--coffee-3), var(--coffee-2)) !important;
+    box-shadow: 0 12px 24px rgba(62, 39, 35, .3) !important;
+}
+body.kefu-coffee .login-submit:hover {
+    background: linear-gradient(135deg, var(--coffee-2), var(--coffee-1)) !important;
+    transform: translateY(-1px);
+}
+body.kefu-coffee .login-secondary-link {
+    color: var(--coffee-3) !important;
+}
+body.kefu-coffee .login-field input:focus {
+    border-color: var(--coffee-accent) !important;
+    box-shadow: 0 0 0 3px rgba(201, 138, 81, .15) !important;
+}
+
+/* ── 工作台咖啡化 ── */
+body.kefu-coffee.kefu-wb-page {
+    /* 内容区保持白底 + 卡片，仅页面外边咖啡色 */
+}
+body.kefu-coffee.kefu-wb-page .wb-rail,
+body.kefu-coffee.kefu-wb-page .wb-pane-side,
+body.kefu-coffee.kefu-wb-page .wb-pane-list {
+    background: rgba(255, 248, 241, .98);
+}
+body.kefu-coffee.kefu-wb-page .wb-rail-collapse,
+body.kefu-coffee.kefu-wb-page .wb-rail .wb-nav-item.is-active {
+    background: linear-gradient(135deg, var(--coffee-3), var(--coffee-2)) !important;
+    color: #fff !important;
+}
+body.kefu-coffee.kefu-wb-page .wb-btn-primary {
+    background: linear-gradient(135deg, var(--coffee-3), var(--coffee-2)) !important;
+    color: #fff8f1 !important;
+    border: none !important;
+    box-shadow: 0 6px 14px rgba(62, 39, 35, .25) !important;
+}
+body.kefu-coffee.kefu-wb-page .wb-btn-primary:hover {
+    background: linear-gradient(135deg, var(--coffee-2), var(--coffee-1)) !important;
+}
+
+/* ── 移动客服台咖啡化 ── */
+body.kefu-coffee .wechat__panel,
+body.kefu-coffee .wc__swiper-tabBar,
+body.kefu-coffee .wc__scrolling-panel,
+body.kefu-coffee .swiper-container,
+body.kefu-coffee .swiper-wrapper,
+body.kefu-coffee .swiper-slide {
+    background: transparent !important;
+}
+body.kefu-coffee .mobile-workbench-topbar {
+    background: linear-gradient(135deg, rgba(62, 39, 35, .98), rgba(93, 64, 55, .95)) !important;
+    color: #fff8f1 !important;
+    border-bottom: 1px solid rgba(201, 138, 81, .2) !important;
+}
+body.kefu-coffee .mobile-workbench-name {
+    color: #fff8f1 !important;
+}
+body.kefu-coffee .mobile-workbench-status {
+    color: rgba(255, 248, 241, .7) !important;
+}
+body.kefu-coffee .mobile-workbench-status span {
+    background: var(--coffee-accent) !important;
+}
+body.kefu-coffee .mobile-workbench-plus {
+    background: linear-gradient(135deg, var(--coffee-accent), var(--coffee-5)) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 10px rgba(62, 39, 35, .3) !important;
+}
+body.kefu-coffee .mobile-workbench-tabbar {
+    background: linear-gradient(135deg, rgba(62, 39, 35, .98), rgba(93, 64, 55, .95)) !important;
+    border-top: 1px solid rgba(201, 138, 81, .18) !important;
+}
+body.kefu-coffee .mobile-workbench-tab {
+    color: rgba(255, 248, 241, .68) !important;
+}
+body.kefu-coffee .mobile-workbench-tab.is-active {
+    background: linear-gradient(135deg, var(--coffee-accent), var(--coffee-5)) !important;
+    color: #fff !important;
+    font-weight: 700;
+}
+body.kefu-coffee .wc__recordChat-list ul li.mobile-chat-card,
+body.kefu-coffee .mobile-blacklist-card,
+body.kefu-coffee .wc__ucenter-list ul li .person-info,
+body.kefu-coffee .wc__ucenter-list ul li .person-item {
+    background: rgba(255, 248, 241, .98) !important;
+    box-shadow: 0 6px 20px rgba(62, 39, 35, .18) !important;
+}
+body.kefu-coffee .wc__ucenter-list ul li .item.person-info {
+    background: linear-gradient(135deg, var(--coffee-1), var(--coffee-3)) !important;
+}
+body.kefu-coffee .wc__ucenter-list ul li .item.quit {
+    background: rgba(255, 248, 241, .98) !important;
+    color: var(--coffee-1) !important;
+}
+body.kefu-coffee .wc__ucenter-list ul li .item.quit span {
+    color: var(--coffee-1) !important;
+}
+body.kefu-coffee .mobile-action-sheet {
+    background: #fff8f1 !important;
+}
+body.kefu-coffee .mobile-action-sheet button {
+    background: rgba(176, 137, 104, .12) !important;
+    color: var(--coffee-1) !important;
+}
+body.kefu-coffee .mobile-action-sheet button[data-action="cancel"],
+body.kefu-coffee .mobile-action-sheet button[data-wb-mobile-action="cancel"] {
+    background: rgba(220, 38, 38, .12) !important;
+    color: #c0392b !important;
+}
+
+/* 移动端品牌条：在 topbar 上方插入一层 */
+.kefu-mobile-brand {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 36px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff8f1;
+    background: linear-gradient(90deg, #3e2723 0%, #5d4037 50%, #6f4e37 100%);
+    box-shadow: 0 2px 10px rgba(62, 39, 35, .35);
+    font-size: 12px;
+    letter-spacing: .12em;
+    z-index: 10000;
+}
+.kefu-mobile-brand .brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--coffee-accent), var(--coffee-5));
+    font-size: 11px;
+    font-weight: 900;
+    margin-right: 8px;
+    color: #fff;
+}
+.kefu-mobile-brand .brand-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+.kefu-mobile-brand .brand-tag {
+    margin-left: 8px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(255, 248, 241, .14);
+    border: 1px solid rgba(255, 248, 241, .22);
+    font-size: 10px;
+    letter-spacing: .08em;
+}
+
+/* 移动客服台：把品牌合并进 topbar，不再额外占垂直空间 */
+body.kefu-coffee .mobile-workbench-topbar--coffee {
+    height: 78px !important;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(62, 39, 35, .98), rgba(93, 64, 55, .95)) !important;
+    color: #fff8f1 !important;
+    border-bottom: 1px solid rgba(201, 138, 81, .2) !important;
+}
+body.kefu-coffee .mobile-workbench-topbar--coffee .mobile-workbench-avatar {
+    border: 2px solid rgba(201, 138, 81, .55);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
+}
+body.kefu-coffee .mobile-workbench-topbar--coffee .mobile-workbench-profile {
+    min-width: 0;
+    flex: 1;
+}
+body.kefu-coffee .mobile-workbench-brand-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+    line-height: 1;
+}
+body.kefu-coffee .mw-brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 5px;
+    background: linear-gradient(135deg, var(--coffee-accent), var(--coffee-5));
+    font-size: 10px;
+    font-weight: 900;
+    color: #fff;
+    flex-shrink: 0;
+}
+body.kefu-coffee .mw-brand-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff8f1;
+    letter-spacing: .03em;
+}
+body.kefu-coffee .mw-brand-tag {
+    font-size: 9px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: rgba(255, 248, 241, .14);
+    border: 1px solid rgba(255, 248, 241, .22);
+    color: #fff8f1;
+    letter-spacing: .08em;
+}
+/* 把这些覆盖也用在 coffee topbar 里（顶替 mobile-workbench-modern.css 默认值） */
+body.kefu-coffee .mobile-workbench-topbar--coffee .mobile-workbench-name {
+    color: #fff8f1 !important;
+    font-size: 15px;
+    line-height: 1.2;
+}
+body.kefu-coffee .mobile-workbench-topbar--coffee .mobile-workbench-status {
+    color: rgba(255, 248, 241, .72) !important;
+    font-size: 11px;
+    margin-top: 2px;
+}
+body.kefu-coffee .mobile-workbench-topbar--coffee .mobile-workbench-status span {
+    background: var(--coffee-accent) !important;
+}
+body.kefu-coffee .mobile-workbench-topbar--coffee .mobile-workbench-plus {
+    background: linear-gradient(135deg, var(--coffee-accent), var(--coffee-5)) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 10px rgba(62, 39, 35, .3) !important;
+    align-self: center;
+}
+/* 配合更高 topbar，把内容区下移 */
+body.kefu-coffee .wc__swiper-tabBar {
+    padding-top: 78px !important;
+}
+
+/* ── PC 客服后台：品牌条占顶部 46px，把侧边栏和内容区都向下推 ── */
+body.kefu-coffee.adm-modern #layout-west {
+    top: 46px !important;
+    bottom: 0 !important;
+    height: calc(100vh - 46px) !important;
+}
+body.kefu-coffee.adm-modern #layout-center {
+    top: 46px !important;
+    bottom: 0 !important;
+    height: calc(100vh - 46px) !important;
+}
+/* admin-modern 把 body 设置成 overflow:hidden + position:fixed 子元素，
+   品牌条仍然是 fixed top:0，所以不会被 layout-center 遮住 */
+
+/* 工作台页面 (chats.html)：container 是 position:fixed inset:0，需要单独下推 */
+body.kefu-coffee.wb-modern .wb-root#container {
+    top: 46px !important;
+    inset: 46px 0 0 0 !important;
+    height: calc(100vh - 46px) !important;
+    max-height: calc(100vh - 46px) !important;
+    background: transparent !important;
+}
+body.kefu-coffee.adm-page-chats #container {
+    padding-top: 0 !important;
+}
+/* 工作台移动 topbar (PC 上隐藏，移动响应式才出现) 也下推 */
+body.kefu-coffee .wb-mobile-topbar {
+    top: 46px !important;
+}
+/* 侧边栏 logo 区背景跟咖啡主题对齐 */
+body.kefu-coffee #layout-menus-info {
+    background: linear-gradient(135deg, rgba(62, 39, 35, .95), rgba(111, 78, 55, .85)) !important;
+}
+
+/* 非工作台页面（仪表盘/客户/快捷回复/二维码/黑名单 等）：
+   admin-modern.css 定义 #container { height: calc(100vh - 57px) }，
+   品牌条占去 46px 后会被裁掉，必须重新计算 */
+body.kefu-coffee.adm-modern:not(.adm-page-chats) #container {
+    padding-top: 0 !important;
+    height: calc(100vh - 46px - 57px) !important;
+}
+body.kefu-coffee.adm-modern:not(.adm-page-chats) .am-cf,
+body.kefu-coffee.adm-modern:not(.adm-page-chats) .am-panel,
+body.kefu-coffee.adm-modern:not(.adm-page-chats) .am-form-group {
+    background: rgba(255, 248, 241, .98);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(62, 39, 35, .15);
+}
+
+/* 顶栏吸顶到 layout-center 顶部，z-index 高一档避免被内容遮 */
+body.kefu-coffee.adm-modern #layout-north.adm-topbar {
+    background: rgba(255, 248, 241, .96) !important;
+    border-bottom: 1px solid rgba(176, 137, 104, .15);
+}
+
+/* layout-west 顶部信息栏：删掉旧深色背景的多余余 padding，让品牌条紧贴 */
+body.kefu-coffee.adm-modern #layout-menus-info {
+    border-bottom: 1px solid rgba(255, 248, 241, .12) !important;
+}

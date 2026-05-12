@@ -1,90 +1,130 @@
-<div class="row">
-    <div class="col-6 me-item">
-        <div class="left-info">
-            <div class="title">用户名</div>
-            <div>{$me.username}</div>
-        </div>
-        <div>
-            <img src="__image__/admin/A/username.png" alt="">
+<style>
+.pf-me-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 8px 0 40px;
+}
+.pf-me-hero {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+    border-radius: 20px;
+    padding: 32px 36px;
+    color: #fff;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+.pf-me-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+    letter-spacing: .04em;
+}
+.pf-me-hero-info h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 6px;
+}
+.pf-me-hero-info p {
+    font-size: 13px;
+    color: rgba(255,255,255,.72);
+    margin: 0;
+}
+.pf-me-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+@media (max-width: 540px) { .pf-me-grid { grid-template-columns: 1fr; } }
+.pf-me-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px 24px;
+    box-shadow: 0 2px 14px rgba(15,23,42,.06);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.pf-me-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+.pf-me-icon.blue  { background: #eff6ff; }
+.pf-me-icon.green { background: #f0fdf4; }
+.pf-me-icon.amber { background: #fffbeb; }
+.pf-me-icon.violet{ background: #f5f3ff; }
+.pf-me-label { font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+.pf-me-value { font-size: 16px; font-weight: 700; color: #0f172a; }
+.pf-me-value.highlight { color: #2563eb; }
+.pf-me-value.success  { color: #16a34a; }
+</style>
+
+<div class="pf-me-wrap">
+    <div class="pf-me-hero">
+        <div class="pf-me-avatar">{:mb_substr($me['username'], 0, 1, 'utf-8')}</div>
+        <div class="pf-me-hero-info">
+            <h2>{$me.username}</h2>
+            <p>
+                {if condition="!empty($me['mobile'])"}手机：{$me.mobile}{else/}未绑定手机号{/if}
+            </p>
         </div>
     </div>
-    <div class="col-6 me-item">
-        <div class="left-info">
-            <div class="title">手机号</div>
+
+    <div class="pf-me-grid">
+        <div class="pf-me-card">
+            <div class="pf-me-icon blue">👤</div>
             <div>
-                {if condition="!empty($me['mobile'])"}
-                    {$me.mobile}
-                    {else/}
-                    -
-                {/if}
+                <div class="pf-me-label">用户名</div>
+                <div class="pf-me-value">{$me.username}</div>
             </div>
         </div>
-        <div>
-            <img src="__image__/admin/A/mobile.png" alt="">
-        </div>
-    </div>
-    <div class="col-6 me-item">
-        <div class="left-info">
-            <div class="title">可创建客服系统数量</div>
+
+        <div class="pf-me-card">
+            <div class="pf-me-icon violet">📱</div>
             <div>
-                {eq name="me.app_max_count" value="0"}
-                    无限制
+                <div class="pf-me-label">手机号</div>
+                <div class="pf-me-value">
+                    {if condition="!empty($me['mobile'])"}
+                        {$me.mobile}
                     {else/}
-                    {$me.app_max_count}
-                {/eq}
+                        <span style="color:#94a3b8;font-weight:400">未绑定</span>
+                    {/if}
+                </div>
             </div>
         </div>
-        <div>
-            <img src="__image__/admin/A/number.png" alt="">
-        </div>
-    </div>
-    <div class="col-6 me-item">
-        <div class="left-info">
-            <div class="title">账户有效期</div>
+
+        <div class="pf-me-card">
+            <div class="pf-me-icon amber">🏢</div>
             <div>
-                {eq name="me.expire_time" value="0"}
-                    永久
-                    {else/}
-                    {$me.expire_time|date="y-m-d",###}
-                {/eq}
+                <div class="pf-me-label">可创建客服系统</div>
+                <div class="pf-me-value highlight">
+                    {eq name="me.app_max_count" value="0"}无限制{else/}{$me.app_max_count} 个{/eq}
+                </div>
             </div>
         </div>
-        <div>
-            <img src="__image__/admin/A/end_time.png" alt="">
+
+        <div class="pf-me-card">
+            <div class="pf-me-icon green">📅</div>
+            <div>
+                <div class="pf-me-label">账户有效期</div>
+                <div class="pf-me-value success">
+                    {eq name="me.expire_time" value="0"}永久{else/}{$me.expire_time|date="Y-m-d",###}{/eq}
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<style>
-    .row {
-        margin: 40px 0 0 0;
-        padding: 0 40px 150px;
-    }
-
-    .me-item {
-        padding: 0;
-        height: 130px;
-        margin-bottom: 40px;
-        font-size: 24px;
-        color: #555555;
-    }
-
-    .me-item .left-info {
-        float: left;
-        height: 130px;
-        padding-left: 40px;
-    }
-
-    .me-item img {
-        float: right;
-        height: 130px;
-        width: 174px;
-    }
-
-    .me-item .title {
-        font-size: 16px;
-        color: #999999;
-        margin-top: 36px;
-        margin-bottom: 2px;
-    }
-</style>

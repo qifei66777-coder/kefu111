@@ -319,28 +319,12 @@
     $(document).on('click', '[data-wb-mobile-action]', function () {
       var action = $(this).data('wb-mobile-action');
       wbCloseMobileActions();
-      if (action === 'qr') {
-        if (typeof window.openQrChannel === 'function') window.openQrChannel();
-      } else if (action === 'copy') {
-        $.ajax({
-          url: (window.YMWL_ROOT_URL || '') + '/admin/qrchannel/create',
-          type: 'post',
-          dataType: 'json',
-          data: { template_id: 0, remark: '' },
-          success: function (res) {
-            if (res && res.code === 0 && res.data && res.data.url) {
-              wbCopyText(res.data.url);
-            } else {
-              layer.msg((res && res.msg) || '生成接待链接失败', { icon: 2 });
-            }
-          },
-          error: function () {
-            layer.msg('生成接待链接失败', { icon: 2 });
-          }
-        });
-      } else if (action === 'new') {
-        wbMobileShow('chat');
-        $('body').removeClass('wb-mb-chat-open');
+      if (action === 'qr' || action === 'copy' || action === 'new') {
+        // 三个入口统一弹出"客户名称必填 + 一对一勾选"的渠道创建窗
+        // 创建后弹出二维码 + 链接，可一键复制
+        if (typeof window.openQrChannel === 'function') {
+          window.openQrChannel();
+        }
       }
     });
 

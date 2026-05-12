@@ -330,7 +330,6 @@ var init = function () {
                 data =res.data;
                 $("#img_head").attr('src',data.avatar);
                 $("#services").text(data.nick_name).attr('data',data.service_id);
-                console.log('触发postMessage发送问候语');
                 window.parent.postMessage({type:'greeting',data:data},'*');
                 if(data.state == 'online'){
                     $("#img_head").removeClass("icon_gray");

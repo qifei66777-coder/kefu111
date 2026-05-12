@@ -211,6 +211,14 @@ class Index extends Controller
         }
         cookie('visiter_id', $visiter_id, 63072000);
 
+        // 一对一模式：锁定到首个访客，其他人禁止进入
+        if (!empty($channel['one_to_one'])) {
+            $lockedVid = isset($channel['locked_visiter_id']) ? (string)$channel['locked_visiter_id'] : '';
+            if ($lockedVid !== '' && $lockedVid !== $visiter_id) {
+                return $this->kfchatNotice('link_used');
+            }
+        }
+
         $remark = isset($channel['remark']) ? (string) $channel['remark'] : '';
         $visiter_name = $remark !== '' ? mb_substr(trim(strip_tags($remark)), 0, 50, 'UTF-8') : '';
         if ($visiter_name === '') {
@@ -270,11 +278,16 @@ class Index extends Controller
             'scan_time'    => $now,
         ]);
 
-        Db::name('qr_channels')->where('id', $ch)->update([
+        $channelUpdateData = [
             'scan_count'     => intval($channel['scan_count']) + 1,
             'last_scan_time' => $now,
             'update_time'    => $now,
-        ]);
+        ];
+        // 一对一模式首次使用时锁定访客ID
+        if (!empty($channel['one_to_one']) && empty($channel['locked_visiter_id'])) {
+            $channelUpdateData['locked_visiter_id'] = $visiter_id;
+        }
+        Db::name('qr_channels')->where('id', $ch)->update($channelUpdateData);
 
         $service = Db::name('service')->where('service_id', intval($channel['service_id']))->find();
         $groupid = 0;
@@ -736,6 +749,10 @@ class Index extends Controller
                 'title' => '暂时无法接入',
                 'hint' => '当前网络无法连接客服，请更换网络或稍后再试。',
             ],
+            'link_used' => [
+                'title' => '链接已被使用',
+                'hint' => '该二维码已被他人使用，无法重复接入。请联系客服获取新的专属二维码。',
+            ],
         ];
         $m = isset($map[$reason]) ? $map[$reason] : [
             'title' => '无法进入对话',
@@ -749,6 +766,5 @@ class Index extends Controller
 
     public function test()
     {
-var_dump(url('weixin/login/callback','',true,true));
     }
 }

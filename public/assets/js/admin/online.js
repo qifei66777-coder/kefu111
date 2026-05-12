@@ -358,7 +358,10 @@ function getwatch(cha) {
     $.ajax({
         url:YMWL_ROOT_URL+"/admin/set/getwatch",
         type: "post",
-        data: {visiter_id: cha}
+        data: {visiter_id: cha},
+        success: function() {
+            getchat();
+        }
     });
 }
 

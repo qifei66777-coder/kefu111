@@ -280,6 +280,19 @@
     box-sizing: border-box;
 }
 
+#MobileBlacklistPanel.is-overlay-active {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: 78px;
+    z-index: 1001;
+    background: #f3f5f8;
+    overflow-y: auto;
+    display: block !important;
+    padding: 12px;
+}
+
 .mobile-blacklist-search {
     display: flex;
     gap: 8px;
@@ -426,6 +439,28 @@
     color: #e5484d;
 }
 
+/* ── P0-2: Mobile QR code popup fix ── */
+@media (max-width: 768px) {
+    .layui-layer {
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+    }
+    .layui-layer .layui-layer-content {
+        max-height: calc(90vh - 50px) !important;
+        overflow-y: auto !important;
+    }
+    #mqr-result-wrap {
+        max-height: calc(85vh - 80px);
+        overflow-y: auto;
+    }
+    #mqr-result-wrap img,
+    #mqr-result-wrap canvas,
+    #mqr-canvas-host canvas {
+        max-width: 200px !important;
+        height: auto !important;
+    }
+}
+
 @media (min-width: 431px) {
     .mobile-workbench-name {
         max-width: 280px;
@@ -434,4 +469,131 @@
     .mobile-chat-main .title {
         max-width: 260px;
     }
+}
+
+/* ── Profile / "我的" tab modernization ── */
+.wc__ucenter-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.wc__ucenter-list ul li {
+    margin-bottom: 12px;
+}
+
+/* Profile hero card — replace old BG.png with gradient */
+.wc__ucenter-list ul li .item.person-info {
+    position: relative;
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 55%, #3b82f6 100%);
+    height: 170px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 18px;
+}
+.wc__ucenter-list ul li .item.person-info .info-bg {
+    display: none !important;
+}
+.wc__ucenter-list ul li .item.person-info .uimg {
+    position: static !important;
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 18px !important;
+    border: 3px solid rgba(255,255,255,.45) !important;
+    margin: 0 0 10px !important;
+    top: auto !important;
+    left: auto !important;
+    margin-left: 0 !important;
+    object-fit: cover;
+}
+.wc__ucenter-list ul li .item.person-info .username {
+    position: static !important;
+    top: auto !important;
+    text-align: center;
+    color: #fff !important;
+    width: 100% !important;
+}
+.wc__ucenter-list ul li .item.person-info .username em {
+    display: block;
+    font-style: normal;
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 3px;
+}
+.wc__ucenter-list ul li .item.person-info .username i {
+    display: block;
+    font-style: normal;
+    font-size: 12px;
+    color: rgba(255,255,255,.72);
+}
+.wc__ucenter-list ul li .item.person-info .username i.mobile-mine-state {
+    display: block;
+    font-size: 12px;
+}
+
+/* Profile info rows */
+.wc__ucenter-list ul li .person-item {
+    height: auto !important;
+    padding: 15px 18px !important;
+    background: #fff;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+}
+.wc__ucenter-list ul li li:first-child .person-item { border-radius: 18px 18px 0 0; }
+.wc__ucenter-list ul li li:last-child  .person-item { border-radius: 0 0 18px 18px; border-bottom: none; }
+
+.person-info-img {
+    display: none !important;
+}
+.wc__ucenter-list ul li .item .person-label {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    font-size: 13px !important;
+    color: #94a3b8 !important;
+    width: 56px;
+    flex: 0 0 56px;
+}
+.wc__ucenter-list ul li .item .person-label + .txt {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    font-size: 14px !important;
+    color: #0f172a !important;
+}
+.wc__ucenter-list ul li .item .person-label + .txt em {
+    font-style: normal;
+}
+.mobile-mine-action .txt.flex1 em {
+    color: #2563eb;
+    font-style: normal;
+    font-size: 14px;
+}
+
+/* Quit button */
+.wc__ucenter-list ul li .item.quit {
+    width: 100% !important;
+    height: 50px !important;
+    line-height: 50px !important;
+    border-radius: 18px !important;
+    border: none !important;
+    background: #fff2f2;
+    margin: 0 !important;
+    box-shadow: 0 8px 22px rgba(21, 32, 43, 0.06);
+}
+.wc__ucenter-list ul li .item.quit span {
+    font-size: 15px !important;
+    color: #e5484d !important;
+    font-weight: 600;
+}
+
+/* Setting slide — general list item improvements */
+.wc__material-cell {
+    background: #fff;
+}
+.wc__ucenter-list ul li:not(:first-child):not(:last-child) .item + .item {
+    border-top: 1px solid #f1f5f9;
 }

@@ -316,45 +316,103 @@ class Event extends Controller
     public function chat()
     {
         $arr = $this->request->post();
-//        $arr['content'] = $this->request->post('content','','\app\Common::clearXSS');
- //       $arr['content'] = addslashes($this->request->post('content'));
-  //      var_dump($arr['content']);
         $chid = 0;
         $pusher = SinglePusher::getinstance();
-        $visiter = Db::name('visiter')->where('visiter_id',$arr['visiter_id'])->find();
-        $arr['channel']=$visiter['channel'];
-        hook('chathook',array_merge($arr,['pusher'=>$pusher,'channel'=>$visiter['channel']]));
-        // 访客通过二维码/历史链接二次进入时，原 queue 可能为 complete，先激活/创建 normal 会话
-        $this->ensureQueueNormal(
-            isset($arr['business_id']) ? $arr['business_id'] : 0,
-            isset($arr['visiter_id']) ? $arr['visiter_id'] : '',
-            isset($arr['service_id']) ? $arr['service_id'] : 0,
-            isset($arr['groupid']) ? $arr['groupid'] : 0
-        );
 
-        $service = model('queue')
-            ->where('business_id', $arr['business_id'])
-            ->where('visiter_id', $arr['visiter_id'])
+        $businessId = isset($arr['business_id']) ? (int) $arr['business_id'] : 0;
+        $visiterId  = isset($arr['visiter_id'])  ? (string) $arr['visiter_id'] : '';
+        $argSid     = isset($arr['service_id'])  ? (int) $arr['service_id'] : 0;
+        $argGid     = isset($arr['groupid'])     ? (int) $arr['groupid'] : 0;
+
+        if ($businessId <= 0 || $visiterId === '') {
+            return ['code' => 1, 'msg' => '会话参数缺失'];
+        }
+
+        $visiter = Db::name('visiter')
+            ->where('visiter_id', $visiterId)
+            ->where('business_id', $businessId)
+            ->find();
+        $arr['channel'] = $visiter ? $visiter['channel'] : bin2hex($visiterId . '/' . $businessId);
+
+        // 黑名单检查：访客IP被封禁则拒绝发言
+        $visiterIp = $visiter && isset($visiter['ip']) ? trim((string) $visiter['ip']) : '';
+        if ($visiterIp !== '' && $visiterIp !== '0.0.0.0') {
+            $ipBanned = Db::name('ip_blacklist')
+                ->where('business_id', $businessId)
+                ->where('ip', $visiterIp)
+                ->where('status', 1)
+                ->find();
+            if ($ipBanned) {
+                return ['code' => 1, 'msg' => '您已被禁止发送消息！'];
+            }
+        }
+
+        // 访客发消息即视为在线（Pusher webhook 不可用时的兜底）
+        if ($visiter) {
+            Db::name('visiter')
+                ->where('vid', $visiter['vid'])
+                ->update(['state' => 'online']);
+        }
+
+        hook('chathook', array_merge($arr, ['pusher' => $pusher, 'channel' => $arr['channel']]));
+
+        // 1) 确保存在 state=normal 的队列；二维码 special 客服优先填入
+        $this->ensureQueueNormal($businessId, $visiterId, $argSid, $argGid);
+
+        // 2) 取当前会话
+        $queue = model('queue')
+            ->where('business_id', $businessId)
+            ->where('visiter_id', $visiterId)
             ->where('state', 'normal')
             ->order('qid', 'desc')
             ->find();
 
-        $service_id = $service ? $service['service_id'] : null;
-        if ($service_id != $arr['service_id']) {
-            if (!empty($service_id)) {
-                return ['code' => 1, 'msg' => '该会话已经关闭！', 'id' => $service_id];
-            } else {
-                // 客服关闭了对话框，重新设置为打开
-                $data = ['state' => 'normal'];
-                $qid = model('queue')->where('business_id', $arr['business_id'])->where('visiter_id', $arr['visiter_id'])->where('state', 'complete')->order('qid', 'desc')->value('qid');
-                if ($qid) {
-                    model('queue')->where('qid', $qid)->update($data);
-                    $service_id = $arr['service_id'];
-                } else {
-                    return ['code' => 1, 'msg' => '该会话已经关闭！', 'id' => $service_id];
-                }
+        if (!$queue) {
+            return ['code' => 1, 'msg' => '会话初始化失败，请刷新页面重试'];
+        }
+
+        $service_id = (int) $queue['service_id'];
+
+        // 3) 解析最终服务客服：
+        //    a. 队列已绑定有效客服 → 直接使用（即便和前端 arr.service_id 不一致，比如转接场景）
+        //    b. 队列未分配但前端带有效 service_id（QR special）→ 同步到队列
+        //    c. 都没有 → Distribute 自动分配
+        if ($service_id > 0) {
+            $svcExists = model('service')
+                ->where('service_id', $service_id)
+                ->where('business_id', $businessId)
+                ->find();
+            if (!$svcExists) {
+                // 客服已被删除/迁走，重置队列让它进入分配
+                model('queue')->where('qid', $queue['qid'])->update(['service_id' => 0]);
+                $service_id = 0;
             }
         }
+
+        if ($service_id === 0 && $argSid > 0) {
+            $argSvc = model('service')
+                ->where('service_id', $argSid)
+                ->where('business_id', $businessId)
+                ->find();
+            if ($argSvc) {
+                model('queue')->where('qid', $queue['qid'])->update(['service_id' => $argSid]);
+                $service_id = $argSid;
+            }
+        }
+
+        if ($service_id === 0) {
+            $assigned = Distribute::run($businessId, 'online', $argGid);
+            if (empty($assigned)) {
+                $assigned = Distribute::run($businessId, null, $argGid);
+            }
+            if (!empty($assigned)) {
+                $service_id = (int) $assigned['service_id'];
+                model('queue')->where('qid', $queue['qid'])->update(['service_id' => $service_id]);
+            }
+        }
+
+        // 即便仍未分配到客服（service_id=0），也允许消息落库，
+        // 客服认领后通过 getchats 拉到历史。不再返回 "会话关闭" 阻塞用户。
 
         $arr["timestamp"] = time();
         $arr['service_id'] = $service_id;
@@ -428,6 +486,9 @@ class Event extends Controller
             unset($arr['record']);
             unset($arr['avatar']);
             unset($arr['channel']);
+            unset($arr['groupid']);
+            unset($arr['special']);
+            unset($arr['from_url']);
             if (isset($arr['debug'])) {
                 unset($arr['debug']);
             }
@@ -436,12 +497,12 @@ class Event extends Controller
 
             Db::execute("UPDATE ".config('database.prefix')."queue  SET `lastpost`=:lastpost  WHERE  `visiter_id`=:visiter_id   AND `business_id`=:business_id",['lastpost'=>time(),'visiter_id'=>$arr['visiter_id'],'business_id'=>$arr['business_id']]);
 
-            $service_data = Service::get($service_id);
+            $service_data = $service_id > 0 ? Service::get($service_id) : null;
 
 //            $sended = $service['remind_tpl'];
             //改成离线状态接收通知
 //            if (empty($sended) && $service_data['state']=='offline') {
-            if ($service_data['state']=='offline') {
+            if ($service_data && $service_data['state']=='offline') {
                 $business = Business::get($arr['business_id']);
                 $wechat = WechatPlatform::get(['business_id'=>$arr['business_id']]);
                 TplService::send($arr["business_id"],$service_data['open_id'],url('weixin/login/callback',['business_id'=>$arr['business_id'],'service_id'=>$service_id],true,true),$wechat['msg_tpl'],[
@@ -465,7 +526,8 @@ class Event extends Controller
         } catch (\Exception $e) {
 
             $error = $e->getMessage();
-            $data = ['code' => 0, 'msg' => $error, 'data' => ['getui' => isset($getui_ret) ? $getui_ret : (isset($getui_e) ? $getui_e : '')]];
+            // 异常时必须返回 code=1，否则前端会把它当作发送成功
+            $data = ['code' => 1, 'msg' => $error, 'data' => ['getui' => isset($getui_ret) ? $getui_ret : (isset($getui_e) ? $getui_e : '')]];
             return $data;
 
         }
@@ -496,8 +558,27 @@ class Event extends Controller
         $arr['visiter_id'] = htmlspecialchars($arr['visiter_id']);
         $arr["channel"] = bin2hex($arr['visiter_id'] . '/' . $arr['business_id']);
         $arr['ip'] = $ip;
+
+        // 二维码渠道写入的 qr_remark / visiter_name 不允许被默认昵称覆盖
+        $existingVisitor = model('visiter')
+            ->where(['visiter_id' => $arr['visiter_id'], 'business_id' => $arr['business_id']])
+            ->find();
+        $qrRemark = '';
+        $savedName = '';
+        if ($existingVisitor) {
+            $qrRemark  = isset($existingVisitor['qr_remark']) ? trim((string) $existingVisitor['qr_remark']) : '';
+            $savedName = isset($existingVisitor['visiter_name']) ? trim((string) $existingVisitor['visiter_name']) : '';
+        }
+
         if ($this->isDefaultVisitorName($arr['visiter_name'])) {
-            $arr['visiter_name'] = $this->buildVisitorNickname($arr['visiter_id'], $arr['business_id']);
+            // 优先用二维码渠道的 qr_remark；其次保留已经存在的非默认 visiter_name；最后才生成花名
+            if ($qrRemark !== '') {
+                $arr['visiter_name'] = $qrRemark;
+            } elseif ($savedName !== '' && !$this->isDefaultVisitorName($savedName)) {
+                $arr['visiter_name'] = $savedName;
+            } else {
+                $arr['visiter_name'] = $this->buildVisitorNickname($arr['visiter_id'], $arr['business_id']);
+            }
         }
         if ($this->isDefaultVisitorAvatar($arr['avatar'])) {
             $arr['avatar'] = $this->buildVisitorAvatar($arr['visiter_id'], $arr['business_id']);
@@ -854,10 +935,6 @@ class Event extends Controller
 //            $cids[]=$value['cid'];
 //        }
 
-        //===
-        var_dump($service_id);
-        var_dump($post['visiter_id']);
-        var_dump($business_id);
         $data = model('chats')->where(['visiter_id' => $post['visiter_id'],'direction' => 'to_visiter','state' => 'unread'])->select();
         $cids = [];
         $service_id = 0;
@@ -968,11 +1045,12 @@ class Event extends Controller
         $post['service_id'] = $service_id;
 
         $name = $_FILES["folder"]["name"];
+        $nameSafe = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 
         try {
             Storage::$variable = 'folder';
             $url = Storage::put();
-            $html = "<div><a href='" . $url['url'] . "' style='display: inline-block;text-align: center;min-width: 70px;text-decoration: none;' download='" . $name . "'><i class='layui-icon' style='font-size: 60px;'>&#xe61e;</i><br>" . $name . "</a></div>";
+            $html = "<div><a href='" . $url['url'] . "' style='display: inline-block;text-align: center;min-width: 70px;text-decoration: none;' download='" . $nameSafe . "'><i class='layui-icon' style='font-size: 60px;'>&#xe61e;</i><br>" . $nameSafe . "</a></div>";
 
 
             $post['content'] = $html;

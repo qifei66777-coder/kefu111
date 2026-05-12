@@ -101,13 +101,14 @@ var emoj = function (obj) {
 function put() {
 
     var value = $('input[name="upload"]').val();
+    if (!value) return;
     var index1 = value.lastIndexOf(".");
     var index2 = value.length;
     var suffix = value.substring(index1 + 1, index2);
     var debugs = suffix.toLowerCase();
 
 
-    if (debugs == "jpg" || debugs == "gif" || debugs == "png" || debugs == "jpeg") {
+    if (debugs == "jpg" || debugs == "gif" || debugs == "png" || debugs == "jpeg" || debugs == "webp" || debugs == "bmp") {
 
         $("#picture").ajaxSubmit({
             url: YMWL_ROOT_URL + '/admin/event/upload',
@@ -124,21 +125,12 @@ function put() {
             success: function (res) {
 
                 if (res.code == 0) {
-                    var msg = '<img src="' + res.data + '"  >';
-                    var se = $('#services').text();
+                    var imgUrl = String(res.data || '').replace(/<[^>]+>/g, '').trim();
                     var myDate = new Date();
                     var time = myDate.toLocaleTimeString();
                     var str = '';
 
-                    var  dat  =  res.data.replace(/<[^>]+>/g,"");
-                    // console.log("dat",data);
-                    
-                    var ct='';
-                    if(isValidHttpUrl(dat)){
-                        ct ="<pre>" + res.data + "</pre><button  data-url=\""+dat+"\" class=\"copy_url\">澶嶅埗</button>";
-                    }else{
-                        ct ="<pre>" + res.data + "</pre>";
-                    }
+                    var ct = '<pre><img src="' + imgUrl + '" onclick="getbig(this)" style="max-width:200px;border-radius:6px;cursor:pointer;" /></pre>';
 
                     str += '<li class="chatmsg"><div class="showtime">' + time + '</div>';
                     str += '<div style="float: right;"><img  class="my-circle cu_pic" src="' + pic + '" ></div>';
@@ -149,23 +141,29 @@ function put() {
                     $(".conversation").append(str);
                     var div = document.getElementById("wrap");
 
-                    div.scrollTop = div.scrollHeight;
-                    if ($.cookie('services')) {
-                        var sid = $.cookie('services');
+                    if (typeof window.scrollChatToBottom === 'function') {
+                        window.scrollChatToBottom(0);
+                        window.scrollChatToBottom(200);
+                    } else if (div) {
+                        div.scrollTop = div.scrollHeight;
                     }
                     setTimeout(function () {
                         $('.chatmsg').css({
                             height: 'auto'
                         });
-                    }, 0)
+                    }, 0);
 
                 } else {
-                    layer.msg(res.msg, {icon: 2});
+                    layer.msg(res.msg || '上传失败', {icon: 2});
                 }
             },
-          
+            error: function () {
+                layer.msg('图片上传失败，请重试', {icon: 2});
+            },
+            complete: function () {
+                $('input[name="upload"]').val('');
+            }
         });
-     getdata()
 
     } else {
 
@@ -370,11 +368,13 @@ function getdata() {
 
                     if (v.direction == 'to_service') {
 
+                        var __readLabel = (v.state === 'readed') ? '已读' : '未读';
+                        var __readColor = (v.state === 'readed') ? '#22c55e' : '#9aa4b2';
                         str += '<li class="chatmsg"><div class="showtime">' + showtime + '</div>';
                         str += '<div class="" style="float: right;"><img class="my-circle" src="' + v.avatar + '" ></div>';
                         str += "<div class='outer-right'><div class='customer'>";
                         str += ct;
-                        str += "</div></div>";
+                        str += "</div><span class='read-mark' id='cid" + v.cid + "' style='display:block;text-align:right;font-size:11px;color:" + __readColor + ";margin-top:2px;'>" + __readLabel + "</span></div>";
                         str += "</li>";
 
                     } else {
@@ -406,14 +406,19 @@ function getdata() {
 
                     $(".conversation").append(str);
                     if (div) {
-                        $("img").load(function () {
+                        if (typeof window.scrollChatToBottom === 'function') {
+                            window.scrollChatToBottom(0);
+                            window.scrollChatToBottom(300);
+                            window.scrollChatToBottom(800);
+                        } else {
                             div.scrollTop = div.scrollHeight;
-                        });
+                            setTimeout(function(){ div.scrollTop = div.scrollHeight; }, 300);
+                        }
                     }
                 } else {
 
                     $(".conversation").prepend(str);
-                    if (res.length <= 2) {
+                    if (res.data && res.data.length <= 2) {
                         $("#top_div").remove();
                         $(".conversation").prepend("<div id='top_div' class='showtime'>已没有数据</div>");
                         if (div) {
@@ -425,8 +430,8 @@ function getdata() {
                         }
                     }
                 }
-                if (res.length > 0) {
-                    $.cookie("cid", data[0]['cid']);
+                if (res.data && res.data.length > 0) {
+                    $.cookie("cid", res.data[0]['cid']);
                     $(".chatmsg_notice").remove();
                 }
             }
@@ -462,7 +467,6 @@ var init = function () {
                 $("#img_head").attr('src', data.avatar);
                 $("#services").text(data.nick_name);
                 data.visiter_id = visiter_id;
-                console.log('触发postMessage发送问候语');
                 window.parent.postMessage({type: 'greeting', data: data}, '*');
 
 
@@ -721,17 +725,24 @@ var send = function () {
             ct ="<pre>" + msg2 + "</pre>";
         }
 
+        var __tmpRid = 'cid_tmp_' + Date.now() + Math.floor(Math.random()*1000);
         str += '<li class="chatmsg"><div class="showtime">' + time + '</div>';
         str += '<div class="" style="float: right;"><img  class="my-circle cu_pic" src="' + pic + '" ></div>';
         str += "<div class='outer-right'><div class='customer'>";
         str += ct;
-        str += "</div></div>";
+        str += "</div><span class='read-mark' id='" + __tmpRid + "' style='display:block;text-align:right;font-size:11px;color:#9aa4b2;margin-top:2px;'>未读</span></div>";
         str += "</li>";
 
         $(".conversation").append(str);
         $("#text_in").val('');
         var div = document.getElementById("wrap");
-        div.scrollTop = div.scrollHeight;
+        if (typeof window.scrollChatToBottom === 'function') {
+            window.scrollChatToBottom(0);
+            window.scrollChatToBottom(120);
+            window.scrollChatToBottom(300);
+        } else if (div) {
+            div.scrollTop = div.scrollHeight;
+        }
         $("img[src*='upload/images']").parent().parent('.customer').css({
             padding: '0', borderRadius: '0'
         });
@@ -756,6 +767,10 @@ var send = function () {
             },
             dataType: 'json',
             success: function (res) {
+                // 把临时 id 改成真实 cid，让 Pusher check-event 能定位
+                if (res && res.cid) {
+                    $('#' + __tmpRid).attr('id', 'cid' + res.cid);
+                }
                 str = '';
                 if (res.code == 100) {
                     if ($.cookie('state') != 'off') {

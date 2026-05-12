@@ -1,10 +1,8 @@
 <IfModule mod_rewrite.c>
   Options +FollowSymlinks -Multiviews
   RewriteEngine On
-  RewriteRule upload/(.*).(php)$ ¨C [F]
+  RewriteRule ^upload/.+\.(php|phtml|php5|php7|phps|pht)$ - [F,NC]
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^(.*)$ index.php?s=$1 [QSA,PT,L] 
+  RewriteRule ^(.*)$ index.php?s=$1 [QSA,PT,L]
 </IfModule>
-
-

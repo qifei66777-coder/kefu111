@@ -74,6 +74,15 @@
 
                 })
             });
+            // 已读回执：访客读了客服消息后，Index.php trigger 这个事件，更新每条消息下的"未读"为"已读"
+            channel.bind("check-event", function (data) {
+                if (data && data.message) {
+                    $.each(data.message, function (idx, cid) {
+                        var $m = $('#cid' + cid);
+                        if ($m.length) $m.text('已读').css('color', '#22c55e');
+                    });
+                }
+            });
 //接收消息
             channel.bind("cu-event", function (data) {
                 if("{$voice}" == 'open'){
@@ -99,8 +108,13 @@
                     }
                     $(".newmsg").text(num);
                 }
-                var div = document.getElementById("wrap");
-                div.scrollTop = div.scrollHeight;
+                if (typeof scrollChatToBottom === 'function') {
+                    scrollChatToBottom();
+                } else {
+                    var div = document.getElementById("wrap");
+                    div.scrollTop = div.scrollHeight + 9999;
+                    setTimeout(function(){ div.scrollTop = div.scrollHeight + 9999; }, 120);
+                }
                 
                 $("img[src*='upload/images']").parent().parent('.customer').css({
                     padding: '0',borderRadius: '0'
@@ -146,6 +160,7 @@
     </script>
     <link rel="stylesheet" href="__assets__/css/admin/mtalk.css?v=__lkversion__" />
     <link rel="stylesheet" href="__assets__/css/rich-reply.css?v=__lkversion__" />
+    <link rel="stylesheet" href="/assets/css/kefu-coffee.css?v=__lkversion__" />
     <style type="text/css">
         /* Mobile rich reply panel */
         #mRichPanel {
@@ -253,7 +268,173 @@
             padding: 3px;
             border: 1px solid #eee;}
     </style>
-</head><body>
+    <style type="text/css">
+    /* ── Modern Mobile Chat Overrides ── */
+    body { background: #f3f5f8; margin: 0; padding: 0; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+    header {
+        background: linear-gradient(135deg, #1e40af 0%, #2563eb 55%, #3b82f6 100%) !important;
+        height: 56px !important;
+        line-height: 56px !important;
+        border-radius: 0 0 18px 18px;
+        box-shadow: 0 4px 16px rgba(30,64,175,.18);
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        box-sizing: border-box;
+    }
+    header > i.layui-icon {
+        position: static !important;
+        font-size: 22px !important;
+        margin-right: 10px;
+        flex-shrink: 0;
+    }
+    header #customer {
+        position: static !important;
+        flex: 1;
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+        font-size: 16px !important;
+        font-weight: 600;
+    }
+    header .user-name {
+        max-width: 180px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    header #status {
+        font-size: 12px;
+        opacity: .75;
+        margin-left: 4px;
+    }
+    header .showUinfo {
+        position: static !important;
+        width: 22px !important;
+        height: 22px !important;
+        flex-shrink: 0;
+        filter: brightness(0) invert(1);
+    }
+
+    .content#wrap {
+        background: #f3f5f8 !important;
+        padding-top: 0;
+    }
+    .content#wrap > div:first-child { height: 62px !important; }
+    #bottom { height: 100px !important; }
+
+    .conversation { padding: 8px 10px; }
+    .chatmsg, .chatmsg_no { position: relative; margin-bottom: 14px; min-height: 50px; list-style: none; }
+    .chatmsg .showtime {
+        text-align: center;
+        font-size: 11px;
+        color: #94a3b8;
+        margin-bottom: 6px;
+        padding: 2px 10px;
+    }
+
+    .my-circle { width: 38px !important; height: 38px !important; border-radius: 12px !important; object-fit: cover; }
+    .outer-left { margin-left: 48px; max-width: calc(100% - 60px); }
+    .outer-right { margin-right: 48px; max-width: calc(100% - 60px); display: flex; flex-direction: column; align-items: flex-end; }
+
+    .service {
+        background: #fff !important;
+        border: none !important;
+        border-radius: 4px 16px 16px 16px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,.05);
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        line-height: 1.6;
+        max-width: 85% !important;
+        color: #1e293b !important;
+    }
+    .customer {
+        background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+        color: #fff !important;
+        border-radius: 16px 4px 16px 16px !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        line-height: 1.6;
+        max-width: 85% !important;
+        box-shadow: 0 2px 8px rgba(37,99,235,.18);
+    }
+    .customer pre, .service pre { margin: 0; padding: 0; white-space: pre-wrap; word-break: break-word; font-family: inherit; font-size: inherit; line-height: inherit; color: inherit; background: transparent; }
+    .customer img, .service img { max-width: 200px; border-radius: 8px; display: block; }
+
+    footer {
+        background: #fff !important;
+        height: auto !important;
+        min-height: 94px;
+        border-radius: 18px 18px 0 0;
+        box-shadow: 0 -4px 16px rgba(0,0,0,.05);
+        padding-bottom: env(safe-area-inset-bottom, 0) !important;
+    }
+    .foot_msg { overflow: visible !important; }
+    .footer {
+        display: flex;
+        align-items: center;
+        padding: 8px 10px;
+        gap: 6px;
+    }
+    #text_all {
+        flex: 1;
+        height: 40px !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 20px !important;
+        padding: 0 16px !important;
+        font-size: 15px !important;
+        width: auto !important;
+        float: none !important;
+    }
+    .send-btn {
+        flex-shrink: 0;
+        height: 40px !important;
+        line-height: 40px !important;
+        border-radius: 20px !important;
+        padding: 0 18px !important;
+        font-size: 14px !important;
+        background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+        border: none !important;
+        position: static !important;
+        width: auto !important;
+        top: auto !important;
+        right: auto !important;
+    }
+    .msg-toolbar {
+        position: static !important;
+        top: auto !important;
+        height: auto !important;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        background: #fafbfc !important;
+        border-top: 1px solid #f0f3f7;
+        padding: 4px 0;
+    }
+    .msg-toolbar a {
+        width: auto !important;
+        padding: 0 8px;
+        float: none !important;
+    }
+    .tool_box {
+        top: auto !important;
+        bottom: 0 !important;
+        position: relative !important;
+        background: #fafbfc !important;
+        border-top: 1px solid #f0f3f7;
+    }
+    .wl_faces_main ul li { width: 42px; height: 42px; font-size: 24px; line-height: 42px; }
+
+    #quickreply { display: none; }
+
+    .read-mark { font-size: 10px !important; }
+    .newmsg { display: inline-block; position: absolute; top: 4px; left: 36px; min-width: 18px; height: 18px; line-height: 18px; padding: 0 5px; border-radius: 10px; background: #ff3b30; color: #fff; font-size: 11px; text-align: center; z-index: 100; }
+    .newmsg.hide { display: none; }
+
+    #mRichPanel { border-radius: 16px 16px 0 0; bottom: 0 !important; }
+    </style>
+</head><body class="kefu-coffee">
 <audio id="chat-message-audio">
     <source id="chat-message-audio-source" src="{$voice_address}" type="audio/mpeg" />
 </audio>
@@ -269,7 +450,7 @@
             <div style="height: 55px;width: 100%;"></div>
             <ul class="conversation" id="log">
             </ul>
-            <div id="bottom" style="height: 94px;width: 100%;"></div>
+            <div id="bottom" style="height: 120px;width: 100%;"></div>
         </section>
         <footer style="position:fixed;bottom:0;width: 100%;height: 94px;padding:0">
             <div class="tool_box">
@@ -299,7 +480,7 @@
                         <form id="picture" enctype="multipart/form-data">
                             <div class="layui-box input-but size">
                                 <i class="layui-icon" style="font-size: 24px; line-height:46px; color:#888;" title="图片">&#xe64a;</i>
-                                <input type="file" name="upload" class="fileinput" onchange="put()"/>
+                                <input type="file" name="upload" accept="image/*" class="fileinput" onchange="put()"/>
                             </div>
                         </form>
                     </a>
@@ -528,6 +709,22 @@
             setTimeout(function () { $('.chatmsg').css({ height: 'auto' }); }, 0);
         }, 'json');
     }
+</script>
+<script>
+function scrollChatToBottom(delay) {
+    setTimeout(function () {
+        var wrap = document.getElementById('wrap');
+        if (wrap) {
+            wrap.scrollTop = wrap.scrollHeight;
+            var log = document.getElementById('log');
+            var last = log ? log.lastElementChild : null;
+            if (last && typeof last.scrollIntoView === 'function') {
+                try { last.scrollIntoView({ block: 'end', behavior: 'auto' }); wrap.scrollTop = wrap.scrollHeight; } catch(e){}
+            }
+        }
+    }, delay || 0);
+}
+window.scrollChatToBottom = scrollChatToBottom;
 </script>
 <script type="text/javascript" src="__script__/admin/mchat.js?v=__lkversion__"></script>
 

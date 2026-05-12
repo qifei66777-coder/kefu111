@@ -18,6 +18,7 @@
       }
     }, delay || 0);
   }
+  window.scrollChatToBottom = scrollChatToBottom;
 
   function syncLayoutVars() {
     var foot = document.getElementById('h5_foot_all');

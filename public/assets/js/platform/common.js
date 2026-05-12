@@ -370,7 +370,6 @@ $(document).ready(function () {
             try {
                 form.formSubmit({});
             } catch (e) {
-                console.log(e);
             }
             return false;
         });
@@ -380,7 +379,6 @@ $(document).ready(function () {
             try {
                 form.formSubmit({});
             } catch (e) {
-                console.log(e);
             }
             return false;
         });

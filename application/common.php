@@ -126,7 +126,7 @@ class Common{
       $code=$yCode[intval(date('Y')) - 2021] . strtoupper(dechex(date('m'))) . date('d') . substr(time(), -5) . substr(microtime(), 2, 5) . $this->rand(2);
       $res=Db::name('visiter')->where('visiter_id',$code)->count();
       if($res){
-          $this->getvid();
+          return $this->getvid();
       }
       return $code;
   }

@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="__assets__/mobile/css/animate.css?v=__lkversion__" />
     <link rel="stylesheet" href="__assets__/mobile/css/swiper-3.4.1.min.css?v=__lkversion__" />
     <link rel="stylesheet" href="__assets__/mobile/css/mobile-workbench-modern.css?v=__lkversion__" />
+    <link rel="stylesheet" href="/assets/css/kefu-coffee.css?v=__lkversion__" />
 
     <script>
         YMWL_ROOT_URL = "{$baseroot}";
@@ -449,7 +450,7 @@
         }
     </style>
 </head>
-<body>
+<body class="kefu-coffee">
 <audio id="chat-message-audio">
     <source id="chat-message-audio-source" src="{$voice_address}" type="audio/mpeg" />
 </audio>
@@ -462,10 +463,15 @@
                 <h2 class="barTit barTitLg flex1">{$seo.business_name}</h2>
             </div>
         </div>
-        <div class="mobile-workbench-topbar">
+        <div class="mobile-workbench-topbar mobile-workbench-topbar--coffee">
             <div class="mobile-workbench-service">
                 <img class="mobile-workbench-avatar" src="{$mine.avatar}" alt="客服头像">
                 <div class="mobile-workbench-profile">
+                    <div class="mobile-workbench-brand-line">
+                        <span class="mw-brand-mark">栗</span>
+                        <span class="mw-brand-name">栗子集团</span>
+                        <span class="mw-brand-tag">客服专用</span>
+                    </div>
                     <div class="mobile-workbench-name">{$mine.nick_name}</div>
                     <div class="mobile-workbench-status"><span></span>{$mine.state}</div>
                 </div>
@@ -855,7 +861,8 @@
                                 count = '99+'
                             }
                             item.visiter_name=item.visiter_name?item.visiter_name:'游客'+item.visiter_id;
-                            var uname=item.name?item.name:item.visiter_name;
+                            var qrLabel = (item.qr_remark && String(item.qr_remark).trim()) ? String(item.qr_remark).trim() : item.visiter_name;
+                            var uname=item.name?item.name:qrLabel;
                             var unread_str = count ? '<em class="wc__badge">'+count+'</em>' : '';
                             var region = item.ip_region || item.region || item.area || item.city || '';
                             var device = item.device_type || item.device || item.os || '';
@@ -970,7 +977,8 @@
                         $("#J__addrFriendList > ul").empty();
                         $.each(res.data, function (k, item) {
                             item.visiter_name=item.visiter_name?item.visiter_name:'游客'+item.visiter_id;
-                            var uname=item.name?item.name:item.visiter_name;
+                            var qrLabel2 = (item.qr_remark && String(item.qr_remark).trim()) ? String(item.qr_remark).trim() : item.visiter_name;
+                            var uname=item.name?item.name:qrLabel2;
                             var _tpl = [
                                 '<li class="flexbox wc__material-cell '+item.state+'" id="accept-visiter-'+item.visiter_id+'" accept="'+item.visiter_id+'">\
                                 <div class="img"><img src="'+item.avatar+'"/></div>\
@@ -1014,6 +1022,16 @@
 
         $(document).on("click", ".list-item", function(){
             let id = $(this).attr("id");
+            if(id == -1 || id == '-1') {
+                if (typeof showTab === 'function') {
+                    showTab('blacklist');
+                } else {
+                    $('.mobile-workbench-tab').removeClass('is-active');
+                    $('.mobile-workbench-tab[data-tab="blacklist"]').addClass('is-active');
+                    $('#MobileBlacklistPanel').addClass('is-overlay-active');
+                }
+                return;
+            }
             if(id == 0) {
                 window.location.href = YMWL_ROOT_URL + '/mobile/admin/user?id=' + id;
             }else {
@@ -1420,7 +1438,7 @@
     });
 </script>
 
-<script type="text/javascript" src="/assets/js/arale-qrcode.js"></script>
+<script type="text/javascript" src="__assets__/js/arale-qrcode.js?v=__lkversion__"></script>
 <script src="__assets__/mobile/js/mobile-workbench-modern.js?v=__lkversion__"></script>
 </body>
 </html>

@@ -131,10 +131,8 @@ function put() {
                     }
 
                      let  dat  = msg.replace(/<[^>]+>/g,"");
-                     console.log("dat",dat);
                      let ct='';
                      if(isValidHttpUrl(dat)){
-                         console.log("是链接");javascript:;
                             ct ="<pre>" + msg + "</pre><button data-url=\""+dat+"\" class=\"copy_url\">复制</button>";
                      }else{
                         ct ="<pre>" +msg + "</pre>";
@@ -382,11 +380,13 @@ function getdata(){
 
                     if (v.direction == 'to_service') {
 
+                        var __readLabel = (v.state === 'readed') ? '已读' : '未读';
+                        var __readColor = (v.state === 'readed') ? '#22c55e' : '#9aa4b2';
                         str += '<li class="chatmsg"><div class="showtime">' + showtime + '</div>';
                         str += '<div class="" style="float: right;"><img class="my-circle" src="' + v.avatar + '" ></div>';
                         str += "<div class='outer-right'><div class='customer'>";
                         str += ct;
-                        str += "</div></div>";
+                        str += "</div><span class='read-mark' id='cid" + v.cid + "' style='display:block;text-align:right;font-size:11px;color:" + __readColor + ";margin-top:2px;'>" + __readLabel + "</span></div>";
                         str += "</li>";
 
                     } else {
@@ -556,14 +556,12 @@ var init = function () {
         type: 'post',
         data: {visiter_id:visiter_id, visiter_name: visiter, business_id: business_id, from_url: record, avatar: pic,groupid:cid,special:special},
         success: function (res) {
-            console.log(res);
             if(res.code == 0){
 
                 var data =res.data;
                 $("#img_head").attr('src',data.avatar);
                 $("#services").text(data.nick_name);
                 $("#services").attr('data',data.service_id);
-                console.log('触发postMessage发送问候语');
                 window.parent.postMessage({type:'greeting',data:data},'*');
 
         service_id =data.service_id;
@@ -584,7 +582,6 @@ var init = function () {
                     msg += ct;
                     msg += "</div></div>";
                     msg += "</li>";
-                console.log(msg);
                     $(".conversation").append(msg);
                     var div = document.getElementById("wrap");
 
@@ -790,20 +787,19 @@ var send = function () {
         var str = '';
         
            let  dat  = msg2.replace(/<[^>]+>/g,"");
-                     console.log("dat",dat);
                      let ct='';
                      if(isValidHttpUrl(dat)){
-                         console.log("是链接");javascript:;
                             ct ="<pre>" + msg2 + "</pre><button data-url=\""+dat+"\" class=\"copy_url\">复制</button>";
                      }else{
                         ct ="<pre>" + msg2 + "</pre>";
          }
         
+        var __tmpRid = 'cid_tmp_' + Date.now() + Math.floor(Math.random()*1000);
         str += '<li class="chatmsg"><div class="showtime">' + time + '</div>';
         str += '<div class="" style="float: right;"><img  class="my-circle cu_pic" src="' + pic + '" ></div>';
         str += "<div class='outer-right'><div class='customer'>";
         str += ct;
-        str += "</div></div>";
+        str += "</div><span class='read-mark' id='" + __tmpRid + "' style='display:block;text-align:right;font-size:11px;color:#9aa4b2;margin-top:2px;'>未读</span></div>";
         str += "</li>";
 
         $(".conversation").append(str);
@@ -820,6 +816,10 @@ var send = function () {
             data: {visiter_id:visiter_id,content: msg2,business_id: business_id, avatar: pic,record: record,service_id:service_id},
             dataType:'json',
             success:function(res){
+                // 把临时 id 改成真实 cid，复用 admin 端 Pusher check-event 的 #cidX 选择器
+                if (res && res.cid) {
+                    $('#' + __tmpRid).attr('id', 'cid' + res.cid);
+                }
                 str='';
                  if(res.code == 100){
                      if ($.cookie('state') != 'off') {
@@ -851,7 +851,6 @@ var send = function () {
                          audioElementHovertree.play();
                      }
                      let  dat  =  res.data.replace(/<[^>]+>/g,"");
-                     console.log("dat",data);
                      let content='';
                      if(isValidHttpUrl(dat)){
                             content ="<pre>" + res.data + "</pre><button class=\"copy_url\">复制</button>";

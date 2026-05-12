@@ -142,7 +142,6 @@ function apply_extend(container) {
         }
         $(this).select2(options)
     });
-    console.log("[extends] apply ...")
 }
 function select_menus() {
     var url = (history.state && history.state["node"]) || location.href;

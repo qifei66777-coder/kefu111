@@ -270,10 +270,8 @@ var getaudio = function () {
         audio_context = new AudioContext;
 
         if (!navigator.getUserMedia) {
-            console.log('语音创建失败');
         }
     } catch (e) {
-        console.log(e);
         return;
     }
     navigator.getUserMedia({audio: true}, function (stream) {
@@ -550,6 +548,8 @@ function getdata() {
 
                     } else {
 
+                        var __readLabel = (v.state === 'readed') ? '已读' : '未读';
+                        var __readColor = (v.state === 'readed') ? '#22c55e' : '#9aa4b2';
                         str += '<li class="chatmsg" id="xiaox_' + v.cid + '"><div class="showtime">' + showtime + '</div>';
                         str += '<div class="" style="position: absolute;top: 26px;right: 5px;"><img  class="my-circle cu_pic" src="' + v.avatar + '" ></div>';
                         str += "<div class='outer-right'><div class='service'>";
@@ -559,6 +559,7 @@ function getdata() {
                         } else {
                             str += "<pre>" + v.content + "&nbsp;&nbsp;<span onclick='revoke(" + v.cid + ",1);' class='revoke-text'>(撤销)</span></pre>";
                         }
+                        str += "<span class='read-mark' id='cid" + v.cid + "' style='display:block;text-align:right;font-size:11px;color:" + __readColor + ";margin-top:2px;'>" + __readLabel + "</span>";
                         str += "</div></div>";
                         str += "</li>";
 
@@ -928,19 +929,19 @@ function sendContent(msg) {
 
     }
     var unstr = (new Date()).valueOf() + randomChar(5) + visiter_id;
+    var __tmpRid = 'cid_tmp_' + unstr;
     var str = '';
     str += '<li class="chatmsg" id="xiaox_' + unstr + '"><div class="showtime">' + time + '</div>';
     str += '<div style="float: right;"><img  class="my-circle se_pic" src="' + imghead + '" ></div>';
     str += "<div class='outer-right'><div class='service'>";
     str += "<pre>" + msg + "&nbsp;&nbsp;<span onclick=revoke('" + unstr + "',2); class='revoke-text'>(撤销)</span></pre>";
+    str += "<span class='read-mark' id='" + __tmpRid + "' style='display:block;text-align:right;font-size:11px;color:#9aa4b2;margin-top:2px;'>未读</span>";
     str += "</div></div>";
     str += "</li>";
     $(".conversation").append(str);
     $("#text_all").val('');
-    var div = document.getElementById("wrap");
-    $("img").load(function () {
-        div.scrollTop = div.scrollHeight;
-    });
+    // 关键：立即滚到底（之前只在 $("img").load 里滚，纯文本永远不触发）
+    scrollChatToBottom();
     $("img[src*='upload/images']").parent().parent('.customer').css({
         padding: '0', borderRadius: '0'
     });
@@ -952,19 +953,34 @@ function sendContent(msg) {
         $('.chatmsg').css({
             height: 'auto'
         });
-    }, 0)
+        scrollChatToBottom();  // DOM 渲染稳定后再滚一次
+    }, 30);
     $.ajax({
         url: YMWL_ROOT_URL + "/admin/set/chats",
         type: "post",
-        data: {visiter_id: visiter_id, content: msg, avatar: img, unstr: unstr}
+        data: {visiter_id: visiter_id, content: msg, avatar: img, unstr: unstr},
+        success: function (res) {
+            // 后端 set/chats 返回 cid 后，把临时未读标签的 id 改成真实 cid
+            if (res && res.cid) {
+                $('#' + __tmpRid).attr('id', 'cid' + res.cid);
+            }
+        }
     });
+}
+
+// 统一的滚到底工具：立即滚 + 下个微任务再滚 + 100ms 后再滚（兜住图片/字体延迟撑高）
+function scrollChatToBottom() {
+    var div = document.getElementById('wrap');
+    if (!div) return;
+    div.scrollTop = div.scrollHeight + 9999;
+    requestAnimationFrame(function () { div.scrollTop = div.scrollHeight + 9999; });
+    setTimeout(function () { div.scrollTop = div.scrollHeight + 9999; }, 120);
 }
 
 document.getElementById("wrap").onscroll = function () {
     var t = document.getElementById("wrap").scrollTop;
     if (t == 0) {
         if ($.cookie("hid") != "") {
-            console.log(t);
             getdata();
         }
     }

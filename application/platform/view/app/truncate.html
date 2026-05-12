@@ -1,33 +1,100 @@
-<form method="post" return="{:url('app/index')}" action="{$action_url}" class="auto-form">
-    <!-- 聊天记录 -->
-    <div class="talk clean-item">
-        <!-- 勾选聊天记录 && 若大小为0B input增加disabled属性 -->
+<style>
+.pf-clean-form { padding: 8px 4px 4px; }
+.pf-clean-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin-bottom: 18px;
+}
+.pf-clean-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #2563eb;
+    cursor: pointer;
+    margin: 0;
+}
+.pf-clean-label {
+    font-size: 14px;
+    color: #0f172a;
+    font-weight: 500;
+    flex: 0 0 auto;
+}
+.pf-clean-row select {
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #475569;
+    background: #fff;
+    cursor: pointer;
+    transition: border .16s;
+}
+.pf-clean-row select:disabled {
+    background: #f1f5f9;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+.pf-clean-count {
+    margin-left: auto;
+    font-size: 12px;
+    color: #64748b;
+    background: #fff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+}
+.pf-clean-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 6px;
+}
+.to-clean {
+    display: inline-block;
+    padding: 0 24px;
+    height: 38px;
+    line-height: 38px;
+    border-radius: 10px;
+    background: #dc2626 !important;
+    color: #fff !important;
+    border: 1px solid #dc2626 !important;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(220, 38, 38, .25);
+}
+.to-clean:hover {
+    background: #b91c1c !important;
+}
+</style>
+
+<form method="post" return="{:url('app/index')}" action="{$action_url}" class="auto-form pf-clean-form">
+    <div class="talk clean-item pf-clean-row">
         <input id="talk" name="talk" type="checkbox">
-        <span class="clean-item-title">聊天记录</span>
-        <!-- 日期筛选 -->
+        <span class="clean-item-title pf-clean-label">聊天记录</span>
         <select name="talk_time" disabled>
-            <option label="全部" value="0"></option>
-            <option label="7天前" value="1"></option>
-            <option label="1个月前" value="2"></option>
-            <option label="3个月前" value="3"></option>
-            <option label="1年前" value="4"></option>
+            <option label="全部" value="0">全部</option>
+            <option label="7天前" value="1">7 天前</option>
+            <option label="1个月前" value="2">1 个月前</option>
+            <option label="3个月前" value="3">3 个月前</option>
+            <option label="1年前" value="4">1 年前</option>
         </select>
-        <!-- 所占空间 -->
-        <span class="float-text">{$count}条</span>
+        <span class="pf-clean-count float-text">共 {$count} 条</span>
     </div>
-    <div style="display: flex;justify-content: center;">
-        <!-- 清理按钮 -->
+    <div class="pf-clean-actions">
         <button class="to-clean auto-form auto-form-btn">立即清理</button>
     </div>
 </form>
+
 <script>
-    // 根据勾选聊天记录选项判断日期选择项禁用状态
     $("#talk").click(function () {
         if ($(this).prop("checked")) {
-            $(".talk select").removeAttr("disabled")
+            $(".talk select").removeAttr("disabled");
         } else {
-            $(".talk select").attr("disabled","disabled");
+            $(".talk select").attr("disabled", "disabled");
         }
     });
-
 </script>

@@ -1,161 +1,97 @@
 <style>
-    .recycle-list {
-        border: 0;
-        border-top: 1px solid #f7f7f7;
-    }
-
-    .recycle-list thead, .recycle-list thead tr{
-        border: 0;
-    }
-
-    .recycle-list thead th {
-        background-color: #fff;
-        height: 40px;
-        border: 0;
-    }
-
-    .recycle-list tbody td {
-        height: 56px;
-        line-height: 56px;
-        padding-top: 0;
-        padding-bottom: 0;
-        border-top: 1px solid #f7f7f7;
-    }
-
-    .operate a {
-        margin-top: 12px;
-        display: inline-block;
-        height: 32px;
-        width: 32px;
-        border-radius: 16px;
-        background-color: #f5f5f5;
-        margin-right: 10px;
-    }
-
-    .operate a img {
-        display: block;
-        margin: 6px;
-        height: 20px;
-        width: 20px;
-    }
-    .search{
-        width: 196px;
-        height: 54px;
-        padding-left: 16px;
-        padding-top: 10px;
-        position: relative;
-        display: inline-block;
-        border-radius:15px;
-    }
-    .search input{
-        border-radius:15px;
-        width: 180px!important;
-        height: 30px;
-        padding-left: 12px;
-    }
-    .search .btn{
-        height: 14px;
-        width: 14px;
-        padding: 0;
-        line-height: normal;
-        border: 0;
-        margin-left: -28px;
-    }
+.pf-page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+.pf-page-title  { font-size:18px; font-weight:700; color:#0f172a; }
+.pf-search-bar  { display:flex; align-items:center; gap:8px; }
+.pf-search-bar input { height:36px; border:1px solid #e2e8f0; border-radius:10px; padding:0 14px; font-size:13px; width:200px; outline:none; transition:border .18s; }
+.pf-search-bar input:focus { border-color:#2563eb; }
+.pf-search-btn { height:36px; padding:0 18px; border-radius:10px; background:#f1f5f9; color:#374151; font-size:13px; border:none; cursor:pointer; }
+.pf-search-btn:hover { background:#e2e8f0; }
+.pf-card { background:#fff; border-radius:18px; box-shadow:0 4px 20px rgba(15,23,42,.06); overflow:hidden; }
+.pf-table { width:100%; border-collapse:collapse; font-size:13px; color:#374151; }
+.pf-table thead th { background:#f8fafc; padding:13px 16px; font-weight:600; color:#64748b; border-bottom:1px solid #f1f5f9; white-space:nowrap; }
+.pf-table tbody td { padding:14px 16px; border-bottom:1px solid #f8fafc; vertical-align:middle; }
+.pf-table tbody tr:last-child td { border-bottom:none; }
+.pf-table tbody tr:hover td { background:#f8fafc; }
+.pf-badge-id { display:inline-block; background:#f1f5f9; color:#64748b; border-radius:6px; padding:2px 8px; font-size:12px; font-weight:600; }
+.pf-app-name { font-weight:600; color:#0f172a; font-size:14px; }
+.pf-domain { font-size:12px; color:#64748b; word-break:break-all; }
+.pf-actions { display:flex; align-items:center; gap:6px; }
+.pf-btn-act { display:inline-flex; align-items:center; height:28px; padding:0 12px; border-radius:7px; font-size:12px; font-weight:500; cursor:pointer; border:none; text-decoration:none; transition:opacity .16s; }
+.pf-btn-act:hover { opacity:.82; text-decoration:none; }
+.pf-btn-restore { background:#f0fdf4; color:#16a34a; }
+.pf-btn-del     { background:#fef2f2; color:#dc2626; }
+.pf-empty-state { text-align:center; padding:48px; color:#94a3b8; font-size:14px; }
 </style>
 
-<div class="search">
-    <form method="get" class="form-inline">
-        <input type="hidden" name="r" value="">
-        <input value="{$keyword}" placeholder="名称" type="text" name="keyword"
-               class="form-control form-control-sm">
-        <button style="cursor: pointer" class="btn btn-link btn-sm"><img src="__image__/admin/A/search.png" alt=""></button>
-    </form>
+<div class="pf-page-header">
+    <div class="pf-page-title">回收站</div>
+    <div class="pf-search-bar">
+        <form method="get" class="form-inline" style="display:flex;align-items:center;gap:8px;">
+            <input type="hidden" name="r" value="">
+            <input value="{$keyword}" placeholder="搜索名称" type="text" name="keyword">
+            <button type="submit" class="pf-search-btn">搜索</button>
+        </form>
+    </div>
 </div>
 
-<table class="recycle-list table bg-white">
-    <thead>
-    <tr style="font-size: 13px;color: #555555">
-        <th></th>
-        <th>ID</th>
-        <th>名称</th>
-        <th>域名</th>
-        <th>操作</th>
-    </tr>
-    </thead>
-    {if condition="count($list) == 0"}
-    <tr>
-        <td colspan="5" class="text-center p-5 text-muted">回收站暂无内容</td>
-    </tr>
-    {/if}
-    {volist name="list" id="item"}
-    <col style="width: 32px">
-    <col style="width: 80px">
-    <col style="width: 164px">
-    <col style="width: 224px">
-    <col>
-    <tr>
-        <td></td>
-        <td>{$item['id']}</td>
-        <td style="overflow: hidden">{$item['business_name']}</td>
-        <td>{:url('admin/login/index',['business_id'=>$item['id']],true,true)}</td>
-        <td class="operate">
-            <a class="recycle-btn"
-               href="{:url('app/setRecycle3', ['id' => $item['id'],'action'=>0])}"><img src="__image__/admin/A/restore.png" alt=""></a>
-            <a class="delete-btn"
-               href="{:url('app/delete', ['id' => $item['id']])}"><img src="__image__/admin/A/delete.png" alt=""></a>
-        </td>
-    </tr>
-    {/volist}
-</table>
+<div class="pf-card">
+    <table class="pf-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>名称</th>
+                <th>登录域名</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        {if condition="count($list) == 0"}
+            <tr><td colspan="4"><div class="pf-empty-state">回收站暂无内容</div></td></tr>
+        {/if}
+        {volist name="list" id="item"}
+        <tr>
+            <td><span class="pf-badge-id">{$item['id']}</span></td>
+            <td><span class="pf-app-name">{$item['business_name']}</span></td>
+            <td><span class="pf-domain">{:url('admin/login/index',['business_id'=>$item['id']],true,true)}</span></td>
+            <td>
+                <div class="pf-actions">
+                    <a class="pf-btn-act pf-btn-restore recycle-btn"
+                       href="{:url('app/setRecycle3', ['id' => $item['id'],'action'=>0])}">恢复</a>
+                    <a class="pf-btn-act pf-btn-del delete-btn"
+                       href="{:url('app/delete', ['id' => $item['id']])}">彻底删除</a>
+                </div>
+            </td>
+        </tr>
+        {/volist}
+        </tbody>
+    </table>
+</div>
+
 <script>
     $(document).on("click", ".delete-btn", function () {
         var href = $(this).attr("href");
         $.myConfirm({
             content: "确认删除客服系统？此操作将不可恢复！",
             confirm: function () {
-                $.myLoading({
-                    title: "正在提交",
-                });
-                $.ajax({
-                    url: href,
-                    dataType: "json",
-                    success: function (res) {
-                        $.myLoadingHide();
-                        $.myToast({
-                            content: res.msg,
-                            callback: function () {
-                                location.reload();
-                            }
-                        });
-                    }
-                });
-
+                $.myLoading({ title: "正在提交" });
+                $.ajax({ url: href, dataType: "json", success: function (res) {
+                    $.myLoadingHide();
+                    $.myToast({ content: res.msg, callback: function () { location.reload(); }});
+                }});
             }
         });
         return false;
     });
-
     $(document).on("click", ".recycle-btn", function () {
         var href = $(this).attr("href");
         $.myConfirm({
             content: "确认恢复客服系统？",
             confirm: function () {
-                $.myLoading({
-                    title: "正在提交",
-                });
-                $.ajax({
-                    url: href,
-                    dataType: "json",
-                    success: function (res) {
-                        $.myLoadingHide();
-                        $.myToast({
-                            content: res.msg,
-                            callback: function () {
-                                location.reload();
-                            }
-                        });
-                    }
-                });
+                $.myLoading({ title: "正在提交" });
+                $.ajax({ url: href, dataType: "json", success: function (res) {
+                    $.myLoadingHide();
+                    $.myToast({ content: res.msg, callback: function () { location.reload(); }});
+                }});
             }
         });
         return false;

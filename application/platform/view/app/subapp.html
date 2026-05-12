@@ -1,304 +1,142 @@
 <style>
-    .subapp-search {
-        width: 196px;
-        height: 54px;
-        padding-left: 16px;
-        position: relative;
-    }
+.pf-page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.pf-page-title { font-size: 18px; font-weight: 700; color: #0f172a; }
+.pf-search-bar { display: flex; align-items: center; gap: 8px; }
+.pf-search-bar input { height: 36px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0 14px; font-size: 13px; width: 200px; outline: none; transition: border .18s; }
+.pf-search-bar input:focus { border-color: #2563eb; }
+.pf-search-btn { height: 36px; padding: 0 18px; border-radius: 10px; background: #f1f5f9; color: #374151; font-size: 13px; border: none; cursor: pointer; transition: background .18s; }
+.pf-search-btn:hover { background: #e2e8f0; }
 
-    .subapp-search input{
-        margin-top: 12px;
-        width: 180px!important;
-        height: 30px;
-        border-radius: 15px;
-        padding-left: 12px;
-    }
-
-    .subapp-search .btn {
-        position: absolute;
-        height: 14px;
-        width: 14px;
-        padding: 0;
-        line-height: normal;
-        top: 20px;
-        border: 0;
-        right: 12px;
-    }
-
-    .subapp-search .btn img {
-        height: 14px;
-        width: 14px;
-    }
-
-    .subapp-list {
-        border: 0;
-        border-top: 1px solid #f7f7f7;
-    }
-
-    .subapp-list thead, .subapp-list thead tr{
-        border: 0;
-    }
-
-    .subapp-list thead th {
-        background-color: #fff;
-        height: 40px;
-        border: 0;
-    }
-
-    .subapp-list tbody td {
-        height: 76px;
-        line-height: 76px;
-        padding-top: 0;
-        padding-bottom: 0;
-        border-top: 1px solid #f7f7f7;
-    }
-
-    .operate a {
-        margin-top: 12px;
-        display: inline-block;
-        height: 32px;
-        width: 32px;
-        border-radius: 16px;
-        background-color: #f5f5f5;
-        margin-right: 10px;
-    }
-
-    .operate a img {
-        display: block;
-        margin: 6px;
-        height: 20px;
-        width: 20px;
-    }
-
-    .add-app {
-        display: inline-block;
-        padding: 0;
-        height: 32px;
-        line-height: 32px;
-        width: 104px;
-        border-radius: 16px;
-        font-size: 13px;
-        color: #fff;
-        background-color: #05202d;
-        border: 1px solid #05202d;
-    }
-
-    .add-modal .modal-dialog .modal-content{
-        width: 600px;
-    }
-
-    .add-modal .form-input {
-        width: 300px;
-    }
-
-    .add-modal .modal-body {
-        padding: 0
-    }
-
-    .add-modal .modal-dialog {
-        margin-top: 5%;
-    }
-
-    .clean-modal .modal-dialog .modal-content{
-        width: 500px;
-    }
-
-    .clean-modal .modal-body {
-        padding: 25px;
-    }
-
-    .clean-modal .modal-dialog {
-        margin-top: 10%;
-        position: relative;
-    }
-    .search{
-        display: inline-block;
-        border-radius:15px;
-    }
-    .search input{
-        border-radius:15px;
-        width: 180px!important;
-        height: 30px;
-        padding-left: 12px;
-    }
-   .clean-item {
-        height: 50px;
-        line-height: 50px;
-    }
-
-    .clean-item input[type='checkbox'] {
-        width: 16px;
-        height: 16px;
-        background-color: #fff;
-        background: url("/assets/images/admin/none.png") no-repeat center;
-        font-size: 12px;
-        display: inline-block;
-        border: 0;
-        position: relative;
-        top: 4px;
-        margin-right: 5px;
-        -webkit-appearance:none;
-        outline: none;
-    }
-
-    .clean-item input[type=checkbox]:checked{
-       background: url("/assets/images/admin/over.png") no-repeat center;
-    }
-
-    .clean-item select {
-        margin-left: 20px;
-        border-color: #E5E3E9;
-        border-radius: 5px;
-        padding: 5px;
-        padding-top: 0;
-        vertical-align: middle;
-    }
-
-    .clean-item select:disabled {
-        background-color: #F7F7F7;
-    }
-
-    .clean-modal .to-clean {
-        color: #fff;
-        background-color: #05202d;
-        border: 1px solid #05202d;
-        margin: 30px auto 0;
-        height: 32px;
-        line-height: 32px;
-        width: 80px;
-        border-radius: 16px;
-        font-size: 13px;
-        padding: 0;
-        cursor: pointer;
-    }
-
-    .nothing .clean-item-title {
-        color: #CECECE
-    }
-
-    .clean-item.nothing input[type='checkbox'] {
-        background-color: #F7F7F7;
-    }
-    .float-text {
-        float: right;
-    }
+.pf-card { background: #fff; border-radius: 18px; box-shadow: 0 4px 20px rgba(15,23,42,.06); overflow: hidden; }
+.pf-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #374151; }
+.pf-table thead th { background: #f8fafc; padding: 13px 16px; font-weight: 600; color: #64748b; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+.pf-table tbody td { padding: 14px 16px; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
+.pf-table tbody tr:last-child td { border-bottom: none; }
+.pf-table tbody tr:hover td { background: #f8fafc; }
+.pf-badge-id { display: inline-block; background: #f1f5f9; color: #64748b; border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 600; }
+.pf-app-link { font-weight: 600; color: #0f172a; text-decoration: none; }
+.pf-app-link:hover { color: #2563eb; text-decoration: none; }
+.pf-status-normal { background: #f0fdf4; color: #16a34a; }
+.pf-status-recycled { background: #fef3c7; color: #d97706; }
+.pf-status-tag { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.pf-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pf-btn-act { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 7px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: opacity .16s, transform .1s; }
+.pf-btn-act:hover { opacity: .82; transform: translateY(-1px); text-decoration: none; }
+.pf-btn-edit    { background: #eff6ff; color: #2563eb; }
+.pf-btn-clean   { background: #fff7ed; color: #ea580c; }
+.pf-btn-restore { background: #f0fdf4; color: #16a34a; }
+.pf-btn-del     { background: #fef2f2; color: #dc2626; }
+.pf-empty-state { text-align: center; padding: 48px; color: #94a3b8; font-size: 14px; }
+.pf-pagination { padding: 14px 20px; display: flex; justify-content: center; }
 </style>
-<div class="subapp-search">
-    <form method="get" class="form-inline">
-        <input type="hidden" name="r" value="admin/app/other-app">
-        <input value="{$keyword}" placeholder="名称/账户" type="text" name="keyword"
-               class="form-control form-control-sm">
-        <button style="cursor: pointer" class="btn btn-link btn-sm"><img src="__image__/admin/A/search.png" alt=""></button>
-    </form>
+
+<div class="pf-page-header">
+    <div class="pf-page-title">子账户的客服系统</div>
+    <div class="pf-search-bar">
+        <form method="get" class="form-inline" style="display:flex;align-items:center;gap:8px;">
+            <input type="hidden" name="r" value="admin/app/other-app">
+            <input value="{$keyword}" placeholder="名称 / 账户" type="text" name="keyword">
+            <button type="submit" class="pf-search-btn">搜索</button>
+        </form>
+    </div>
 </div>
-<div class="modal add-modal fade" id="add-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+<div class="pf-card">
+    <table class="pf-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>所属账户</th>
+                <th>客服系统名称</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+        {if condition="count($list) == 0"}
+            <tr><td colspan="5"><div class="pf-empty-state">暂无相关客服系统</div></td></tr>
+        {/if}
+        {volist name="list" id="item"}
+        <tr>
+            <td><span class="pf-badge-id">{$item['id']}</span></td>
+            <td>{$item['admin']['username']}</td>
+            <td>
+                {if condition="$item['is_recycle'] == 0"}
+                    <a class="pf-app-link" href="{:url('app/entry', ['id' => $item['id']])}">{$item['business_name']}</a>
+                {else/}
+                    <span class="pf-app-link" style="color:#94a3b8;">{$item['business_name']}</span>
+                {/if}
+            </td>
+            <td>
+                {if condition="$item['is_recycle'] == 1"}
+                    <span class="pf-status-tag pf-status-recycled">回收站</span>
+                {else/}
+                    <span class="pf-status-tag pf-status-normal">正常</span>
+                {/if}
+            </td>
+            <td>
+                <div class="pf-actions">
+                    <a href="#" data-toggle="modal" class="pf-btn-act pf-btn-edit edit-app"
+                       id="{:url('platform/app/edit', ['id' => $item['id']])}" data-target="#add-modal">编辑</a>
+                    <a href="#" data-toggle="modal" class="pf-btn-act pf-btn-clean clean-app"
+                       id="{:url('platform/app/truncate', ['id' => $item['id']])}" data-target="#clean-modal">清理</a>
+                    {if condition="$item['is_recycle'] == 0"}
+                        <a class="pf-btn-act pf-btn-del recycle-btn"
+                           data-desc="确认将客服系统放进回收站？"
+                           href="{:url('app/setRecycle', ['id' => $item['id'],'action'=>1])}">放入回收站</a>
+                    {else/}
+                        <a class="pf-btn-act pf-btn-restore recycle-btn"
+                           data-desc="确认恢复客服系统？"
+                           href="{:url('app/setRecycle', ['id' => $item['id'],'action'=>0])}">恢复</a>
+                    {/if}
+                    <a class="pf-btn-act pf-btn-del delete-btn"
+                       href="{:url('app/delete', ['id' => $item['id']])}">彻底删除</a>
+                </div>
+            </td>
+        </tr>
+        {/volist}
+        </tbody>
+    </table>
+    <div class="pf-pagination">{$page}</div>
+</div>
+
+<!-- 编辑客服系统 Modal -->
+<div class="modal add-modal fade" id="add-modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" style="border-radius:14px;overflow:hidden;">
             <div class="modal-header">
-                <div class="modal-title" id="myModalLabel"><b>添加客服系统</b></div>
+                <div class="modal-title">添加客服系统</div>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             </div>
             <div class="add-modal-body modal-body"></div>
         </div>
     </div>
 </div>
-<table class="subapp-list table bg-white">
-    <thead>
-    <tr style="font-size: 13px;color: #555555">
-        <th></th>
-        <th>ID</th>
-        <th>账户</th>
-        <th>名称</th>
-        <th>状态</th>
-        <th>操作</th>
-    </tr>
-    </thead>
-    {if condition="count($list) == 0"}
-    <tr>
-        <td colspan="5" class="text-center p-5">
-            <!--<a href="javascript:" class="add-app">添加客服系统商城</a>-->
-            <span class="text-muted">暂无相关客服系统</>
-        </td>
-    </tr>
-    {/if}
-    {volist name="list" id="item"}
-    <col style="width: 32px">
-    <col style="width: 94px">
-    <col style="width: 208px">
-    <col style="width: 220px">
-    <col style="width: 164px">
-    <col>
-    <tr>
-        <td></td>
-        <td>{$item['id']}</td>
-        <td>{$item['admin']['username']}</td>
-        <td>
-            {if condition="$item['is_recycle'] == 0 "}
-            <a style="color: #05202d;text-decoration: none;" href="{:url('app/entry', ['id' => $item['id']])}">{$item['business_name']}</a>
-            {else/}
-            {$item['business_name']}
-            {/if}
-        </td>
-        <td>
-            {$item['is_recycle'] == 1 ? '回收站': '正常'}
-        </td>
-        <td class="operate">
-            <a href="#" data-toggle="modal" class="edit-app" id="{:url('platform/app/edit', ['id' => $item['id']])}" data-target="#add-modal"><img src="__image__/admin/A/edit.png" alt="编辑"></a>
-            <a href="#" data-toggle="modal" class="clean-app" id="{:url('platform/app/truncate',  ['id' => $item['id']])}" data-target="#clean-modal">
-			<img src="__image__/platform/truncate.png" alt="清理磁盘" title="清理磁盘"></a>    
-            {if condition="$item['is_recycle'] == 0"}
-            <a class="recycle-btn"
-               data-desc="确认将客服系统放进回收站？"
-               href="{:url('app/setRecycle', ['id' => $item['id'],'action'=>1])}"><img src="__image__/admin/A/restore.png" alt=""></a>
-            {else/}
-            <a class="recycle-btn"
-               data-desc="确认恢复客服系统？"
-               href="{:url('app/setRecycle', ['id' => $item['id'],'action'=>0])}"><img src="__image__/admin/A/recover.png" alt=""></a>
-            {/if}
-            <a class="delete-btn" href="{:url('app/delete', ['id' => $item['id']])}"><img src="__image__/admin/A/delete.png" alt=""></a>
-        </td>
-    </tr>
-    {/volist}
-</table>
-<!-- 清理功能 -->
-<div class="modal clean-modal fade" id="clean-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+<!-- 清理 Modal -->
+<div class="modal clean-modal fade" id="clean-modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <!-- 标题 -->
+        <div class="modal-content" style="border-radius:14px;overflow:hidden;">
             <div class="modal-header">
-                <div class="modal-title" id="myModalLabel"><b>清理磁盘空间</b><b style="color: red;">无法找回,请谨慎操作！！！</b></div>
+                <div class="modal-title">清理磁盘空间 <span style="color:#ef4444;font-size:13px;font-weight:400">— 无法找回，请谨慎操作</span></div>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             </div>
-            <div class="clean-modal-body modal-body">
-
-            </div>
+            <div class="clean-modal-body modal-body"></div>
         </div>
     </div>
 </div>
-{$page}
+
 <script>
     $(document).on("click", ".delete-btn", function () {
         var href = $(this).attr("href");
         $.myConfirm({
             content: "确认将客服系统删除？请谨慎操作",
             confirm: function () {
-                $.myLoading({
-                    title: "正在提交",
-                });
-                $.ajax({
-                    url: href,
-                    dataType: "json",
-                    success: function (res) {
-                        $.myLoadingHide();
-                        $.myToast({
-                            content: res.msg,
-                            callback: function () {
-                                location.reload();
-                            }
-                        });
-                    }
-                });
-
+                $.myLoading({ title: "正在提交" });
+                $.ajax({ url: href, dataType: "json", success: function (res) {
+                    $.myLoadingHide();
+                    $.myToast({ content: res.msg, callback: function () { location.reload(); }});
+                }});
             }
         });
         return false;
@@ -310,47 +148,24 @@
         $.myConfirm({
             content: desc,
             confirm: function () {
-                $.myLoading({
-                    title: "正在提交",
-                });
-                $.ajax({
-                    url: href,
-                    dataType: "json",
-                    success: function (res) {
-                        $.myLoadingHide();
-                        $.myToast({
-                            content: res.msg,
-                            callback: function () {
-                                location.reload();
-                            }
-                        });
-                    }
-                });
+                $.myLoading({ title: "正在提交" });
+                $.ajax({ url: href, dataType: "json", success: function (res) {
+                    $.myLoadingHide();
+                    $.myToast({ content: res.msg, callback: function () { location.reload(); }});
+                }});
             }
         });
         return false;
     });
 
-    $(document).on("click",".clean-app",function () {
-        let id = this.id;
-        $.ajax({
-            url: id,
-            success: function (data) {
-                var result = $(data);
-                $(".clean-modal-body").html(result);
-            }
-        })
+    $(document).on("click", ".clean-app", function () {
+        var id = this.id;
+        $.ajax({ url: id, success: function (data) { $(".clean-modal-body").html($(data)); }});
     });
 
     $(document).on("click", ".edit-app", function () {
-        let id = this.id;
-        $('.add-modal').find('.modal-title').text('编辑客服系统')
-        $.ajax({
-            url: id,
-            success: function (data) {
-                var result = $(data);
-                $(".add-modal-body").html(result);
-            }
-        })
+        var id = this.id;
+        $('.add-modal').find('.modal-title').text('编辑客服系统');
+        $.ajax({ url: id, success: function (data) { $(".add-modal-body").html($(data)); }});
     });
 </script>

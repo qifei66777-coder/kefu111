@@ -786,6 +786,5 @@ $content='';
     }
 
     public function test(){
-        var_dump(\app\Common::clearXSS('121313&&&&156479'));
     }
 }
