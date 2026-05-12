@@ -266,15 +266,14 @@
             return;
         }
 
-        if (action === 'copy-link') {
-            closeActions();
-            openChannelCreator('link');
-        } else if (action === 'qrcode') {
+        if (action === 'qrcode') {
             closeActions();
             openChannelCreator('qr');
-        } else if (action === 'new-chat') {
+        } else if (action === 'qr-manage') {
             closeActions();
-            openChannelCreator('qr');
+            window.location.href = window.YMWL_ROOT_URL
+                ? window.YMWL_ROOT_URL + '/admin/qrchannel/channelPage'
+                : '/admin/qrchannel/channelPage';
         } else {
             closeActions();
         }

@@ -788,3 +788,61 @@ body.adm-modern .layui-table img[style*="border-radius"] {
   max-width: 40px !important;
   max-height: 40px !important;
 }
+
+/* ========== 移动端适配 ========== */
+@media (max-width: 768px) {
+  body.adm-modern #layout-west {
+    display: none !important;
+  }
+  body.adm-modern #layout-center {
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: auto !important;
+    width: 100% !important;
+    min-height: 100vh;
+    overflow: visible !important;
+  }
+  body.adm-modern.adm-sidebar-collapsed:not(.adm-page-chats) #layout-center {
+    left: 0 !important;
+    width: 100% !important;
+  }
+  body.adm-modern .adm-topbar {
+    flex-wrap: wrap;
+    padding: 8px 12px !important;
+    gap: 6px;
+  }
+  body.adm-modern .adm-topbar-center {
+    order: 3;
+    width: 100%;
+  }
+  body.adm-modern .adm-search-input {
+    width: 100% !important;
+  }
+  body.adm-modern #container.adm-content-shell {
+    margin: 8px !important;
+    padding: 12px !important;
+    overflow-x: auto;
+  }
+  body.adm-modern #rr-container.adm-content-shell,
+  body.adm-modern #wrap.adm-content-shell {
+    height: auto;
+    margin: 8px !important;
+    padding: 12px !important;
+  }
+  /* Layui table 横向可滚动 */
+  body.adm-modern .layui-table-view {
+    overflow-x: auto !important;
+  }
+  /* Layui 弹窗自适应 */
+  body.adm-modern .layui-layer {
+    max-width: 96vw !important;
+    left: 2vw !important;
+    right: 2vw !important;
+  }
+  body.adm-modern .layui-layer .layui-layer-content {
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+  }
+}

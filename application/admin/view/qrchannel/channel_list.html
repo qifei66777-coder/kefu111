@@ -7,6 +7,30 @@
     .qr-create-form .layui-form-item { margin-bottom: 14px; }
     .qr-create-form label.layui-form-label { width: 90px; }
     .qr-create-form .layui-input-block { margin-left: 100px; }
+
+    @media (max-width: 768px) {
+        #container { padding: 10px 8px 24px; }
+        .page-header { font-size: 16px !important; }
+        .qr-toolbar .layui-input-inline {
+            display: block;
+            width: 100% !important;
+            margin-right: 0;
+            margin-bottom: 8px;
+        }
+        .qr-toolbar .layui-input-inline .layui-input,
+        .qr-toolbar .layui-input-inline select {
+            width: 100% !important;
+        }
+        .qr-create-form label.layui-form-label {
+            width: auto;
+            text-align: left;
+            padding: 6px 0;
+        }
+        .qr-create-form .layui-input-block {
+            margin-left: 0;
+        }
+        #create-channel-form { padding: 12px 10px 4px !important; }
+    }
 </style>
 <script type="text/javascript" src="/assets/js/arale-qrcode.js"></script>
 <div id="container" class="adm-content-shell">
@@ -119,10 +143,11 @@ layui.use(['table', 'form', 'layer', 'laydate'], function () {
         $('#cr_remark').val('');
         $('#cr_template').val('0');
         document.getElementById('cr_one_to_one').checked = false;
+        var dlgW = window.innerWidth < 500 ? (window.innerWidth - 20) + 'px' : '480px';
         layer.open({
             type: 1,
             title: '创建二维码渠道',
-            area: ['480px', 'auto'],
+            area: [dlgW, 'auto'],
             content: $('#create-channel-form'),
             btn: ['生成二维码', '取消'],
             success: function () {
@@ -156,10 +181,11 @@ layui.use(['table', 'form', 'layer', 'laydate'], function () {
                             + '<p style="word-break:break-all;font-size:12px;color:#555;background:#f5f5f5;padding:8px;border-radius:4px;">' + url + '</p>'
                             + '<button class="layui-btn layui-btn-sm layui-btn-normal" onclick="(function(){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(\'' + url.replace(/'/g, "\\'") + '\').then(function(){layui.layer.msg(\'已复制\')}).catch(function(){prompt(\'复制链接\',\'' + url.replace(/'/g, "\\'") + '\')});}else{prompt(\'复制链接\',\'' + url.replace(/'/g, "\\'") + '\');}})()">复制链接</button>'
                             + '</div>';
+                        var resW = window.innerWidth < 420 ? (window.innerWidth - 20) + 'px' : '400px';
                         layer.open({
                             type: 1,
                             title: '创建成功 - ' + remark,
-                            area: ['400px', 'auto'],
+                            area: [resW, 'auto'],
                             content: html,
                             success: function () {
                                 setTimeout(function () {
@@ -177,13 +203,17 @@ layui.use(['table', 'form', 'layer', 'laydate'], function () {
         });
     });
 
-    var tableIns = table.render({
-        elem: '#qr-channel-table',
-        url: YMWL_ROOT_URL + '/admin/qrchannel/channelList',
-        method: 'get',
-        page: true,
-        limit: 20,
-        cols: [[
+    var isMobile = window.innerWidth < 768;
+    var tableCols = isMobile ? [[
+            { field: 'remark', title: '备注', minWidth: 100 },
+            { field: 'status', title: '状态', width: 60, templet: function (d) {
+                if (d.status == 1) return '<span style="color:green">启用</span>';
+                if (d.status == 0) return '<span style="color:#999">禁用</span>';
+                return d.status;
+            }},
+            { field: 'scan_count', title: '扫码', width: 60 },
+            { title: '操作', width: 200, align: 'center', toolbar: '#qr-channel-bar' }
+    ]] : [[
             { field: 'channel_id', title: 'ID', width: 70 },
             { field: 'remark', title: '备注', minWidth: 120 },
             { field: 'service_nick', title: '所属客服', width: 120, templet: function (d) {
@@ -206,7 +236,15 @@ layui.use(['table', 'form', 'layer', 'laydate'], function () {
             }},
             { field: 'created_at', title: '创建时间', width: 160 },
             { title: '操作', width: 320, align: 'center', fixed: 'right', toolbar: '#qr-channel-bar' }
-        ]],
+    ]];
+
+    var tableIns = table.render({
+        elem: '#qr-channel-table',
+        url: YMWL_ROOT_URL + '/admin/qrchannel/channelList',
+        method: 'get',
+        page: true,
+        limit: isMobile ? 10 : 20,
+        cols: tableCols,
         parseData: function (res) {
             return { code: res.code === 0 ? 0 : 1, msg: res.msg, count: res.count, data: res.data || [] };
         }
@@ -284,15 +322,18 @@ layui.use(['table', 'form', 'layer', 'laydate'], function () {
                 if (res.code !== 0) { layer.msg(res.msg || '加载失败', { icon: 2 }); return; }
                 var html = '<pre style="text-align:left;max-height:400px;overflow:auto;font-size:12px;padding:12px;">'
                     + JSON.stringify(res.data, null, 2) + '</pre>';
-                layer.open({ type: 1, title: '渠道 #' + d.channel_id + ' 详情', area: ['640px', '520px'], content: html });
+                var detailW = window.innerWidth < 660 ? (window.innerWidth - 20) + 'px' : '640px';
+                var detailH = window.innerWidth < 660 ? (window.innerHeight - 40) + 'px' : '520px';
+                layer.open({ type: 1, title: '渠道 #' + d.channel_id + ' 详情', area: [detailW, detailH], content: html });
             }, 'json');
             return;
         }
         if (obj.event === 'qrcode') {
+            var qrW = window.innerWidth < 340 ? (window.innerWidth - 20) + 'px' : '320px';
             layer.open({
                 type: 1,
                 title: '渠道 #' + d.channel_id,
-                area: ['320px', '380px'],
+                area: [qrW, 'auto'],
                 content: '<div id="qr-preview-box"></div><p style="word-break:break-all;padding:0 12px;font-size:12px;color:#666;">' + (d.qr_url || '') + '</p>'
             });
             setTimeout(function () { renderQr(d.qr_url, d.qr_image); }, 50);
