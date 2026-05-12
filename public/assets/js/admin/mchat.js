@@ -141,6 +141,7 @@ var group = new Vue({
                         that.area=str;
                     }
 
+                    updateVisitorInfoBar(that);
                 }
             }
         }
@@ -182,12 +183,19 @@ var group = new Vue({
     }
 });
 
+function updateVisitorInfoBar(vm) {
+    var device = vm.login_device || '--';
+    var region = vm.area ? (vm.ip + ' ' + vm.area) : (vm.ip || '--');
+    var source = vm.from_url || '--';
+    if (source.length > 30) {
+        try { source = new URL(source).hostname; } catch (e) {}
+    }
+    $('#mtalkInfoDevice em').text(device);
+    $('#mtalkInfoRegion em').text(region);
+    $('#mtalkInfoSource em').text(source);
+}
+
 $(function () {
-    // let height = +document.documentElement.clientHeight;
-    // window.scrollTop(height);
-    // $('.content').css({
-    //     height: height - 144
-    // });
     group.getUser();
     group.getstatus();
 });

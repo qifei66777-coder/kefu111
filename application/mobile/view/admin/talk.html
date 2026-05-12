@@ -160,7 +160,7 @@
     </script>
     <link rel="stylesheet" href="__assets__/css/admin/mtalk.css?v=__lkversion__" />
     <link rel="stylesheet" href="__assets__/css/rich-reply.css?v=__lkversion__" />
-    <link rel="stylesheet" href="/assets/css/kefu-coffee.css?v=__lkversion__" />
+    <link rel="stylesheet" href="__assets__/css/kefu-coffee.css?v=__lkversion__" />
     <style type="text/css">
         /* Mobile rich reply panel */
         #mRichPanel {
@@ -320,7 +320,7 @@
         background: #f3f5f8 !important;
         padding-top: 0;
     }
-    .content#wrap > div:first-child { height: 62px !important; }
+    .content#wrap > div:first-child { height: 92px !important; }
     #bottom { height: 100px !important; }
 
     .conversation { padding: 8px 10px; }
@@ -433,6 +433,39 @@
     .newmsg.hide { display: none; }
 
     #mRichPanel { border-radius: 16px 16px 0 0; bottom: 0 !important; }
+
+    .mtalk-visitor-info {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        right: 0;
+        z-index: 98;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: rgba(255,255,255,.96);
+        border-bottom: 1px solid #e9edf2;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .mtalk-visitor-info::-webkit-scrollbar { display: none; }
+    .mtalk-info-tag {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 3px 9px;
+        border-radius: 10px;
+        background: #eef4ff;
+        color: #4e6f9f;
+        font-size: 11px;
+        white-space: nowrap;
+        line-height: 1.4;
+    }
+    .mtalk-info-tag i { font-size: 12px; }
+    .mtalk-info-tag em { font-style: normal; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
     </style>
 </head><body class="kefu-coffee">
 <audio id="chat-message-audio">
@@ -446,6 +479,11 @@
         id="status"></span></span>
         <img style="position:absolute;right:15px;width: 18px;height: 18px;top: 16px;" src="__image__/mobile/more.png" class="showUinfo">
 </header>
+        <div class="mtalk-visitor-info" id="mtalkVisitorInfo">
+            <span class="mtalk-info-tag" id="mtalkInfoDevice"><i class="layui-icon">&#xe7ae;</i> <em>--</em></span>
+            <span class="mtalk-info-tag" id="mtalkInfoRegion"><i class="layui-icon">&#xe715;</i> <em>--</em></span>
+            <span class="mtalk-info-tag" id="mtalkInfoSource"><i class="layui-icon">&#xe64c;</i> <em>--</em></span>
+        </div>
         <section class="content" id="wrap" style="background-color: #f7f7f7">
             <div style="height: 55px;width: 100%;"></div>
             <ul class="conversation" id="log">
@@ -726,7 +764,12 @@
     }
     function doScroll() {
         var w = getWrap();
-        if (w) w.scrollTop = w.scrollHeight;
+        if (w) {
+            w.scrollTop = w.scrollHeight;
+            if (w.scrollTop > 0 || w.scrollHeight <= w.clientHeight) return;
+        }
+        var se = document.scrollingElement || document.documentElement;
+        se.scrollTop = se.scrollHeight;
     }
     function scrollChatToBottom() {
         doScroll();

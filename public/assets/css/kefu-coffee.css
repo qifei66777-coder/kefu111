@@ -1,4 +1,4 @@
-/* 栗子集团 · 客服专用 咖啡色主题
+/* 荔枝集团 · 客服专用 咖啡色主题
    使用：在 body 上加 class="kefu-coffee" 启用；
    覆盖范围：客服端登录、注册、工作台、移动客服台。 */
 
@@ -223,6 +223,17 @@ body.kefu-coffee .mobile-action-sheet button[data-action="cancel"],
 body.kefu-coffee .mobile-action-sheet button[data-wb-mobile-action="cancel"] {
     background: rgba(220, 38, 38, .12) !important;
     color: #c0392b !important;
+}
+
+/* 聊天页访客信息条 */
+body.kefu-coffee .mtalk-visitor-info {
+    background: rgba(62, 39, 35, .92) !important;
+    border-bottom: 1px solid rgba(201, 138, 81, .2) !important;
+}
+body.kefu-coffee .mtalk-info-tag {
+    background: rgba(201, 138, 81, .18) !important;
+    color: #efe5d6 !important;
+    border: 1px solid rgba(201, 138, 81, .22);
 }
 
 /* 移动端品牌条：在 topbar 上方插入一层 */
