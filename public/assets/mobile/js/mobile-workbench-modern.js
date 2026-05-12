@@ -173,24 +173,26 @@
     }
 
     function showChannelResult(url, remark, oneToOne) {
-        var contentHtml = '<div id="mqr-result-wrap" style="padding:18px 16px 8px;text-align:center;background:#fff;">'
-            + '<div style="font-size:15px;color:#0f172a;margin-bottom:6px;font-weight:600;">' + html(remark) + '</div>'
-            + (oneToOne ? '<div style="font-size:11px;color:#ea580c;margin-bottom:10px;">一客户一码 · 仅首次扫码者可用</div>' : '')
-            + '<div id="mqr-canvas-host" style="display:flex;justify-content:center;margin:10px 0;"></div>'
-            + '<p style="margin-top:8px;font-size:11px;color:#64748b;word-break:break-all;padding:0 8px;line-height:1.5;">' + html(url) + '</p>'
-            + '<button id="mqr-copy-btn" type="button" style="margin:8px 0 12px;background:#1677ff;color:#fff;border:none;border-radius:10px;padding:9px 26px;font-size:14px;cursor:pointer;">复制链接</button>'
+        var isMobile = window.innerWidth <= 768;
+        var qrSize = isMobile ? 150 : 200;
+        var contentHtml = '<div id="mqr-result-wrap" style="padding:10px 14px 6px;text-align:center;background:#fff;">'
+            + '<div style="font-size:14px;color:#0f172a;margin-bottom:4px;font-weight:600;">' + html(remark) + '</div>'
+            + (oneToOne ? '<div style="font-size:11px;color:#ea580c;margin-bottom:4px;">一客户一码 · 仅首次扫码者可用</div>' : '')
+            + '<div id="mqr-canvas-host" style="display:flex;justify-content:center;margin:6px 0;"></div>'
+            + '<p style="margin-top:4px;font-size:10px;color:#64748b;word-break:break-all;padding:0 6px;line-height:1.4;">' + html(url) + '</p>'
+            + '<button id="mqr-copy-btn" type="button" style="margin:6px 0 8px;background:#1677ff;color:#fff;border:none;border-radius:10px;padding:8px 24px;font-size:13px;cursor:pointer;">复制链接</button>'
             + '</div>';
         layer.open({
             type: 1,
             title: '专属接待二维码',
-            area: ['88%', 'auto'],
+            area: [isMobile ? '85%' : '88%', 'auto'],
             content: contentHtml,
             success: function () {
                 if (typeof AraleQRCode !== 'undefined') {
                     var host = document.getElementById('mqr-canvas-host');
                     if (host) {
                         try {
-                            host.appendChild(new AraleQRCode({ render: 'canvas', text: url, size: 200, background: '#fff', foreground: '#000' }));
+                            host.appendChild(new AraleQRCode({ render: 'canvas', text: url, size: qrSize, background: '#fff', foreground: '#000' }));
                         } catch (e) {
                             host.innerHTML = '<div style="color:#94a3b8;font-size:12px;">二维码生成失败，请使用链接</div>';
                         }

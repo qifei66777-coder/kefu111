@@ -442,22 +442,35 @@
 /* ── P0-2: Mobile QR code popup fix ── */
 @media (max-width: 768px) {
     .layui-layer {
-        max-height: 90vh !important;
-        overflow-y: auto !important;
+        max-height: 92vh !important;
+        overflow: visible !important;
     }
     .layui-layer .layui-layer-content {
-        max-height: calc(90vh - 50px) !important;
-        overflow-y: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    .layui-layer .layui-layer-title {
+        padding: 0 10px !important;
+        height: 36px !important;
+        line-height: 36px !important;
+        font-size: 14px !important;
     }
     #mqr-result-wrap {
-        max-height: calc(85vh - 80px);
-        overflow-y: auto;
+        padding: 8px 12px 4px !important;
     }
     #mqr-result-wrap img,
     #mqr-result-wrap canvas,
     #mqr-canvas-host canvas {
-        max-width: 200px !important;
+        max-width: 150px !important;
         height: auto !important;
+    }
+}
+
+/* 极小屏幕兜底：仅在此时允许内部滚动 */
+@media (max-height: 500px) and (max-width: 768px) {
+    .layui-layer .layui-layer-content {
+        max-height: calc(90vh - 40px) !important;
+        overflow-y: auto !important;
     }
 }
 
