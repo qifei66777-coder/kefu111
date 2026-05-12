@@ -791,9 +791,15 @@ body.adm-modern .layui-table img[style*="border-radius"] {
 
 /* ========== 移动端适配 ========== */
 @media (max-width: 768px) {
+  /* 隐藏 PC 侧边栏 */
   body.adm-modern #layout-west {
     display: none !important;
   }
+  /* 品牌条精简 */
+  body.adm-modern .kefu-brand-strip {
+    display: none !important;
+  }
+  /* 内容区全屏 */
   body.adm-modern #layout-center {
     position: relative !important;
     left: 0 !important;
@@ -803,46 +809,108 @@ body.adm-modern .layui-table img[style*="border-radius"] {
     width: 100% !important;
     min-height: 100vh;
     overflow: visible !important;
+    overflow-x: hidden !important;
   }
   body.adm-modern.adm-sidebar-collapsed:not(.adm-page-chats) #layout-center {
     left: 0 !important;
     width: 100% !important;
   }
+  /* 顶栏简化 */
   body.adm-modern .adm-topbar {
     flex-wrap: wrap;
-    padding: 8px 12px !important;
+    padding: 10px 12px !important;
     gap: 6px;
+    position: sticky !important;
+    top: 0;
+    z-index: 100;
+    background: var(--adm-bg, #f0f2f5) !important;
+  }
+  body.adm-modern .adm-topbar-left {
+    flex: 1;
   }
   body.adm-modern .adm-topbar-center {
-    order: 3;
-    width: 100%;
+    display: none !important;
   }
-  body.adm-modern .adm-search-input {
-    width: 100% !important;
+  body.adm-modern .adm-topbar-right {
+    flex: 0 0 auto;
   }
+  body.adm-modern .adm-topbar-right .am-dropdown,
+  body.adm-modern .adm-topbar-right .handle,
+  body.adm-modern .adm-topbar-right .profile,
+  body.adm-modern .adm-notify-btn {
+    display: none !important;
+  }
+  body.adm-modern .adm-topbar-title {
+    font-size: 16px !important;
+    max-width: none !important;
+  }
+  body.adm-modern .adm-menu-trigger {
+    display: none !important;
+  }
+  /* 内容卡片 */
   body.adm-modern #container.adm-content-shell {
     margin: 8px !important;
-    padding: 12px !important;
+    padding: 12px 10px !important;
     overflow-x: auto;
+    border-radius: 12px !important;
   }
   body.adm-modern #rr-container.adm-content-shell,
   body.adm-modern #wrap.adm-content-shell {
     height: auto;
     margin: 8px !important;
-    padding: 12px !important;
+    padding: 12px 10px !important;
   }
-  /* Layui table 横向可滚动 */
+  /* Layui table */
   body.adm-modern .layui-table-view {
     overflow-x: auto !important;
+  }
+  body.adm-modern .layui-table-cell {
+    height: auto !important;
+    white-space: normal !important;
+    line-height: 1.4 !important;
+    padding: 6px 8px !important;
+  }
+  body.adm-modern .layui-table th,
+  body.adm-modern .layui-table td {
+    padding: 6px 4px !important;
+    font-size: 12px !important;
+  }
+  body.adm-modern .layui-btn-xs {
+    padding: 0 6px !important;
+    height: 24px !important;
+    line-height: 24px !important;
+    font-size: 11px !important;
+    margin: 2px 1px !important;
+  }
+  body.adm-modern .layui-table-page {
+    padding: 8px !important;
   }
   /* Layui 弹窗自适应 */
   body.adm-modern .layui-layer {
     max-width: 96vw !important;
-    left: 2vw !important;
-    right: 2vw !important;
+    min-width: 0 !important;
   }
   body.adm-modern .layui-layer .layui-layer-content {
     max-height: 80vh !important;
     overflow-y: auto !important;
   }
+  /* 移动端返回按钮 */
+  .adm-mobile-back {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    margin-right: 8px;
+    border-radius: 8px;
+    background: rgba(0,0,0,.06);
+    color: var(--adm-text, #1f1f1f);
+    font-size: 13px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+  }
+  .adm-mobile-back:hover { background: rgba(0,0,0,.1); text-decoration: none; color: inherit; }
+}
+@media (min-width: 769px) {
+  .adm-mobile-back { display: none !important; }
 }
