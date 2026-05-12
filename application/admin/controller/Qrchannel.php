@@ -124,6 +124,11 @@ class Qrchannel extends Base
         $templateId = intval($this->request->post('template_id', 0));
         $remark = trim($this->request->post('remark', ''));
         $oneToOne = intval($this->request->post('one_to_one', 0)) ? 1 : 0;
+        $validThemes = ['blue', 'green', 'purple', 'orange', 'red'];
+        $posterTheme = trim($this->request->post('poster_theme', 'blue'));
+        if (!in_array($posterTheme, $validThemes)) {
+            $posterTheme = 'blue';
+        }
 
         if ($templateId > 0) {
             $template = Db::name('qr_templates')
@@ -150,6 +155,7 @@ class Qrchannel extends Base
             'status' => 1,
             'scan_count' => 0,
             'one_to_one' => $oneToOne,
+            'poster_theme' => $posterTheme,
             'locked_visiter_id' => '',
             'last_scan_time' => 0,
             'create_time' => $now,
@@ -981,6 +987,7 @@ class Qrchannel extends Base
             'qr_image'          => $tplImg,
             'scan_count'        => (int) $r['scan_count'],
             'one_to_one'        => (int) (isset($r['one_to_one']) ? $r['one_to_one'] : 0),
+            'poster_theme'      => isset($r['poster_theme']) && $r['poster_theme'] !== '' ? $r['poster_theme'] : 'blue',
             'locked_visiter_id' => isset($r['locked_visiter_id']) ? $r['locked_visiter_id'] : '',
             'status'            => (int) $r['status'],
             'created_at'        => !empty($r['create_time']) ? date('Y-m-d H:i:s', (int) $r['create_time']) : '',

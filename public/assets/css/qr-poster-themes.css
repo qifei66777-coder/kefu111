@@ -1,0 +1,312 @@
+/* QR Poster Template — 5 Color Themes
+   Single layout structure, 5 theme variants via .theme-{color} class */
+
+.qr-poster {
+    width: 320px;
+    max-width: 92vw;
+    margin: 0 auto;
+    border-radius: 18px;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    position: relative;
+    background: var(--qp-bg);
+    color: var(--qp-text);
+    box-shadow: 0 8px 30px rgba(0,0,0,.12);
+}
+
+.qr-poster__bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+}
+.qr-poster__bg::before,
+.qr-poster__bg::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    opacity: .18;
+    background: var(--qp-deco);
+}
+.qr-poster__bg::before {
+    width: 180px;
+    height: 180px;
+    top: -40px;
+    right: -30px;
+}
+.qr-poster__bg::after {
+    width: 120px;
+    height: 120px;
+    bottom: 60px;
+    left: -30px;
+}
+
+.qr-poster__body {
+    position: relative;
+    z-index: 1;
+    padding: 28px 22px 20px;
+    text-align: center;
+}
+
+.qr-poster__title {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--qp-title);
+    margin: 0 0 4px;
+    letter-spacing: .06em;
+}
+.qr-poster__subtitle {
+    font-size: 14px;
+    color: var(--qp-subtitle);
+    margin: 0 0 12px;
+    letter-spacing: .04em;
+}
+.qr-poster__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 16px;
+    border-radius: 20px;
+    background: var(--qp-badge-bg);
+    color: var(--qp-badge-text);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+.qr-poster__badge::before {
+    content: '\260E';
+    font-size: 15px;
+}
+
+.qr-poster__qr-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    margin: 0 auto 14px;
+    width: fit-content;
+    box-shadow: 0 4px 18px rgba(0,0,0,.06);
+    border: 2px solid var(--qp-card-border);
+}
+.qr-poster__qr-card canvas,
+.qr-poster__qr-card img {
+    display: block;
+    border-radius: 6px;
+}
+
+.qr-poster__remark {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--qp-title);
+    margin-bottom: 6px;
+    word-break: break-all;
+}
+.qr-poster__one-tag {
+    font-size: 11px;
+    color: var(--qp-accent);
+    margin-bottom: 6px;
+}
+.qr-poster__url {
+    font-size: 9px;
+    color: var(--qp-muted);
+    word-break: break-all;
+    line-height: 1.4;
+    padding: 0 8px;
+    margin-bottom: 10px;
+}
+
+.qr-poster__footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 6px;
+}
+.qr-poster__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--qp-avatar-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.qr-poster__copy-btn {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    margin: 10px auto 0;
+    padding: 9px 0;
+    border: none;
+    border-radius: 10px;
+    background: var(--qp-btn-bg);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.qr-poster__copy-btn:active {
+    opacity: .85;
+}
+
+.qr-poster__deco-dots {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    z-index: 1;
+    font-size: 18px;
+    opacity: .5;
+}
+.qr-poster__deco-star {
+    position: absolute;
+    z-index: 1;
+    opacity: .35;
+    font-size: 14px;
+}
+.qr-poster__deco-star:nth-child(1) { top: 60px; left: 14px; }
+.qr-poster__deco-star:nth-child(2) { top: 40px; right: 40px; font-size: 10px; }
+.qr-poster__deco-star:nth-child(3) { bottom: 80px; right: 20px; font-size: 12px; }
+
+/* ── Theme: Blue (default) ── */
+.qr-poster.theme-blue {
+    --qp-bg: linear-gradient(160deg, #e8f2ff 0%, #d4e8ff 40%, #f0f6ff 100%);
+    --qp-title: #1a3a6e;
+    --qp-subtitle: #4a6fa5;
+    --qp-text: #2c5282;
+    --qp-badge-bg: rgba(37,99,235,.12);
+    --qp-badge-text: #2563eb;
+    --qp-card-border: rgba(37,99,235,.15);
+    --qp-accent: #2563eb;
+    --qp-muted: #7b9bc5;
+    --qp-btn-bg: #2563eb;
+    --qp-deco: #93bbff;
+    --qp-avatar-bg: #dbeafe;
+}
+
+/* ── Theme: Green ── */
+.qr-poster.theme-green {
+    --qp-bg: linear-gradient(160deg, #e6f9ee 0%, #d1f2df 40%, #f0faf4 100%);
+    --qp-title: #14532d;
+    --qp-subtitle: #3d7a57;
+    --qp-text: #166534;
+    --qp-badge-bg: rgba(22,163,74,.12);
+    --qp-badge-text: #16a34a;
+    --qp-card-border: rgba(22,163,74,.15);
+    --qp-accent: #16a34a;
+    --qp-muted: #6dae86;
+    --qp-btn-bg: #16a34a;
+    --qp-deco: #86efac;
+    --qp-avatar-bg: #dcfce7;
+}
+
+/* ── Theme: Purple ── */
+.qr-poster.theme-purple {
+    --qp-bg: linear-gradient(160deg, #f0e8ff 0%, #e4d6ff 40%, #f5f0ff 100%);
+    --qp-title: #3b1a6e;
+    --qp-subtitle: #6d4fa5;
+    --qp-text: #5b21b6;
+    --qp-badge-bg: rgba(124,58,237,.12);
+    --qp-badge-text: #7c3aed;
+    --qp-card-border: rgba(124,58,237,.15);
+    --qp-accent: #7c3aed;
+    --qp-muted: #a18bc5;
+    --qp-btn-bg: #7c3aed;
+    --qp-deco: #c4b5fd;
+    --qp-avatar-bg: #ede9fe;
+}
+
+/* ── Theme: Orange ── */
+.qr-poster.theme-orange {
+    --qp-bg: linear-gradient(160deg, #fff4e6 0%, #ffe8cc 40%, #fffaf0 100%);
+    --qp-title: #6e3a1a;
+    --qp-subtitle: #a56d3d;
+    --qp-text: #b45309;
+    --qp-badge-bg: rgba(234,88,12,.12);
+    --qp-badge-text: #ea580c;
+    --qp-card-border: rgba(234,88,12,.15);
+    --qp-accent: #ea580c;
+    --qp-muted: #c59a6d;
+    --qp-btn-bg: #ea580c;
+    --qp-deco: #fdba74;
+    --qp-avatar-bg: #ffedd5;
+}
+
+/* ── Theme: Red ── */
+.qr-poster.theme-red {
+    --qp-bg: linear-gradient(160deg, #ffe8e8 0%, #ffd4d4 40%, #fff0f0 100%);
+    --qp-title: #6e1a1a;
+    --qp-subtitle: #a54a4a;
+    --qp-text: #b91c1c;
+    --qp-badge-bg: rgba(220,38,38,.12);
+    --qp-badge-text: #dc2626;
+    --qp-card-border: rgba(220,38,38,.15);
+    --qp-accent: #dc2626;
+    --qp-muted: #c58a8a;
+    --qp-btn-bg: #dc2626;
+    --qp-deco: #fca5a5;
+    --qp-avatar-bg: #fee2e2;
+}
+
+/* ── Template selector in create dialog ── */
+.qp-theme-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+.qp-theme-option {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 2px solid #e0e6ee;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: border-color .15s, box-shadow .15s;
+    overflow: hidden;
+}
+.qp-theme-option.is-selected {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37,99,235,.2);
+}
+.qp-theme-option__swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-bottom: 2px;
+}
+.qp-theme-option__label {
+    font-size: 9px;
+    color: #64748b;
+    line-height: 1;
+}
+.qp-theme-option.is-selected .qp-theme-option__label {
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.qp-theme-option[data-theme="blue"] .qp-theme-option__swatch { background: linear-gradient(135deg, #60a5fa, #2563eb); }
+.qp-theme-option[data-theme="green"] .qp-theme-option__swatch { background: linear-gradient(135deg, #4ade80, #16a34a); }
+.qp-theme-option[data-theme="purple"] .qp-theme-option__swatch { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+.qp-theme-option[data-theme="orange"] .qp-theme-option__swatch { background: linear-gradient(135deg, #fb923c, #ea580c); }
+.qp-theme-option[data-theme="red"] .qp-theme-option__swatch { background: linear-gradient(135deg, #f87171, #dc2626); }
+
+/* Theme label tag in QR management list */
+.qr-theme-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+.qr-theme-tag.tag-blue   { background: #dbeafe; color: #1d4ed8; }
+.qr-theme-tag.tag-green  { background: #dcfce7; color: #15803d; }
+.qr-theme-tag.tag-purple { background: #ede9fe; color: #6d28d9; }
+.qr-theme-tag.tag-orange { background: #ffedd5; color: #c2410c; }
+.qr-theme-tag.tag-red    { background: #fee2e2; color: #b91c1c; }

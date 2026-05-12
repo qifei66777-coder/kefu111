@@ -45,3 +45,23 @@ SELECT 'wolive_visiter.qr_remark' AS object,
        IF(COUNT(*) >= 1, 'OK', 'MISSING_COLUMN') AS result
 FROM information_schema.columns
 WHERE table_schema = DATABASE() AND table_name = 'wolive_visiter' AND column_name = 'qr_remark';
+
+SELECT 'wolive_qr_channels.one_to_one' AS object,
+       IF(COUNT(*) >= 1, 'OK', 'MISSING_COLUMN') AS result
+FROM information_schema.columns
+WHERE table_schema = DATABASE() AND table_name = 'wolive_qr_channels' AND column_name = 'one_to_one';
+
+SELECT 'wolive_qr_channels.locked_visiter_id' AS object,
+       IF(COUNT(*) >= 1, 'OK', 'MISSING_COLUMN') AS result
+FROM information_schema.columns
+WHERE table_schema = DATABASE() AND table_name = 'wolive_qr_channels' AND column_name = 'locked_visiter_id';
+
+SELECT 'wolive_ip_blacklist.created_by_type' AS object,
+       IF(COUNT(*) >= 1, 'OK', 'MISSING_COLUMN') AS result
+FROM information_schema.columns
+WHERE table_schema = DATABASE() AND table_name = 'wolive_ip_blacklist' AND column_name = 'created_by_type';
+
+SELECT 'wolive_ip_blacklist.created_by' AS object,
+       IF(COUNT(*) >= 1, 'OK', 'MISSING_COLUMN') AS result
+FROM information_schema.columns
+WHERE table_schema = DATABASE() AND table_name = 'wolive_ip_blacklist' AND column_name = 'created_by';

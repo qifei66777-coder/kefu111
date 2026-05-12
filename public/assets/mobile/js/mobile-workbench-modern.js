@@ -176,20 +176,39 @@
         };
     }
 
-    function showChannelResult(url, remark, oneToOne) {
-        var isMobile = window.innerWidth <= 768;
-        var qrSize = isMobile ? 150 : 200;
-        var contentHtml = '<div id="mqr-result-wrap" style="padding:10px 14px 6px;text-align:center;background:#fff;">'
-            + '<div style="font-size:14px;color:#0f172a;margin-bottom:4px;font-weight:600;">' + html(remark) + '</div>'
-            + (oneToOne ? '<div style="font-size:11px;color:#ea580c;margin-bottom:4px;">一客户一码 · 仅首次扫码者可用</div>' : '')
-            + '<div id="mqr-canvas-host" style="display:flex;justify-content:center;margin:6px 0;"></div>'
-            + '<p style="margin-top:4px;font-size:10px;color:#64748b;word-break:break-all;padding:0 6px;line-height:1.4;">' + html(url) + '</p>'
-            + '<button id="mqr-copy-btn" type="button" style="margin:6px 0 8px;background:#1677ff;color:#fff;border:none;border-radius:10px;padding:8px 24px;font-size:13px;cursor:pointer;">复制链接</button>'
+    var THEME_LABELS = { blue: '蓝色', green: '绿色', purple: '紫色', orange: '橙色', red: '红色' };
+
+    function buildPosterHtml(url, remark, oneToOne, theme) {
+        theme = theme || 'blue';
+        return '<div class="qr-poster theme-' + theme + '">'
+            + '<div class="qr-poster__bg"></div>'
+            + '<span class="qr-poster__deco-star">✦</span>'
+            + '<span class="qr-poster__deco-star">✦</span>'
+            + '<span class="qr-poster__deco-star">✦</span>'
+            + '<span class="qr-poster__deco-dots">💬</span>'
+            + '<div class="qr-poster__body">'
+            + '<h2 class="qr-poster__title">在线咨询</h2>'
+            + '<p class="qr-poster__subtitle">— 欢迎咨询在线客服 —</p>'
+            + '<div class="qr-poster__badge">服务时间：全天24小时</div>'
+            + '<div class="qr-poster__qr-card"><div id="mqr-canvas-host"></div></div>'
+            + '<div class="qr-poster__remark">' + html(remark) + '</div>'
+            + (oneToOne ? '<div class="qr-poster__one-tag">一客户一码 · 仅首次扫码者可用</div>' : '')
+            + '<div class="qr-poster__url">' + html(url) + '</div>'
+            + '<div class="qr-poster__footer"><div class="qr-poster__avatar">👩‍💼</div></div>'
+            + '<button id="mqr-copy-btn" type="button" class="qr-poster__copy-btn">复制链接</button>'
+            + '</div>'
             + '</div>';
+    }
+
+    function showChannelResult(url, remark, oneToOne, theme) {
+        var isMobile = window.innerWidth <= 768;
+        var qrSize = isMobile ? 160 : 200;
+        var contentHtml = buildPosterHtml(url, remark, oneToOne, theme);
         layer.open({
             type: 1,
-            title: '专属接待二维码',
-            area: [isMobile ? '85%' : '88%', 'auto'],
+            title: false,
+            closeBtn: 1,
+            area: [isMobile ? '92%' : '380px', 'auto'],
             content: contentHtml,
             success: function () {
                 if (typeof AraleQRCode !== 'undefined') {
@@ -209,6 +228,21 @@
         });
     }
 
+    function buildThemeSelector() {
+        var themes = ['blue', 'green', 'purple', 'orange', 'red'];
+        var s = '<label style="display:block;font-size:13px;color:#0f172a;margin-bottom:6px;margin-top:14px;">海报主题</label>'
+            + '<div class="qp-theme-selector" id="mWbThemeSelector">';
+        for (var i = 0; i < themes.length; i++) {
+            var t = themes[i];
+            s += '<div class="qp-theme-option' + (i === 0 ? ' is-selected' : '') + '" data-theme="' + t + '">'
+                + '<div class="qp-theme-option__swatch"></div>'
+                + '<span class="qp-theme-option__label">' + THEME_LABELS[t] + '</span>'
+                + '</div>';
+        }
+        s += '</div>';
+        return s;
+    }
+
     function openChannelCreator(mode) {
         if (!window.layer) return;
         var content = '<div style="padding:16px 16px 4px;">'
@@ -219,6 +253,7 @@
             + '<input id="mWbChOne" type="checkbox" style="width:16px;height:16px;">'
             + '<label for="mWbChOne" style="font-size:13px;color:#374151;">一客户一码（仅首次扫码者可用）</label>'
             + '</div>'
+            + buildThemeSelector()
             + '<div style="margin-top:8px;font-size:11px;color:#94a3b8;">备注名即扫码客户的名字，建议填写客户真实姓名</div>'
             + '</div>';
         layer.open({
@@ -234,11 +269,12 @@
                     return false;
                 }
                 var oneToOne = $('#mWbChOne').prop('checked') ? 1 : 0;
+                var theme = $('#mWbThemeSelector .qp-theme-option.is-selected').attr('data-theme') || 'blue';
                 $.ajax({
                     url: rootUrl('/admin/qrchannel/create'),
                     type: 'post',
                     dataType: 'json',
-                    data: { remark: remark, template_id: 0, one_to_one: oneToOne },
+                    data: { remark: remark, template_id: 0, one_to_one: oneToOne, poster_theme: theme },
                     success: function (res) {
                         if (!res || res.code !== 0) {
                             layer.msg((res && res.msg) ? res.msg : '生成失败');
@@ -256,7 +292,7 @@
                         if (mode === 'link') {
                             copyText(url).then(function () { layer.msg('链接已复制：' + remark); });
                         } else {
-                            showChannelResult(url, remark, oneToOne);
+                            showChannelResult(url, remark, oneToOne, theme);
                         }
                     },
                     error: function () { layer.msg('网络错误'); }
@@ -265,6 +301,10 @@
             }
         });
         setTimeout(function () { $('#mWbChRemark').focus(); }, 80);
+        $(document).off('click.qptheme').on('click.qptheme', '.qp-theme-option', function () {
+            $('.qp-theme-option').removeClass('is-selected');
+            $(this).addClass('is-selected');
+        });
     }
 
     function showQrPanel() {
@@ -326,7 +366,10 @@
                 statusLabel = '未使用';
                 statusClass = 'status-unused';
             }
-            output += '<div class="mobile-qr-card" data-url="' + html(url) + '" data-remark="' + html(name) + '" data-one="' + (item.one_to_one || 0) + '">'
+            var posterTheme = item.poster_theme || 'blue';
+            var themeLabel = THEME_LABELS[posterTheme] || '蓝色';
+            var themeTagClass = 'tag-' + posterTheme;
+            output += '<div class="mobile-qr-card" data-url="' + html(url) + '" data-remark="' + html(name) + '" data-one="' + (item.one_to_one || 0) + '" data-theme="' + html(posterTheme) + '">'
                 + '<div class="mobile-qr-card-head">'
                 + '<div class="mobile-qr-card-name">' + html(name) + '</div>'
                 + '<span class="mobile-qr-card-status ' + statusClass + '">' + statusLabel + '</span>'
@@ -334,7 +377,7 @@
                 + '<div class="mobile-qr-card-meta">'
                 + '<div class="mobile-qr-card-meta-item">扫码 <strong>' + scanCount + '</strong> 次</div>'
                 + '<div class="mobile-qr-card-meta-item">创建 <strong>' + html(createdAt ? createdAt.substring(0, 10) : '-') + '</strong></div>'
-                + '<div class="mobile-qr-card-meta-item">最近扫码 <strong>' + html(lastScan || '无') + '</strong></div>'
+                + '<div class="mobile-qr-card-meta-item">模板 <span class="qr-theme-tag ' + themeTagClass + '">' + themeLabel + '</span></div>'
                 + (item.one_to_one == 1 ? '<div class="mobile-qr-card-meta-item">模式 <strong>一客一码</strong></div>' : '')
                 + '</div>'
                 + '<div class="mobile-qr-card-actions">'
@@ -536,11 +579,12 @@
             var url = $card.attr('data-url');
             var remark = $card.attr('data-remark');
             var oneToOne = parseInt($card.attr('data-one'), 10);
+            var theme = $card.attr('data-theme') || 'blue';
             if (!url) {
                 if (window.layer) layer.msg('该渠道链接为空');
                 return;
             }
-            showChannelResult(url, remark, oneToOne);
+            showChannelResult(url, remark, oneToOne, theme);
         });
 
         $('#MobileQrList').on('click', '.mobile-qr-btn-copy', function () {

@@ -961,7 +961,7 @@ var getstate =function(obj){
                             url: YMWL_ROOT_URL + '/admin/qrchannel/create',
                             type: 'POST',
                             dataType: 'json',
-                            data: { template_id: templateId, remark: remark, one_to_one: oneToOne },
+                            data: { template_id: templateId, remark: remark, one_to_one: oneToOne, poster_theme: 'blue' },
                             success: function (r) {
                                 if (!r || r.code !== 0) {
                                     layer.msg((r && r.msg) ? r.msg : '生成失败', {icon: 2});

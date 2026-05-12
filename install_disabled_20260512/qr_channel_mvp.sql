@@ -31,6 +31,9 @@ CREATE TABLE IF NOT EXISTS `wolive_qr_channels` (
   `url` varchar(1000) NOT NULL DEFAULT '' COMMENT '访问链接',
   `status` tinyint(1) unsigned NOT NULL DEFAULT 1 COMMENT '1启用 0禁用',
   `scan_count` int(11) unsigned NOT NULL DEFAULT 0 COMMENT '扫码次数',
+  `one_to_one` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '1=一客一码 0=普通',
+  `poster_theme` varchar(20) NOT NULL DEFAULT 'blue' COMMENT '海报主题:blue/green/purple/orange/red',
+  `locked_visiter_id` varchar(200) NOT NULL DEFAULT '' COMMENT '一客一码锁定的访客ID',
   `last_scan_time` int(11) unsigned NOT NULL DEFAULT 0 COMMENT '最近扫码时间',
   `create_time` int(11) unsigned NOT NULL DEFAULT 0 COMMENT '创建时间',
   `update_time` int(11) unsigned NOT NULL DEFAULT 0 COMMENT '更新时间',
@@ -68,6 +71,8 @@ CREATE TABLE IF NOT EXISTS `wolive_ip_blacklist` (
   `reason` varchar(500) NOT NULL DEFAULT '' COMMENT '封禁原因',
   `service_id` int(11) unsigned NOT NULL DEFAULT 0 COMMENT '操作客服ID',
   `status` tinyint(1) unsigned NOT NULL DEFAULT 1 COMMENT '1封禁 0解禁',
+  `created_by_type` varchar(32) NOT NULL DEFAULT 'service' COMMENT '操作人类型',
+  `created_by` int(11) unsigned NOT NULL DEFAULT 0 COMMENT '操作人ID',
   `create_time` int(11) unsigned NOT NULL DEFAULT 0 COMMENT '封禁时间',
   `release_time` int(11) unsigned NOT NULL DEFAULT 0 COMMENT '解禁时间',
   PRIMARY KEY (`id`) USING BTREE,
@@ -80,5 +85,15 @@ ALTER TABLE `wolive_visiter`
   ADD COLUMN `ip_region` varchar(255) NOT NULL DEFAULT '' COMMENT 'IP地区' AFTER `device_type`,
   ADD COLUMN `qr_channel_id` int(11) unsigned NOT NULL DEFAULT 0 COMMENT '二维码渠道ID' AFTER `ip_region`,
   ADD COLUMN `qr_remark` varchar(500) NOT NULL DEFAULT '' COMMENT '二维码备注' AFTER `qr_channel_id`;
+
+-- 补丁：已有表但缺少新增字段时执行（忽略 Duplicate column 错误即可）
+ALTER TABLE `wolive_qr_channels`
+  ADD COLUMN `one_to_one` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT '1=一客一码 0=普通' AFTER `scan_count`,
+  ADD COLUMN `poster_theme` varchar(20) NOT NULL DEFAULT 'blue' COMMENT '海报主题:blue/green/purple/orange/red' AFTER `one_to_one`,
+  ADD COLUMN `locked_visiter_id` varchar(200) NOT NULL DEFAULT '' COMMENT '一客一码锁定的访客ID' AFTER `poster_theme`;
+
+ALTER TABLE `wolive_ip_blacklist`
+  ADD COLUMN `created_by_type` varchar(32) NOT NULL DEFAULT 'service' COMMENT '操作人类型' AFTER `status`,
+  ADD COLUMN `created_by` int(11) unsigned NOT NULL DEFAULT 0 COMMENT '操作人ID' AFTER `created_by_type`;
 
 SET FOREIGN_KEY_CHECKS = 1;
