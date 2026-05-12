@@ -116,13 +116,19 @@
                         $(".chatmsg_no").remove();
                         $(".conversation").append(msg);
                          getwatch(data.message.visiter_id);
-                        var div = document.getElementById("wrap");
-                        div.scrollTop = div.scrollHeight;
+                        if (typeof window.scrollChatToBottom === 'function') {
+                            window.scrollChatToBottom();
+                            window.scrollChatToBottom(300);
+                        } else {
+                            var div = document.getElementById("wrap");
+                            div.scrollTop = div.scrollHeight + 9999;
+                        }
                         setTimeout(function(){
                             $('.chatmsg').css({
                                 height: 'auto'
                             });
-                        },0)
+                            if (typeof window.scrollChatToBottom === 'function') { window.scrollChatToBottom(); }
+                        },50)
                     });
 
                     channels.bind('push-comment',function(data){

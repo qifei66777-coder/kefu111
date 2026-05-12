@@ -569,11 +569,7 @@ function getdata() {
                 var div = document.getElementById("wrap");
                 if ($.cookie("hid") == "") {
                     $(".conversation").append(str);
-                    if (div) {
-                        $("img").load(function () {
-                            div.scrollTop = div.scrollHeight;
-                        });
-                    }
+                    scrollChatToBottom();
                 } else {
 
                     $(".conversation").prepend(str);
@@ -743,8 +739,7 @@ function put() {
                     str += "</li>";
 
                     $(".conversation").append(str);
-                    var div = document.getElementById("wrap");
-                    div.scrollTop = div.scrollHeight;
+                    scrollChatToBottom();
                     $("img[src*='upload/images']").parent().parent('.customer').css({
                         padding: '0', borderRadius: '0'
                     });
@@ -756,7 +751,8 @@ function put() {
                         $('.chatmsg').css({
                             height: 'auto'
                         });
-                    }, 0)
+                        scrollChatToBottom();
+                    }, 50);
                     $.ajax({
                         url: YMWL_ROOT_URL + "/admin/set/chats",
                         type: "post",
@@ -813,8 +809,7 @@ function putfile() {
                     str += "</li>";
 
                     $(".conversation").append(str);
-                    var div = document.getElementById("wrap");
-                    div.scrollTop = div.scrollHeight;
+                    scrollChatToBottom();
                     $("img[src*='upload/images']").parent().parent('.customer').css({
                         padding: '0', borderRadius: '0'
                     });
@@ -826,7 +821,8 @@ function putfile() {
                         $('.chatmsg').css({
                             height: 'auto'
                         });
-                    }, 0)
+                        scrollChatToBottom();
+                    }, 50);
                     var msg = "<div><a href='" + res.data + "' style='display: inline-block;text-align: center;min-width: 70px;text-decoration: none;' download='" + name + "'><i class='layui-icon' style='font-size: 60px;'>&#xe61e;</i><br>" + name + "</a></div>";
 
 
@@ -968,13 +964,27 @@ function sendContent(msg) {
     });
 }
 
-// 统一的滚到底工具：立即滚 + 下个微任务再滚 + 100ms 后再滚（兜住图片/字体延迟撑高）
 function scrollChatToBottom() {
     var div = document.getElementById('wrap');
     if (!div) return;
     div.scrollTop = div.scrollHeight + 9999;
     requestAnimationFrame(function () { div.scrollTop = div.scrollHeight + 9999; });
-    setTimeout(function () { div.scrollTop = div.scrollHeight + 9999; }, 120);
+    setTimeout(function () { div.scrollTop = div.scrollHeight + 9999; }, 150);
+    setTimeout(function () { div.scrollTop = div.scrollHeight + 9999; }, 400);
+    var imgs = document.querySelectorAll('#log img');
+    for (var i = 0; i < imgs.length; i++) {
+        if (!imgs[i].complete && !imgs[i]._agentScrollBound) {
+            imgs[i]._agentScrollBound = true;
+            imgs[i].addEventListener('load', function () {
+                var w = document.getElementById('wrap');
+                if (w) { w.scrollTop = w.scrollHeight + 9999; }
+            });
+            imgs[i].addEventListener('error', function () {
+                var w = document.getElementById('wrap');
+                if (w) { w.scrollTop = w.scrollHeight + 9999; }
+            });
+        }
+    }
 }
 
 document.getElementById("wrap").onscroll = function () {

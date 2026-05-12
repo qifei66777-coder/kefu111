@@ -2,21 +2,29 @@
  * H5 聊天页现代 UI 适配：不改变业务 JS 变量与接口，仅 UI 交互与安全区。
  */
 (function () {
+  function doScrollNow() {
+    var wrap = document.getElementById('wrap');
+    if (!wrap) return;
+    wrap.scrollTop = wrap.scrollHeight + 9999;
+  }
+
   function scrollChatToBottom(delay) {
-    setTimeout(function () {
-      var wrap = document.getElementById('wrap');
-      if (wrap) {
-        wrap.scrollTop = wrap.scrollHeight;
-        var log = document.getElementById('log');
-        var last = log ? log.lastElementChild : null;
-        if (last && typeof last.scrollIntoView === 'function') {
-          try {
-            last.scrollIntoView({ block: 'end', behavior: 'auto' });
-            wrap.scrollTop = wrap.scrollHeight;
-          } catch (e) {}
-        }
+    if (delay) {
+      setTimeout(doScrollNow, delay);
+      return;
+    }
+    doScrollNow();
+    requestAnimationFrame(doScrollNow);
+    setTimeout(doScrollNow, 80);
+    setTimeout(doScrollNow, 250);
+    var imgs = document.querySelectorAll('#log img');
+    for (var i = 0; i < imgs.length; i++) {
+      if (!imgs[i].complete && !imgs[i]._h5ScrollBound) {
+        imgs[i]._h5ScrollBound = true;
+        imgs[i].addEventListener('load', doScrollNow);
+        imgs[i].addEventListener('error', doScrollNow);
       }
-    }, delay || 0);
+    }
   }
   window.scrollChatToBottom = scrollChatToBottom;
 
@@ -128,16 +136,22 @@
               if (!node || node.nodeType !== 1 || !node.parentNode) continue;
               if (node === node.parentNode.lastElementChild) {
                 hasAppend = true;
+                var nodeImgs = node.querySelectorAll ? node.querySelectorAll('img') : [];
+                for (var k = 0; k < nodeImgs.length; k++) {
+                  if (!nodeImgs[k].complete && !nodeImgs[k]._h5ScrollBound) {
+                    nodeImgs[k]._h5ScrollBound = true;
+                    nodeImgs[k].addEventListener('load', doScrollNow);
+                    nodeImgs[k].addEventListener('error', doScrollNow);
+                  }
+                }
                 break;
               }
             }
             if (hasAppend) break;
           }
           if (hasAppend) {
-            scrollChatToBottom(0);
-            scrollChatToBottom(60);
-            scrollChatToBottom(200);
-            scrollChatToBottom(500);
+            scrollChatToBottom();
+            scrollChatToBottom(400);
           }
         });
         logObserver.observe(log, { childList: true, subtree: false });
@@ -147,7 +161,9 @@
     // ========== 发送消息后强制滚动到底（多重兜底） ==========
     // 老 mochat.js 内部也有 scrollTop 但因 fixed foot 高度变化常常被压住
     function forceScrollAfterSend() {
-      [0, 60, 160, 320, 600, 1000].forEach(function (d) { scrollChatToBottom(d); });
+      scrollChatToBottom();
+      scrollChatToBottom(200);
+      scrollChatToBottom(500);
     }
     var sendBtn = document.querySelector('.send-btn, .h5-send-btn');
     if (sendBtn) {

@@ -704,25 +704,28 @@
             str += '</div></div></li>';
             $('.conversation').append(str);
             $('#mRichPanel').hide();
-            var div = document.getElementById('wrap');
-            div.scrollTop = div.scrollHeight;
-            setTimeout(function () { $('.chatmsg').css({ height: 'auto' }); }, 0);
+            if (typeof scrollChatToBottom === 'function') {
+                scrollChatToBottom();
+            } else {
+                var div = document.getElementById('wrap');
+                div.scrollTop = div.scrollHeight + 9999;
+            }
+            setTimeout(function () {
+                $('.chatmsg').css({ height: 'auto' });
+                if (typeof scrollChatToBottom === 'function') { scrollChatToBottom(); }
+            }, 50);
         }, 'json');
     }
 </script>
 <script>
-function scrollChatToBottom(delay) {
-    setTimeout(function () {
-        var wrap = document.getElementById('wrap');
-        if (wrap) {
-            wrap.scrollTop = wrap.scrollHeight;
-            var log = document.getElementById('log');
-            var last = log ? log.lastElementChild : null;
-            if (last && typeof last.scrollIntoView === 'function') {
-                try { last.scrollIntoView({ block: 'end', behavior: 'auto' }); wrap.scrollTop = wrap.scrollHeight; } catch(e){}
-            }
-        }
-    }, delay || 0);
+function scrollChatToBottom() {
+    var wrap = document.getElementById('wrap');
+    if (!wrap) return;
+    wrap.scrollTop = wrap.scrollHeight + 9999;
+    requestAnimationFrame(function () {
+        var w = document.getElementById('wrap');
+        if (w) w.scrollTop = w.scrollHeight + 9999;
+    });
 }
 window.scrollChatToBottom = scrollChatToBottom;
 </script>

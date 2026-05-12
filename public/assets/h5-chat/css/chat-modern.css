@@ -213,6 +213,7 @@ body.h5-chat-modern-theme #wrap.h5-chat-scroll {
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
+  height: auto !important;
   width: 100% !important;
   margin: 0 !important;
   padding: 14px 12px calc(var(--h5-foot-real-h) + var(--h5-tools-panel-h) + 22px + var(--h5-safe-bottom)) !important;
@@ -636,6 +637,7 @@ body.h5-chat-modern-theme.h5-with-follow .h5-visiter-tags {
 body.h5-chat-modern-theme.h5-with-follow .content#wrap,
 body.h5-chat-modern-theme.h5-with-follow #wrap.h5-chat-scroll {
   top: calc(var(--h5-header-h) + var(--h5-tags-h) + 52px + env(safe-area-inset-top, 0px)) !important;
+  height: auto !important;
 }
 
 @media screen and (max-width: 430px) {
