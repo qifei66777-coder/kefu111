@@ -2,6 +2,7 @@
     'use strict';
 
     var blacklistLoaded = false;
+    var qrPanelOpen = false;
 
     function rootUrl(path) {
         return (window.YMWL_ROOT_URL || '') + path;
@@ -19,6 +20,9 @@
     function showTab(tab) {
         $('.mobile-workbench-tab').removeClass('is-active');
         $('.mobile-workbench-tab[data-tab="' + tab + '"]').addClass('is-active');
+
+        $('#MobileQrPanel').removeClass('is-overlay-active');
+        qrPanelOpen = false;
 
         if (tab === 'blacklist') {
             $('#MobileBlacklistPanel').addClass('is-overlay-active');
@@ -246,6 +250,9 @@
                             layer.msg('链接生成异常');
                             return;
                         }
+                        if (qrPanelOpen) {
+                            loadQrChannels();
+                        }
                         if (mode === 'link') {
                             copyText(url).then(function () { layer.msg('链接已复制：' + remark); });
                         } else {
@@ -260,6 +267,85 @@
         setTimeout(function () { $('#mWbChRemark').focus(); }, 80);
     }
 
+    function showQrPanel() {
+        qrPanelOpen = true;
+        $('#MobileQrPanel').addClass('is-overlay-active');
+        $('.mobile-workbench-plus').hide();
+        loadQrChannels();
+    }
+
+    function hideQrPanel() {
+        qrPanelOpen = false;
+        $('#MobileQrPanel').removeClass('is-overlay-active');
+        var activeTab = $('.mobile-workbench-tab.is-active').attr('data-tab');
+        if (activeTab === 'chat') {
+            $('.mobile-workbench-plus').show();
+        }
+    }
+
+    function loadQrChannels() {
+        var $list = $('#MobileQrList');
+        $list.html('<div class="mobile-qr-empty">正在加载...</div>');
+        $.ajax({
+            url: rootUrl('/admin/qrchannel/channelList'),
+            type: 'get',
+            dataType: 'json',
+            data: { page: 1, limit: 100 },
+            success: function (res) {
+                var rows = (res && res.data) ? res.data : [];
+                renderQrChannels(rows);
+            },
+            error: function () {
+                $list.html('<div class="mobile-qr-empty">加载失败，请稍后重试</div>');
+            }
+        });
+    }
+
+    function renderQrChannels(rows) {
+        var $list = $('#MobileQrList');
+        if (!rows || !rows.length) {
+            $list.html('<div class="mobile-qr-empty">暂无二维码渠道</div>');
+            return;
+        }
+        var output = '';
+        $.each(rows, function (_, item) {
+            var name = item.remark || '未命名';
+            var scanCount = item.scan_count || 0;
+            var lastScan = item.last_scan_time || '';
+            var createdAt = item.created_at || '';
+            var url = item.qr_url || '';
+            var status = item.status;
+            var statusLabel, statusClass;
+            if (status === 0 || status === '0') {
+                statusLabel = '已禁用';
+                statusClass = 'status-disabled';
+            } else if (scanCount > 0) {
+                statusLabel = '已使用';
+                statusClass = 'status-used';
+            } else {
+                statusLabel = '未使用';
+                statusClass = 'status-unused';
+            }
+            output += '<div class="mobile-qr-card" data-url="' + html(url) + '" data-remark="' + html(name) + '" data-one="' + (item.one_to_one || 0) + '">'
+                + '<div class="mobile-qr-card-head">'
+                + '<div class="mobile-qr-card-name">' + html(name) + '</div>'
+                + '<span class="mobile-qr-card-status ' + statusClass + '">' + statusLabel + '</span>'
+                + '</div>'
+                + '<div class="mobile-qr-card-meta">'
+                + '<div class="mobile-qr-card-meta-item">扫码 <strong>' + scanCount + '</strong> 次</div>'
+                + '<div class="mobile-qr-card-meta-item">创建 <strong>' + html(createdAt ? createdAt.substring(0, 10) : '-') + '</strong></div>'
+                + '<div class="mobile-qr-card-meta-item">最近扫码 <strong>' + html(lastScan || '无') + '</strong></div>'
+                + (item.one_to_one == 1 ? '<div class="mobile-qr-card-meta-item">模式 <strong>一客一码</strong></div>' : '')
+                + '</div>'
+                + '<div class="mobile-qr-card-actions">'
+                + '<button type="button" class="mobile-qr-btn-view">查看二维码</button>'
+                + '<button type="button" class="mobile-qr-btn-copy">复制链接</button>'
+                + '</div>'
+                + '</div>';
+        });
+        $list.html(output);
+    }
+
     function handleAction(action) {
         if (action === 'cancel') {
             closeActions();
@@ -271,9 +357,7 @@
             openChannelCreator('qr');
         } else if (action === 'qr-manage') {
             closeActions();
-            window.location.href = window.YMWL_ROOT_URL
-                ? window.YMWL_ROOT_URL + '/admin/qrchannel/channelPage'
-                : '/admin/qrchannel/channelPage';
+            showQrPanel();
         } else {
             closeActions();
         }
@@ -438,5 +522,37 @@
         if (!blacklistLoaded && $('.mobile-workbench-tab[data-tab="blacklist"]').hasClass('is-active')) {
             loadBlacklist();
         }
+
+        $('#MobileQrBack').on('click', function () {
+            hideQrPanel();
+        });
+
+        $('#MobileQrCreate').on('click', function () {
+            openChannelCreator('qr');
+        });
+
+        $('#MobileQrList').on('click', '.mobile-qr-btn-view', function () {
+            var $card = $(this).closest('.mobile-qr-card');
+            var url = $card.attr('data-url');
+            var remark = $card.attr('data-remark');
+            var oneToOne = parseInt($card.attr('data-one'), 10);
+            if (!url) {
+                if (window.layer) layer.msg('该渠道链接为空');
+                return;
+            }
+            showChannelResult(url, remark, oneToOne);
+        });
+
+        $('#MobileQrList').on('click', '.mobile-qr-btn-copy', function () {
+            var $card = $(this).closest('.mobile-qr-card');
+            var url = $card.attr('data-url');
+            if (!url) {
+                if (window.layer) layer.msg('该渠道链接为空');
+                return;
+            }
+            copyText(url).then(function () {
+                if (window.layer) layer.msg('链接已复制');
+            });
+        });
     });
 })(jQuery);
